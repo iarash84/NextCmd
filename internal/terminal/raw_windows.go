@@ -19,7 +19,9 @@ func makeRaw() (func(), bool) {
 	if ok == 0 {
 		return func() {}, false
 	}
-	raw := old &^ uint32(0x0002|0x0004)
+	// Disable processed, line, and echo input so Ctrl+C reaches the UI as a
+	// key event and the screen can be cleaned before exiting.
+	raw := old &^ uint32(0x0001|0x0002|0x0004)
 	raw |= 0x0200
 	ok, _, _ = setConsoleMode.Call(handle, uintptr(raw))
 	if ok == 0 {

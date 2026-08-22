@@ -15,7 +15,7 @@ func makeRaw() (func(), bool) {
 		return func() {}, false
 	}
 	raw := old
-	raw.Lflag &^= syscall.ICANON | syscall.ECHO
+	raw.Lflag &^= syscall.ICANON | syscall.ECHO | syscall.ISIG
 	raw.Iflag &^= syscall.ICRNL | syscall.IXON
 	raw.Cc[syscall.VMIN], raw.Cc[syscall.VTIME] = 1, 0
 	if _, _, errno := syscall.Syscall6(syscall.SYS_IOCTL, fd, 0x80487414, uintptr(unsafe.Pointer(&raw)), 0, 0, 0); errno != 0 {

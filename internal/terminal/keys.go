@@ -26,7 +26,13 @@ func readKey(reader io.Reader) (keyEvent, error) {
 		if b[0] == 80 {
 			return keyEvent{kind: KeyDown}, nil
 		}
-		return keyEvent{kind: KeyEscape}, nil
+		if b[0] == 77 {
+			return keyEvent{kind: KeyRight}, nil
+		}
+		if b[0] == 75 {
+			return keyEvent{kind: KeyLeft}, nil
+		}
+		return keyEvent{kind: KeyIgnored}, nil
 	case 27:
 		var sequence [2]byte
 		if _, err := io.ReadFull(reader, sequence[:]); err != nil {
@@ -38,7 +44,13 @@ func readKey(reader io.Reader) (keyEvent, error) {
 		if sequence[0] == '[' && sequence[1] == 'B' {
 			return keyEvent{kind: KeyDown}, nil
 		}
-		return keyEvent{kind: KeyEscape}, nil
+		if sequence[0] == '[' && sequence[1] == 'C' {
+			return keyEvent{kind: KeyRight}, nil
+		}
+		if sequence[0] == '[' && sequence[1] == 'D' {
+			return keyEvent{kind: KeyLeft}, nil
+		}
+		return keyEvent{kind: KeyIgnored}, nil
 	default:
 		return keyEvent{kind: KeyRune, value: b[0]}, nil
 	}

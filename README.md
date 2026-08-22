@@ -6,7 +6,7 @@ NextCmd is a fast, deterministic, cross-platform programming command-line assist
 
 ## Features
 
-- Interactive editor: Up/Down selects, Tab accepts into the editor, Enter executes, and `exit`, `quit`, `:q`, or Ctrl+C exits.
+- Interactive editor: Up/Down highlights a suggestion; Tab, Right Arrow, or the first Enter accepts it into the editor; Left Arrow clears the command line; the next Enter executes an accepted command. Use `exit`, `quit`, `:q`, or Ctrl+C to exit.
 - Structured, shell-independent commands and captured stdout, stderr, exit code, and duration.
 - Capability-based public plugin SDK and explicit compile-time registration.
 - Git repository detection, cached context, branch/file/remote completion, next actions, best practices, and basic recovery.
@@ -82,7 +82,7 @@ NextCmd یک دستیار خط فرمان برنامه‌نویسی سریع، �
 
 ## قابلیت‌ها
 
-- ویرایشگر تعاملی: انتخاب با جهت بالا/پایین، پذیرش با Tab، اجرا با Enter و خروج با `exit`، `quit`، `:q` یا Ctrl+C.
+- ویرایشگر تعاملی: جهت بالا/پایین یک پیشنهاد را مشخص می‌کند؛ Tab، جهت راست یا اولین Enter آن را وارد editor می‌کند؛ جهت چپ کل سطر command را پاک می‌کند و Enter بعدی command پذیرفته‌شده را اجرا می‌کند. خروج با `exit`، `quit`، `:q` یا Ctrl+C انجام می‌شود و UI پیش از خروج پاک‌سازی می‌شود.
 - commandهای ساختاریافته و مستقل از shell همراه با ثبت stdout، stderr، exit code و مدت اجرا.
 - Plugin SDK مبتنی بر capability و registration صریح در زمان build.
 - تشخیص Git repository، context دارای cache، تکمیل branch/file/remote، اقدام بعدی، best practice و recovery پایه.

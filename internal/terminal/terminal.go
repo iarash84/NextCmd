@@ -21,9 +21,12 @@ const (
 	KeyTab
 	KeyUp
 	KeyDown
+	KeyRight
+	KeyLeft
 	KeyBackspace
 	KeyEscape
 	KeyEOF
+	KeyIgnored
 )
 
 type keyEvent struct {
@@ -68,16 +71,28 @@ func (u *UI) ReadCommand(ctx context.Context, completer Completer, previous *sdk
 			if len(suggestions) > 0 {
 				u.selected = (u.selected + 1) % len(suggestions)
 			}
-		case KeyTab:
+		case KeyTab, KeyRight:
 			if len(suggestions) > 0 {
 				line = suggestions[u.selected].Command.Display()
 			}
+		case KeyLeft:
+			line = ""
+			u.selected = 0
 		case KeyEnter:
+			if accepted, ok := acceptSelected(line, suggestions, u.selected); ok {
+				line = accepted
+				u.selected = 0
+				break
+			}
 			u.clearSuggestions()
 			fmt.Fprint(u.output, "\r\x1b[2K> ", line, "\n")
 			return strings.TrimSpace(line), nil
 		case KeyEscape, KeyEOF:
+			u.clearSuggestions()
+			fmt.Fprint(u.output, "\r\x1b[2K\n")
 			return "", io.EOF
+		case KeyIgnored:
+			// Unsupported terminal sequences must not terminate the session.
 		}
 		suggestions = completer.Complete(ctx, line, u.directory, previous)
 		if u.selected >= len(suggestions) {
@@ -86,6 +101,20 @@ func (u *UI) ReadCommand(ctx context.Context, completer Completer, previous *sdk
 		u.render(line, suggestions)
 	}
 }
+
+// acceptSelected keeps suggestion acceptance separate from command execution.
+// Enter accepts a highlighted suggestion first; a subsequent Enter executes it.
+func acceptSelected(line string, suggestions []sdk.Suggestion, selected int) (string, bool) {
+	if selected < 0 || selected >= len(suggestions) {
+		return line, false
+	}
+	command := suggestions[selected].Command.Display()
+	if strings.TrimSpace(line) == command {
+		return line, false
+	}
+	return command, true
+}
+
 func (u *UI) render(line string, suggestions []sdk.Suggestion) {
 	u.clearSuggestions()
 	fmt.Fprint(u.output, "\r\x1b[2K> ", line)
