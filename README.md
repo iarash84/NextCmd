@@ -66,6 +66,10 @@ go test ./...
 go test -race ./...
 ```
 
+## CI and releases
+
+GitHub Actions runs formatting, vet, tests, race detection, and all six cross-builds. Pushing a semantic version tag such as `v1.0.0` creates a GitHub Release with packaged binaries and SHA-256 checksums. See the bilingual [CI and release guide](docs/ci-release.md).
+
 ## Roadmap
 
 Future compile-time plugins may support Go, .NET, Cargo, Docker, Kubernetes, Terraform, npm, pnpm, and GitHub CLI. Dynamic plugins, AI, telemetry, marketplaces, and cloud sync are intentionally outside this MVP.
@@ -128,6 +132,10 @@ go vet ./...
 go test ./...
 go test -race ./...
 ```
+
+## CI و انتشار نسخه
+
+GitHub Actions فرمت، vet، تست‌ها، race detector و هر شش cross-build را اجرا می‌کند. با push کردن یک tag مانند `v1.0.0`، GitHub Release شامل فایل‌های بسته‌بندی‌شده و checksumهای SHA-256 ساخته می‌شود. جزئیات در [راهنمای دو‌زبانه CI و Release](docs/ci-release.md) قرار دارد.
 
 ## مسیر آینده
 
