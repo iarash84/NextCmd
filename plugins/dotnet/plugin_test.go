@@ -33,12 +33,12 @@ func TestDetectsSolutionProjectsAndTests(t *testing.T) {
 	}
 }
 
-func TestCompletionOutsideWorkspaceOffersCreationOnly(t *testing.T) {
+func TestCompletionOutsideWorkspaceKeepsCoreCommandsAvailable(t *testing.T) {
 	got, err := New().Complete(context.Background(), sdk.CompletionContext{Input: "dotnet"})
 	if err != nil {
 		t.Fatal(err)
 	}
-	creation, build := false, false
+	creation, build, test := false, false, false
 	for _, item := range got {
 		if item.Command.Display() == "dotnet new console -n <name>" {
 			creation = true
@@ -46,8 +46,11 @@ func TestCompletionOutsideWorkspaceOffersCreationOnly(t *testing.T) {
 		if len(item.Command.Args) > 0 && item.Command.Args[0] == "build" {
 			build = true
 		}
+		if len(item.Command.Args) > 0 && item.Command.Args[0] == "test" {
+			test = true
+		}
 	}
-	if !creation || build {
+	if !creation || !build || !test {
 		t.Fatalf("unexpected outside-workspace suggestions: %#v", got)
 	}
 }

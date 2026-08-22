@@ -22,6 +22,8 @@ The first version supports:
 
 Project paths are completed dynamically for build, clean, restore, run, publish, and pack. `dotnet test` prioritizes and completes only detected test projects.
 
+Core commands such as `dotnet build`, `dotnet test`, and `dotnet run` remain available even when no workspace is detected. Their context priority is slightly lower and the suggestion explains that a project or solution path may be needed.
+
 ## Workflow guidance
 
 Successful restore suggests build without another restore. Successful build suggests test without rebuilding. Test completion suggests formatting verification and publishing. Dependency changes suggest restore and build. EF operations suggest reviewing migrations and running tests.
@@ -59,6 +61,8 @@ Detector در parent directoryها به‌دنبال فایل‌های `.sln`، 
 - دستورهای رایج migration و database در Entity Framework Core.
 
 مسیر projectها برای build، clean، restore، run، publish و pack به‌شکل پویا تکمیل می‌شود. `dotnet test` فقط test projectهای تشخیص‌داده‌شده را پیشنهاد می‌دهد.
+
+دستورهای اصلی مانند `dotnet build`، `dotnet test` و `dotnet run` حتی زمانی که workspace تشخیص داده نشود در فهرست باقی می‌مانند. در این شرایط priority وابسته به context کمی کمتر است و توضیح suggestion اعلام می‌کند که ممکن است مسیر project یا solution لازم باشد.
 
 ## راهنمای workflow
 

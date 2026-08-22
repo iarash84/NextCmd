@@ -58,17 +58,19 @@ func (*Plugin) Complete(_ context.Context, input sdk.CompletionContext) ([]sdk.S
 	out := make([]sdk.Suggestion, 0, len(commands)+len(state.Projects))
 	for _, spec := range commands {
 		projectRequired := requiresProject(spec.args)
-		if projectRequired && len(state.Projects) == 0 {
-			continue
-		}
 		priority := spec.priority
+		reason := "Matches the current input and .NET workspace"
+		if projectRequired && len(state.Projects) == 0 {
+			priority -= 10
+			reason = "No .NET workspace was detected; add a project or solution path if needed"
+		}
 		if len(state.Projects) > 0 && (spec.args[0] == "build" || spec.args[0] == "restore") {
 			priority += 15
 		}
 		if hasTests(state) && spec.args[0] == "test" {
 			priority += 18
 		}
-		out = append(out, suggestion(spec.args, spec.title, sdk.Completion, spec.risk, priority, "Matches the current input and .NET workspace"))
+		out = append(out, suggestion(spec.args, spec.title, sdk.Completion, spec.risk, priority, reason))
 	}
 	return append(out, dynamic(input.Input, state)...), nil
 }
