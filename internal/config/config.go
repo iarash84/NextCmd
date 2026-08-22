@@ -12,9 +12,12 @@ type Config struct {
 	MaxSuggestions int  `json:"maxSuggestions"`
 	Debug          bool `json:"debug"`
 	GitEnabled     bool `json:"gitEnabled"`
+	DotnetEnabled  bool `json:"dotnetEnabled"`
 }
 
-func Default() Config { return Config{HistoryEnabled: true, MaxSuggestions: 8, GitEnabled: true} }
+func Default() Config {
+	return Config{HistoryEnabled: true, MaxSuggestions: 8, GitEnabled: true, DotnetEnabled: true}
+}
 func Load(path string) (Config, error) {
 	cfg := Default()
 	data, err := os.ReadFile(path)
