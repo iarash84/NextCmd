@@ -6,7 +6,7 @@ Before submitting a change, run `gofmt -w .`, `go vet ./...`, `go test ./...`, a
 
 Every delivered change should include a concise suggested commit message that describes that change set.
 
-Generated binaries, CMake build trees, local verification caches, editor metadata, and fallback local configuration/history files are excluded through the repository `.gitignore`.
+Generated binaries, Make build artifacts, local verification caches, editor metadata, and fallback local configuration/history files are excluded through the repository `.gitignore`.
 
 ---
 
@@ -18,4 +18,4 @@ Generated binaries, CMake build trees, local verification caches, editor metadat
 
 قرارداد جدید SDK و رفتار قابل مشاهده برای کاربر را مستند کنید. همراه هر مجموعه تغییر تحویل‌شده، یک پیام commit پیشنهادی کوتاه و مرتبط نیز ارائه دهید.
 
-فایل‌های binary تولیدشده، درخت‌های build مربوط به CMake، cacheهای بررسی محلی، metadata ویرایشگر و فایل‌های fallback مربوط به configuration/history توسط `.gitignore` از commit خارج می‌شوند.
+فایل‌های binary تولیدشده، خروجی‌های build مربوط به Make، cacheهای بررسی محلی، metadata ویرایشگر و فایل‌های fallback مربوط به configuration/history توسط `.gitignore` از commit خارج می‌شوند.

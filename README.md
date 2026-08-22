@@ -37,29 +37,21 @@ GOOS=darwin GOARCH=amd64 go build ./...
 
 PowerShell uses `$env:GOOS="linux"; $env:GOARCH="arm64"; go build ./...`.
 
-### CMake
+### Make builder
 
-CMake 3.20 or newer can be used as a portable build facade. It still invokes the locally installed Go toolchain and downloads nothing.
-
-```text
-cmake -S . -B build
-cmake --build build
-```
-
-The executable is written to `build/bin` as `NextCmd.exe` on Windows. Additional targets include `test`, `vet`, `format`, `test-race`, and `build-all-platforms`:
+The Makefile provides the short project workflow:
 
 ```text
-cmake --build build --target test
-cmake --build build --target build-all-platforms
+make help
+make build
+make test
+make run
+make clean
+make build-root
+make build-all
 ```
 
-To create `NextCmd.exe` directly in the repository root for a quick test:
-
-```text
-cmake --build build --target nextcmd-root
-```
-
-See the bilingual [building guide](docs/building.md) for prerequisites, generators, individual cross-build targets, clean builds, and troubleshooting.
+All artifacts are written to `target/`. `build-root` copies only the current host executable to the repository root, while `build-all` cross-builds every supported target. See the bilingual [Make guide](docs/makefile.md).
 
 ## Architecture
 
@@ -108,26 +100,21 @@ go build -o nextcmd .
 
 در Windows فایل `nextcmd.exe` را اجرا کنید. برای logهای debug از `nextcmd --debug` استفاده کنید.
 
-### Build با CMake
+### Builder با Make
 
-CMake نسخه 3.20 یا جدیدتر یک رابط ساده و چندسکویی روی Go toolchain فراهم می‌کند و چیزی دانلود نمی‌کند:
-
-```text
-cmake -S . -B build
-cmake --build build
-cmake --build build --target test
-cmake --build build --target build-all-platforms
-```
-
-خروجی‌ها در `build/bin` قرار می‌گیرند و نام خروجی Windows برابر `NextCmd.exe` است. targetهای `format`، `vet`، `test` و `test-race` نیز در دسترس هستند.
-
-برای ساخت مستقیم `NextCmd.exe` در ریشه پروژه و تست سریع آن:
+برای workflow کوتاه و مستقیم پروژه از Makefile استفاده کنید:
 
 ```text
-cmake --build build --target nextcmd-root
+make help
+make build
+make test
+make run
+make clean
+make build-root
+make build-all
 ```
 
-برای پیش‌نیازها، انتخاب generator، cross-buildهای جداگانه، build تمیز و رفع خطاها، [راهنمای دو‌زبانه build](docs/building.md) را مطالعه کنید.
+همه خروجی‌ها داخل `target/` قرار می‌گیرند. `build-root` فقط خروجی سیستم میزبان را در ریشه کپی می‌کند و `build-all` تمام targetهای پشتیبانی‌شده را cross-build می‌کند. جزئیات در [راهنمای دو‌زبانه Make](docs/makefile.md) قرار دارد.
 
 ## معماری
 
