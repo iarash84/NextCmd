@@ -46,12 +46,20 @@ cmake -S . -B build
 cmake --build build
 ```
 
-The executable is written to `build/bin`. Additional targets include `test`, `vet`, `format`, `test-race`, and `build-all-platforms`:
+The executable is written to `build/bin` as `NextCmd.exe` on Windows. Additional targets include `test`, `vet`, `format`, `test-race`, and `build-all-platforms`:
 
 ```text
 cmake --build build --target test
 cmake --build build --target build-all-platforms
 ```
+
+To create `NextCmd.exe` directly in the repository root for a quick test:
+
+```text
+cmake --build build --target nextcmd-root
+```
+
+See the bilingual [building guide](docs/building.md) for prerequisites, generators, individual cross-build targets, clean builds, and troubleshooting.
 
 ## Architecture
 
@@ -111,7 +119,15 @@ cmake --build build --target test
 cmake --build build --target build-all-platforms
 ```
 
-خروجی‌ها در `build/bin` قرار می‌گیرند. targetهای `format`، `vet`، `test` و `test-race` نیز در دسترس هستند.
+خروجی‌ها در `build/bin` قرار می‌گیرند و نام خروجی Windows برابر `NextCmd.exe` است. targetهای `format`، `vet`، `test` و `test-race` نیز در دسترس هستند.
+
+برای ساخت مستقیم `NextCmd.exe` در ریشه پروژه و تست سریع آن:
+
+```text
+cmake --build build --target nextcmd-root
+```
+
+برای پیش‌نیازها، انتخاب generator، cross-buildهای جداگانه، build تمیز و رفع خطاها، [راهنمای دو‌زبانه build](docs/building.md) را مطالعه کنید.
 
 ## معماری
 

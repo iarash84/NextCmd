@@ -1,6 +1,8 @@
 # Go build and test artifacts
 /nextcmd
 /nextcmd.exe
+/NextCmd
+/NextCmd.exe
 *.test
 *.out
 coverage.*
