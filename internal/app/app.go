@@ -6,6 +6,7 @@ import (
 	"io"
 	"log/slog"
 	"os"
+	"strings"
 	"time"
 
 	"nextcmd/internal/commandline"
@@ -29,7 +30,7 @@ func New(engine *completion.Engine, store *history.Store, ui *terminal.UI, logge
 	return &App{engine: engine, history: store, ui: ui, logger: logger, directory: directory}
 }
 func (a *App) Run(ctx context.Context) error {
-	fmt.Println("NextCmd — arrows: select, Tab: accept, Enter: run, Ctrl+C: exit")
+	fmt.Println("NextCmd — arrows: select, Tab: accept, Enter: run, exit/quit/:q or Ctrl+C: exit")
 	var previous *sdk.ExecutionResult
 	for {
 		line, err := a.ui.ReadCommand(ctx, a.engine, previous)
@@ -41,6 +42,9 @@ func (a *App) Run(ctx context.Context) error {
 		}
 		if line == "" {
 			continue
+		}
+		if isExitCommand(line) {
+			return nil
 		}
 		command, err := commandline.Parse(line, a.directory)
 		if err != nil {
@@ -66,5 +70,14 @@ func (a *App) Run(ctx context.Context) error {
 			a.logger.Debug("history write failed", "error", err)
 		}
 		previous = &result
+	}
+}
+
+func isExitCommand(input string) bool {
+	switch strings.ToLower(strings.TrimSpace(input)) {
+	case "exit", "quit", ":q":
+		return true
+	default:
+		return false
 	}
 }
