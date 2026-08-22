@@ -35,6 +35,17 @@ func (p *Plugin) NextActions(_ context.Context, input sdk.ExecutionContext) ([]s
 		if state.Staged {
 			out = append(out, makeSuggestion([]string{"diff", "--cached"}, "Review staged changes", sdk.NextAction, sdk.Safe, 100, "Review what will be committed"))
 		}
+	case "switch", "checkout":
+		out = append(out, makeSuggestion([]string{"status", "--short", "--branch"}, "Check the new branch", sdk.NextAction, sdk.Safe, 82, "Confirm the active branch and working tree"))
+		if !state.HasUpstream && state.Branch != "" && len(state.Remotes) > 0 {
+			out = append(out, makeSuggestion([]string{"push", "-u", state.Remotes[0], state.Branch}, "Publish the new branch", sdk.NextAction, sdk.Mutating, 88, "The current branch has no upstream"))
+		}
+	case "stash":
+		out = append(out, makeSuggestion([]string{"stash", "list"}, "Inspect saved stashes", sdk.NextAction, sdk.Safe, 75, "Confirm that changes were stashed"), makeSuggestion([]string{"status"}, "Check the clean working tree", sdk.NextAction, sdk.Safe, 70, "Inspect repository after stashing"))
+	case "merge", "rebase", "cherry-pick", "revert":
+		out = append(out, makeSuggestion([]string{"status"}, "Check repository state", sdk.NextAction, sdk.Safe, 88, "Confirm that the operation completed cleanly"), makeSuggestion([]string{"log", "--oneline", "--graph", "-10"}, "Review recent history", sdk.NextAction, sdk.Safe, 76, "Inspect the resulting commit history"))
+	case "fetch":
+		out = append(out, makeSuggestion([]string{"branch", "-a"}, "Inspect fetched branches", sdk.NextAction, sdk.Safe, 72, "Review local and remote branches"), makeSuggestion([]string{"log", "HEAD..@{upstream}", "--oneline"}, "Review incoming commits", sdk.NextAction, sdk.Safe, 78, "Inspect upstream commits before integrating"))
 	}
 	return out, nil
 }

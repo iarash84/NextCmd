@@ -54,6 +54,56 @@ func TestDynamicBranchCompletion(t *testing.T) {
 		t.Fatal("dynamic branch missing")
 	}
 }
+
+func TestBranchCreationTemplates(t *testing.T) {
+	p := New()
+	got, _ := p.Complete(context.Background(), sdk.CompletionContext{Input: "git switch -c", Project: State{InRepository: true}})
+	want := map[string]bool{
+		"git switch -c feature/<name>":    false,
+		"git switch -c bugfix/<name>":     false,
+		"git switch -c hotfix/<name>":     false,
+		"git switch -c release/<version>": false,
+	}
+	for _, suggestion := range got {
+		if _, ok := want[suggestion.Command.Display()]; ok {
+			want[suggestion.Command.Display()] = len(suggestion.Placeholders) == 1
+		}
+	}
+	for command, found := range want {
+		if !found {
+			t.Errorf("branch template missing or has no placeholder: %s", command)
+		}
+	}
+}
+
+func TestDynamicBranchDeletePreservesFlag(t *testing.T) {
+	p := New()
+	got, _ := p.Complete(context.Background(), sdk.CompletionContext{Input: "git branch -d ", Project: State{InRepository: true, Branches: []string{"feature/done"}}})
+	for _, suggestion := range got {
+		if suggestion.Command.Display() == "git branch -d feature/done" && suggestion.Risk == sdk.Destructive {
+			return
+		}
+	}
+	t.Fatal("dynamic branch deletion suggestion missing")
+}
+
+func TestExpandedCommandCatalog(t *testing.T) {
+	p := New()
+	got, _ := p.Complete(context.Background(), sdk.CompletionContext{Input: "git", Project: State{InRepository: true}})
+	want := map[string]bool{"show": false, "tag": false, "cherry-pick": false, "revert": false, "worktree": false, "submodule": false, "grep": false}
+	for _, suggestion := range got {
+		if len(suggestion.Command.Args) > 0 {
+			if _, ok := want[suggestion.Command.Args[0]]; ok {
+				want[suggestion.Command.Args[0]] = true
+			}
+		}
+	}
+	for command, found := range want {
+		if !found {
+			t.Errorf("expanded command missing: git %s", command)
+		}
+	}
+}
 func TestNextActionAndBestPractice(t *testing.T) {
 	p := New()
 	state := State{InRepository: true, Staged: true, HasUpstream: true}
