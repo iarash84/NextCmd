@@ -57,7 +57,7 @@ All artifacts are written to `target/`. `build-root` copies only the current hos
 
 ## Architecture
 
-`sdk` is the only package plugin authors need. Core discovers optional capabilities with type assertions, merges results, and owns ranking. Plugins return data and never render UI. Built-ins are listed explicitly in `plugins/builtin`. See [architecture](docs/architecture.md), [plugin development](docs/plugin-development.md), the [Git plugin](docs/git-plugin.md), and the [.NET plugin](docs/dotnet-plugin.md).
+`sdk` is the only package plugin authors need. Core discovers optional capabilities with type assertions, merges results, and owns ranking. Plugins return structured commands, descriptions, reasons, and risk metadata; only the terminal package decides how those fields look on screen. Built-ins are listed explicitly in `plugins/builtin`. See [architecture](docs/architecture.md), [plugin development](docs/plugin-development.md), the [Git plugin](docs/git-plugin.md), and the [.NET plugin](docs/dotnet-plugin.md).
 
 For keyboard controls and plugin command catalogs, see the bilingual [interactive help guide](docs/help.md) or type `:?` inside NextCmd.
 
@@ -84,28 +84,28 @@ MIT. See [LICENSE](LICENSE).
 
 ---
 
-<div dir="rtl">
+<div dir="rtl" align="right">
 
 # فارسی
 
-NextCmd یک دستیار خط فرمان برنامه‌نویسی سریع، قطعی و چندسکویی است که با Go نوشته شده است. برنامه با توجه به متن فعلی، وضعیت پروژه و نتیجه دستور قبلی، دستورهای قابل‌ویرایش پیشنهاد می‌دهد. نسخه MVP شامل Git Plugin و Dotnet Plugin با registration صریح است و از AI، سرویس شبکه، اجرای shell یا dependency خارجی Go استفاده نمی‌کند.
+NextCmd یک دستیار خط فرمان سریع و چندسکویی است که با زبان Go نوشته شده است. برنامه هنگام تایپ، متن فعلی، وضعیت پروژه و نتیجهٔ آخرین دستور را بررسی می‌کند و چند دستور قابل‌ویرایش پیشنهاد می‌دهد. نسخهٔ اولیه افزونه‌های Git و .NET را به‌صورت صریح در زمان ساخت برنامه ثبت می‌کند. این نسخه از هوش مصنوعی، سرویس شبکه، اجرای دستور از طریق پوسته و کتابخانهٔ جانبی Go استفاده نمی‌کند.
 
 ## قابلیت‌ها
 
-- ویرایشگر تعاملی: جهت بالا/پایین یک پیشنهاد را مشخص می‌کند؛ Tab، جهت راست یا اولین Enter آن را وارد editor می‌کند؛ جهت چپ کل سطر command را پاک می‌کند و Enter بعدی command پذیرفته‌شده را اجرا می‌کند. خروج با `exit`، `quit`، `:q` یا Ctrl+C انجام می‌شود و UI پیش از خروج پاک‌سازی می‌شود.
-- theme رنگی Terminal با مشخص‌کردن پیشنهاد انتخاب‌شده، badge نوع و ریسک، منبع Plugin و وضعیت اجرای command. هنگام redirect شدن خروجی رنگی تولید نمی‌شود و با متغیر `NO_COLOR` نیز می‌توان رنگ را غیرفعال کرد.
-- راهنمای داخلی `:?`/`:؟`، کاتالوگ commandهای هر Plugin و نمایش پیشنهاد پیش از کامل شدن executable مانند `gi` یا `dot`.
-- commandهای ساختاریافته و مستقل از shell همراه با ثبت stdout، stderr، exit code و مدت اجرا.
-- Plugin SDK مبتنی بر capability و registration صریح در زمان build.
-- تشخیص Git repository و .NET workspace، context دارای cache، تکمیل پویا، اقدام بعدی، best practice و recovery.
-- ranking قطعی بر اساس prefix/fuzzy و history از نوع JSON Lines همراه با حذف اطلاعات حساس.
-- پیاده‌سازی فقط با Go Standard Library و مرزهای terminal مخصوص هر پلتفرم.
+- ویرایشگر تعاملی: کلیدهای بالا و پایین میان پیشنهادها جابه‌جا می‌شوند. کلید Tab، جهت راست یا اولین Enter پیشنهاد را وارد ویرایشگر می‌کند. جهت چپ کل متن را پاک می‌کند و Enter بعدی دستور را اجرا می‌کند. برای خروج می‌توان از `exit`، `quit`، `:q` یا Ctrl+C استفاده کرد.
+- ظاهر رنگی پایانه: پیشنهاد انتخاب‌شده، نوع پیشنهاد، میزان خطر، افزونهٔ پیشنهاددهنده و نتیجهٔ اجرای دستور با رنگ‌های متفاوت نمایش داده می‌شوند. با تنظیم متغیر `NO_COLOR` می‌توان رنگ‌ها را غیرفعال کرد.
+- راهنمای داخلی با دستورهای `:?` و `:؟` و امکان مشاهدهٔ همهٔ دستورهای شناخته‌شدهٔ هر افزونه.
+- نمایش پیشنهاد پیش از کامل‌شدن نام ابزار؛ برای مثال، با نوشتن `gi` پیشنهادهای Git و با نوشتن `dot` پیشنهادهای .NET ظاهر می‌شوند.
+- نگهداری دستور به‌صورت نام برنامه و آرگومان‌های جداگانه؛ بنابراین دستورها بدون عبور از پوسته اجرا می‌شوند. خروجی عادی، خروجی خطا، کد خروج و مدت اجرا ثبت می‌شود.
+- تشخیص مخزن Git و فضای کاری .NET، نگهداری کوتاه‌مدت وضعیت پروژه برای افزایش سرعت، تکمیل مقادیر پویا و ارائهٔ پیشنهاد بعد از موفقیت یا شکست دستور.
+- مرتب‌سازی ثابت و قابل‌پیش‌بینی پیشنهادها و ذخیرهٔ تاریخچه در قالب JSON Lines پس از حذف اطلاعات حساس.
+- پیاده‌سازی فقط با کتابخانهٔ استاندارد Go و کد جداگانه برای رفتارهای وابسته به هر سیستم‌عامل.
 
-## Build و اجرا
+## ساخت و اجرا
 
 Go نسخه 1.24 یا جدیدتر لازم است:
 
-<div dir="ltr">
+<div dir="ltr" align="left">
 
 ```text
 go build -o nextcmd .
@@ -114,13 +114,13 @@ go build -o nextcmd .
 
 </div>
 
-در Windows فایل `nextcmd.exe` را اجرا کنید. برای logهای debug از `nextcmd --debug` استفاده کنید.
+در ویندوز فایل `nextcmd.exe` را اجرا کنید. برای مشاهدهٔ گزارش‌های فنی، برنامه را با `nextcmd --debug` اجرا کنید.
 
-### Builder با Make
+### ساخت با Make
 
-برای workflow کوتاه و مستقیم پروژه از Makefile استفاده کنید:
+برای اجرای سادهٔ کارهای رایج پروژه از Makefile استفاده کنید:
 
-<div dir="ltr">
+<div dir="ltr" align="left">
 
 ```text
 make help
@@ -134,15 +134,15 @@ make build-all
 
 </div>
 
-همه خروجی‌ها داخل `target/` قرار می‌گیرند. `build-root` فقط خروجی سیستم میزبان را در ریشه کپی می‌کند و `build-all` تمام targetهای پشتیبانی‌شده را cross-build می‌کند. جزئیات در [راهنمای دو‌زبانه Make](docs/makefile.md) قرار دارد.
+همهٔ خروجی‌ها در پوشهٔ `target/` قرار می‌گیرند. دستور `build-root` نسخهٔ مناسب سیستم فعلی را در ریشهٔ پروژه کپی می‌کند. دستور `build-all` نیز نسخهٔ مربوط به همهٔ سیستم‌عامل‌ها و معماری‌های پشتیبانی‌شده را می‌سازد. جزئیات در [راهنمای Make](docs/makefile.md) آمده است.
 
 ## معماری
 
-توسعه‌دهنده Plugin فقط به package عمومی `sdk` نیاز دارد. Core قابلیت‌های اختیاری را با type assertion تشخیص می‌دهد، suggestionها را ترکیب می‌کند و ranking نهایی را انجام می‌دهد. Plugin فقط داده برمی‌گرداند و UI را نمی‌شناسد. فهرست built-inها به‌شکل صریح در `plugins/builtin` قرار دارد.
+توسعه‌دهندهٔ افزونه فقط به بستهٔ عمومی `sdk` نیاز دارد. هسته تشخیص می‌دهد هر افزونه چه قابلیت‌هایی دارد، پیشنهادهای همهٔ افزونه‌ها را با هم ترکیب می‌کند و ترتیب نهایی نمایش را تعیین می‌کند. افزونه فقط اطلاعاتی مانند دستور، عنوان، دلیل پیشنهاد و میزان خطر را برمی‌گرداند؛ نحوهٔ نمایش این اطلاعات بر عهدهٔ رابط پایانه است. افزونه‌های داخلی به‌صورت صریح در `plugins/builtin` ثبت می‌شوند.
 
 ## توسعه و تست
 
-<div dir="ltr">
+<div dir="ltr" align="left">
 
 ```text
 gofmt -w .
@@ -153,13 +153,13 @@ go test -race ./...
 
 </div>
 
-## CI و انتشار نسخه
+## بررسی خودکار و انتشار نسخه
 
-GitHub Actions فرمت، vet، تست‌ها، race detector و هر شش cross-build را اجرا می‌کند. با push کردن یک tag مانند `v1.0.0`، GitHub Release شامل فایل‌های بسته‌بندی‌شده و checksumهای SHA-256 ساخته می‌شود. جزئیات در [راهنمای دو‌زبانه CI و Release](docs/ci-release.md) قرار دارد.
+GitHub Actions قالب‌بندی کد، بررسی `go vet`، تست‌ها، تشخیص رقابت داده و ساخت هر شش خروجی را انجام می‌دهد. با ارسال یک برچسب نسخه مانند `v1.0.0`، صفحهٔ انتشار GitHub همراه فایل‌های فشرده و checksumهای SHA-256 ساخته می‌شود. جزئیات در [راهنمای بررسی و انتشار](docs/ci-release.md) آمده است.
 
 ## مسیر آینده
 
-در آینده می‌توان Pluginهای Go، Cargo، Docker، Kubernetes، Terraform، npm، pnpm و GitHub CLI را در زمان build اضافه کرد. Plugin پویا، AI، telemetry، marketplace و cloud sync عمداً خارج از MVP هستند.
+در آینده می‌توان افزونه‌های Go، Cargo، Docker، Kubernetes، Terraform، npm، pnpm و GitHub CLI را در زمان ساخت به برنامه اضافه کرد. افزونهٔ پویا، هوش مصنوعی، ارسال داده‌های آماری، بازار افزونه و همگام‌سازی ابری عمداً در محدودهٔ نسخهٔ اولیه نیستند.
 
 ## مجوز
 

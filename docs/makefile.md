@@ -69,22 +69,22 @@ target/NextCmd-darwin-arm64
 
 ---
 
-<div dir="rtl">
+<div dir="rtl" align="right">
 
 # ساخت با Make
 
-فایل Makefile فرمان‌های کوتاه موردنیاز برای توسعه روزمره را فراهم می‌کند. این builder فقط Go toolchain نصب‌شده روی سیستم را فراخوانی می‌کند و dependency دانلود نمی‌کند.
+فایل Makefile نام‌های کوتاهی برای کارهای رایج توسعه فراهم می‌کند. این فایل فقط ابزارهای Go نصب‌شده روی سیستم را اجرا می‌کند و خودش هیچ وابستگی‌ای دانلود نمی‌کند.
 
-Make، cache مربوط به Go را در `target/.go-cache` نگهداری می‌کند و `make clean` این cache را همراه تمام فایل‌های اجرایی تولیدشده حذف می‌کند.
+Make حافظهٔ موقت Go را در `target/.go-cache` نگه می‌دارد. دستور `make clean` تمام پوشهٔ `target` و فایل اجرایی کپی‌شده در ریشهٔ پروژه را حذف می‌کند.
 
 ## پیش‌نیازها
 
 - Go نسخه 1.24 یا جدیدتر
 - GNU Make
 
-در Windows می‌توان از GNU Make ارائه‌شده توسط MSYS2، MinGW، Chocolatey، Scoop یا محیط سازگار دیگری استفاده کرد. نصب ابزارها را در همان terminal بررسی کنید:
+در ویندوز می‌توان GNU Make را از طریق MSYS2، MinGW، Chocolatey یا Scoop نصب کرد. برای اطمینان از نصب درست، دستورهای زیر را در همان پایانه‌ای اجرا کنید که قرار است پروژه را بسازید:
 
-<div dir="ltr">
+<div dir="ltr" align="left">
 
 ```text
 go version
@@ -95,9 +95,9 @@ make --version
 
 ## فرمان‌ها
 
-برای نمایش فهرست کامل فرمان‌ها و توضیح هرکدام در terminal اجرا کنید:
+برای مشاهدهٔ همهٔ فرمان‌های پشتیبانی‌شده و توضیح هرکدام، اجرا کنید:
 
-<div dir="ltr">
+<div dir="ltr" align="left">
 
 ```text
 make help
@@ -105,7 +105,7 @@ make help
 
 </div>
 
-<div dir="ltr">
+<div dir="ltr" align="left">
 
 ```text
 make build       # ساخت نسخه سیستم میزبان در target/
@@ -120,7 +120,7 @@ make build-all   # ساخت هر شش خروجی سیستم‌عامل و معم
 
 فرمان‌های توسعه‌ای دیگر:
 
-<div dir="ltr">
+<div dir="ltr" align="left">
 
 ```text
 make format
@@ -130,13 +130,13 @@ make test-race
 
 </div>
 
-فرمان `make test-race` به CGO و یک C compiler سازگار نیاز دارد.
+فرمان `make test-race` به CGO و یک کامپایلر C سازگار نیاز دارد. اگر این ابزارها نصب نباشند، سایر تست‌ها همچنان قابل اجرا هستند.
 
 ## خروجی‌ها
 
 `make build` فقط فایل سیستم‌عامل و معماری فعلی را تولید می‌کند:
 
-<div dir="ltr">
+<div dir="ltr" align="left">
 
 ```text
 target/NextCmd.exe    # Windows
@@ -145,8 +145,8 @@ target/NextCmd        # Linux و macOS
 
 </div>
 
-`make build-root` همان فایل میزبان را با نام `NextCmd.exe` یا `NextCmd` در ریشه repository کپی می‌کند و cross-build انجام نمی‌دهد.
+`make build-root` نسخهٔ مناسب سیستم فعلی را می‌سازد و با نام `NextCmd.exe` یا `NextCmd` در ریشهٔ پروژه کپی می‌کند. این فرمان برای سیستم‌عامل‌های دیگر خروجی نمی‌سازد.
 
-`make build-all` شش فایل Windows، Linux و macOS را برای amd64 و arm64 داخل `target/` تولید می‌کند.
+`make build-all` شش فایل مربوط به ویندوز، لینوکس و macOS را برای معماری‌های amd64 و arm64 در پوشهٔ `target/` تولید می‌کند.
 
 </div>

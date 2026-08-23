@@ -14,22 +14,22 @@ Limitations: porcelain rename paths receive only minimal parsing; commit hash, t
 
 ---
 
-<div dir="rtl">
+<div dir="rtl" align="right">
 
-# Git Plugin
+# افزونهٔ Git
 
-Git Plugin مجموعه گسترده‌ای از دستورهای status، staging، commit، history، branch، stash، remote، tag، integration، worktree، submodule، configuration، ساخت repository و clone را می‌شناسد. دستورهای show، reflog، blame، grep، annotated tag، cherry-pick، revert، reset/clean امن، worktree و submodule نیز پشتیبانی می‌شوند.
+افزونهٔ Git دستورهای رایج مربوط به مشاهدهٔ وضعیت، افزودن فایل، ثبت تغییر، تاریخچه، شاخه، stash، remote، tag، ادغام، worktree، submodule، تنظیمات، ساخت مخزن و clone را می‌شناسد. دستورهای `show`، `reflog`، `blame`، `grep`، `cherry-pick`، `revert` و حالت‌های امن `reset` و `clean` نیز پشتیبانی می‌شوند.
 
-ساخت branch یک workflow مستقل است. با تایپ `git switch -c` الگوهای قابل‌ویرایش `feature/<name>`، `bugfix/<name>`، `hotfix/<name>`، `release/<version>`، `chore/<name>`، `docs/<name>` و `refactor/<name>` پیشنهاد می‌شوند. این الگوها اجباری نیستند و قبل از اجرا قابل تغییر باقی می‌مانند.
+برای ساخت شاخه، با تایپ `git switch -c` چند الگوی قابل‌ویرایش مانند `feature/<name>`، `bugfix/<name>`، `hotfix/<name>` و `release/<version>` پیشنهاد می‌شود. این نام‌ها اجباری نیستند؛ پیشنهاد ابتدا وارد ویرایشگر می‌شود و کاربر می‌تواند پیش از اجرا آن را تغییر دهد.
 
-تشخیص context با اجرای مستقیم Git انجام می‌شود و عضویت در repository، branch فعلی، porcelain status، branchهای محلی، remoteها، upstream و commitهای جلوتر را parse می‌کند. Core این وضعیت را برای یک ثانیه cache می‌کند. تکمیل پویا برای branchهای محلی در switch/checkout/delete/merge/rebase، فایل‌های تغییریافته در add/restore/blame و remoteها در push/pull/fetch وجود دارد.
+افزونه با اجرای مستقیم Git تشخیص می‌دهد پوشهٔ فعلی داخل مخزن است یا نه. سپس شاخهٔ فعلی، فایل‌های تغییرکرده، شاخه‌های محلی، remoteها، upstream و تعداد commitهای ارسال‌نشده را از خروجی Git استخراج می‌کند. هسته این وضعیت را یک ثانیه نگه می‌دارد تا Git با هر کلید دوباره اجرا نشود. نام شاخه‌ها، فایل‌های مناسب و remoteها براساس دستور فعلی به‌صورت پویا پیشنهاد می‌شوند.
 
-metadata مربوط به priority از وضعیت واقعی repository تأثیر می‌گیرد: وجود فایل modified اهمیت diff/add، وجود فایل staged اهمیت cached-diff/commit و commit جلوتر اهمیت push را افزایش می‌دهد. با این حال ranking نهایی همیشه در Core انجام می‌شود.
+افزونه با توجه به وضعیت واقعی مخزن، اهمیت اولیهٔ هر پیشنهاد را مشخص می‌کند. وجود فایل تغییرکرده اهمیت `diff` و `add`، وجود فایل آماده‌شده برای ثبت اهمیت `diff --cached` و `commit` و وجود commit ارسال‌نشده اهمیت `push` را بیشتر می‌کند. ترتیب نهایی همیشه در هسته تعیین می‌شود.
 
-دستورهای موفق add، commit، pull و status اقدام‌های بعدی وابسته به context تولید می‌کنند. بررسی staged changes یک Best Practice مستقل است. شکست دستورهای وابسته به repository می‌تواند `git init` را پیشنهاد دهد و خطاهای pathspec/revision می‌توانند branchهای واقعی را نمایش دهند.
+پس از موفقیت دستورهایی مانند `add`، `commit`، `pull` و `status`، افزونه با توجه به وضعیت جدید مخزن گام بعدی را پیشنهاد می‌دهد. برای نمونه، پیش از ثبت تغییرات، بررسی فایل‌های آماده‌شده با `git diff --cached` پیشنهاد می‌شود. اگر دستور بیرون از مخزن اجرا شود، `git init` می‌تواند به‌عنوان راه‌حل نمایش داده شود. خطای نام شاخه نیز باعث پیشنهاد شاخه‌های واقعی می‌شود.
 
-پس از ساخت یا تعویض branch، Plugin می‌تواند انتشار branch و تنظیم upstream را پیشنهاد دهد. برای stash، merge، rebase، cherry-pick، revert و fetch نیز اقدام بعدی وابسته به context ارائه می‌شود.
+پس از ساخت یا تعویض شاخه، افزونه می‌تواند انتشار شاخه و تنظیم upstream را پیشنهاد دهد. برای `stash`، `merge`، `rebase`، `cherry-pick`، `revert` و `fetch` نیز گام بعدی مناسب با وضعیت مخزن ارائه می‌شود.
 
-محدودیت‌ها: مسیر rename در porcelain به‌شکل ساده parse می‌شود؛ تکمیل commit hash، نام tag و remote branch هنوز پویا نیست؛ cache کوتاه ممکن است برای لحظه‌ای وضعیت قدیمی نشان دهد؛ recovery عمداً فقط خطاهای رایج را می‌شناسد.
+محدودیت‌های فعلی: مسیر فایل تغییرنام‌یافته به‌شکل ساده خوانده می‌شود؛ تکمیل پویای شناسهٔ commit، نام tag و شاخهٔ remote هنوز وجود ندارد؛ نگهداری کوتاه‌مدت وضعیت ممکن است برای لحظه‌ای اطلاعات قدیمی نشان دهد؛ پیشنهاد رفع خطا نیز عمداً فقط خطاهای رایج را پوشش می‌دهد.
 
 </div>

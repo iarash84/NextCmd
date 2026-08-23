@@ -17,7 +17,7 @@ A plugin:
 
 - must implement only `sdk.Plugin`, which consists of `Info()`;
 - may independently implement any capability it needs;
-- returns structured data and never renders terminal UI;
+- returns structured fields such as `Command`, `Title`, `Reason`, and `Risk`; Core passes those fields to the terminal UI, so the plugin never prints, colors, or lays out terminal content itself;
 - does not rank final suggestions;
 - does not define key bindings;
 - does not invoke commands through a shell;
@@ -358,7 +358,7 @@ Use `t.TempDir()` for filesystem tests and fake runners for process tests. Tests
 
 ## Step 12: Document and verify
 
-Add `docs/acme-plugin.md` with English first and Persian inside `<div dir="rtl">`. Update README features, configuration, plugin links, and roadmap. If command behavior depends on a current external CLI version, cite its official documentation.
+Add `docs/acme-plugin.md` with English first and Persian inside `<div dir="rtl" align="right">`. Keep code blocks left-to-right. Update README features, configuration, plugin links, and roadmap. If command behavior depends on a current external CLI version, cite its official documentation.
 
 Run all quality gates:
 
@@ -406,17 +406,17 @@ No tool-specific change should be necessary in `internal/completion`, `internal/
 
 ---
 
-<div dir="rtl">
+<div dir="rtl" align="right">
 
-# راهنمای توسعه Plugin
+# راهنمای توسعهٔ افزونه
 
-این راهنما تمام مراحل افزودن یک Plugin جدید به NextCmd را از ساخت package تا registration، configuration، تست، مستندسازی و بررسی نهایی توضیح می‌دهد. توسعه‌دهنده Plugin باید فقط به package عمومی `sdk` نیاز داشته باشد و مجبور به مطالعه implementation داخلی Core نباشد.
+این راهنما مراحل افزودن یک افزونهٔ جدید به NextCmd را از ساخت بسته تا ثبت در برنامه، تنظیمات، تست و مستندسازی توضیح می‌دهد. برای ساخت یک افزونهٔ معمولی فقط باید قراردادهای بستهٔ عمومی `sdk` را بشناسید و نیازی به مطالعه یا تغییر جزئیات داخلی هسته ندارید.
 
 ## قرارداد معماری
 
-جهت dependencyها به‌شکل زیر است:
+جهت وابستگی‌ها به‌شکل زیر است:
 
-<div dir="ltr">
+<div dir="ltr" align="left">
 
 ```text
 your plugin --> sdk <-- Core
@@ -425,42 +425,42 @@ your plugin --> sdk <-- Core
 
 </div>
 
-یک Plugin:
+هر افزونه باید این قواعد را رعایت کند:
 
-- فقط باید interface پایه `sdk.Plugin` و متد `Info()` را پیاده‌سازی کند؛
-- می‌تواند هر capability موردنیاز را مستقل از بقیه پیاده‌سازی کند؛
-- فقط داده ساختاریافته برمی‌گرداند و UI را render نمی‌کند؛
-- ranking نهایی را انجام نمی‌دهد؛
-- keybinding تعریف نمی‌کند؛
-- command را از طریق shell اجرا نمی‌کند؛
-- نباید `nextcmd/internal/...` را import کند؛
-- بهتر است فقط از Go Standard Library استفاده کند.
+- رابط پایهٔ `sdk.Plugin` و متد `Info()` را پیاده‌سازی کند تا هسته بتواند افزونه را شناسایی کند؛
+- فقط قابلیت‌هایی را پیاده‌سازی کند که واقعاً به آن‌ها نیاز دارد؛
+- پیشنهاد را به‌شکل اطلاعات ساختاریافته برگرداند. برای مثال، افزونه مقدارهای `Command`، `Title`، `Reason` و `Risk` را می‌سازد و تحویل هسته می‌دهد. افزونه نباید متن را رنگ‌آمیزی کند، سطر پایانه بسازد یا چیزی مستقیماً روی صفحه چاپ کند؛ این کارها فقط بر عهدهٔ رابط پایانه است؛
+- امتیاز اولیه و میزان ارتباط پیشنهاد را مشخص کند، اما مرتب‌سازی نهایی را به هسته بسپارد؛
+- کلیدهای صفحه‌کلید یا رفتار ویرایشگر را تعریف نکند؛
+- دستورها را از طریق پوسته‌هایی مانند `sh` یا `cmd` اجرا نکند؛
+- هیچ بسته‌ای از مسیر `nextcmd/internal/...` وارد نکند؛
+- تا جای ممکن فقط از کتابخانهٔ استاندارد Go استفاده کند.
 
-Core با type assertion capabilityهای اختیاری را تشخیص می‌دهد. هیچ Plugin مجبور نیست interface بزرگی را که به آن نیاز ندارد پیاده‌سازی کند.
+هسته با بررسی رابط‌های پیاده‌سازی‌شده تشخیص می‌دهد افزونه چه قابلیت‌هایی دارد. بنابراین افزونه‌ای که فقط تکمیل دستور ارائه می‌دهد، مجبور نیست قابلیت تشخیص پروژه یا بازیابی پس از خطا را نیز پیاده‌سازی کند.
 
-## capabilityهای موجود
+## قابلیت‌های موجود
 
 <table>
 <thead>
-<tr><th dir="ltr">Capability</th><th dir="rtl">کاربرد</th></tr>
+<tr><th dir="ltr" align="left">Capability</th><th dir="rtl" align="right">کاربرد</th></tr>
 </thead>
 <tbody>
-<tr><td dir="ltr"><code>sdk.CompletionProvider</code></td><td dir="rtl">پیشنهاد بر اساس متن editor و context پروژه</td></tr>
-<tr><td dir="ltr"><code>sdk.ProjectDetector</code></td><td dir="rtl">تشخیص workspace و تولید state قابل cache</td></tr>
-<tr><td dir="ltr"><code>sdk.NextActionProvider</code></td><td dir="rtl">پیشنهاد بعد از اجرای موفق</td></tr>
-<tr><td dir="ltr"><code>sdk.BestPracticeProvider</code></td><td dir="rtl">recommendation اختیاری مؤثر بر ranking</td></tr>
-<tr><td dir="ltr"><code>sdk.RecoveryProvider</code></td><td dir="rtl">پیشنهاد بعد از اجرای ناموفق</td></tr>
-<tr><td dir="ltr"><code>sdk.HelpProvider</code></td><td dir="rtl">کاتالوگ ثابت command برای <code>:? &lt;plugin&gt;</code></td></tr>
+<tr><td dir="ltr" align="left"><code>sdk.CompletionProvider</code></td><td dir="rtl" align="right">پیشنهاد دستور براساس متن فعلی و وضعیت پروژه</td></tr>
+<tr><td dir="ltr" align="left"><code>sdk.ProjectDetector</code></td><td dir="rtl" align="right">تشخیص پروژه و ساخت وضعیت قابل نگهداری در حافظهٔ موقت</td></tr>
+<tr><td dir="ltr" align="left"><code>sdk.NextActionProvider</code></td><td dir="rtl" align="right">پیشنهاد بعد از اجرای موفق</td></tr>
+<tr><td dir="ltr" align="left"><code>sdk.BestPracticeProvider</code></td><td dir="rtl" align="right">پیشنهاد اختیاری برای انجام کار به روش بهتر</td></tr>
+<tr><td dir="ltr" align="left"><code>sdk.RecoveryProvider</code></td><td dir="rtl" align="right">پیشنهاد راه‌حل پس از اجرای ناموفق</td></tr>
+<tr><td dir="ltr" align="left"><code>sdk.HelpProvider</code></td><td dir="rtl" align="right">فهرست ثابت دستورها برای <code dir="ltr">:? &lt;plugin&gt;</code></td></tr>
 </tbody>
 </table>
 
-فقط capabilityهایی را پیاده‌سازی کنید که برای ابزار ارزش واقعی دارند.
+فقط رابط‌هایی را پیاده‌سازی کنید که برای ابزار شما کاربرد واقعی دارند.
 
-## مرحله ۱: ساخت package
+## مرحلهٔ ۱: ساخت بسته
 
-یک package در `plugins/<id>` بسازید. ساختار پیشنهادی:
+یک بسته در مسیر `plugins/<id>` بسازید. مقدار `<id>` شناسهٔ کوتاه افزونه، برای مثال `acme`، است. ساختار پیشنهادی:
 
-<div dir="ltr">
+<div dir="ltr" align="left">
 
 ```text
 plugins/acme/
@@ -473,11 +473,11 @@ plugins/acme/
 
 </div>
 
-فقط `plugin.go` اجباری است. فایل‌های دیگر صرفاً برای جداسازی مسئولیت‌ها پیشنهاد می‌شوند.
+فقط فایل `plugin.go` اجباری است. فایل‌های دیگر الزام چارچوب نیستند و صرفاً کمک می‌کنند منطق تکمیل، تشخیص پروژه و گردش کار از هم جدا و خوانا بمانند.
 
-## مرحله ۲: تعریف metadata
+## مرحلهٔ ۲: معرفی افزونه
 
-<div dir="ltr">
+<div dir="ltr" align="left">
 
 ```go
 package acme
@@ -502,13 +502,13 @@ func (*Plugin) Info() sdk.PluginInfo {
 
 </div>
 
-شناسه باید کوتاه، یکتا، پایدار و مناسب استفاده در `:? acme` باشد. از global state قابل تغییر و registration مخفی با `init()` استفاده نکنید.
+شناسه باید کوتاه، یکتا و پایدار باشد، زیرا کاربر آن را در دستوری مانند `:? acme` به کار می‌برد. افزونه را با `init()` به‌صورت مخفی ثبت نکنید و وضعیت قابل‌تغییر سراسری نسازید.
 
-## مرحله ۳: ساخت Suggestion
+## مرحلهٔ ۳: ساخت پیشنهاد
 
-Command را هرگز به‌شکل string مربوط به shell ذخیره نکنید. executable و args باید جدا باشند:
+کل دستور را در یک رشتهٔ مخصوص پوسته ذخیره نکنید. نام فایل اجرایی و آرگومان‌ها باید جدا باشند:
 
-<div dir="ltr">
+<div dir="ltr" align="left">
 
 ```go
 sdk.Suggestion{
@@ -528,27 +528,27 @@ sdk.Suggestion{
 
 </div>
 
-Risk را از بین `sdk.Safe`، `sdk.Mutating`، `sdk.Destructive` و `sdk.Dangerous` دقیق انتخاب کنید. Priority فقط metadata مربوط به Plugin است و ranking نهایی در Core انجام می‌شود.
+مقدار خطر را با دقت انتخاب کنید: `sdk.Safe` برای دستورهای فقط‌خواندنی، `sdk.Mutating` برای تغییرات عادی، `sdk.Destructive` برای حذف یا بازنویسی اطلاعات و `sdk.Dangerous` برای عملیات بسیار پرخطر است. `Priority` فقط اهمیت پیشنهادی افزونه را بیان می‌کند؛ هسته پس از ترکیب همهٔ پیشنهادها ترتیب نهایی را تعیین می‌کند.
 
-برای آرگومان‌های قابل‌ویرایش مانند `<environment>` یک `sdk.Placeholder` با `ArgIndex` و محدوده `Start/End` اضافه کنید.
+برای آرگومان‌های قابل‌ویرایش مانند `<environment>` یک `sdk.Placeholder` اضافه کنید. `ArgIndex` شمارهٔ آرگومان و `Start` و `End` محدودهٔ متن قابل‌جایگزینی را مشخص می‌کنند.
 
-## مرحله ۴: پیاده‌سازی Completion
+## مرحلهٔ ۴: پیاده‌سازی تکمیل دستور
 
-متد `Complete` ورودی فعلی، working directory، project state و history را دریافت می‌کند. prefix ناقص executable مانند `ac` را نیز بپذیرید و برای I/O به cancellation در `context.Context` احترام بگذارید.
+متد `Complete` متن فعلی ویرایشگر، پوشهٔ کاری، وضعیت تشخیص‌داده‌شدهٔ پروژه و تاریخچه را دریافت می‌کند. نام ناقص ابزار مانند `ac` را هم بپذیرید تا پیشنهادها پیش از کامل‌شدن `acme` ظاهر شوند. اگر این متد فایل می‌خواند یا برنامه‌ای اجرا می‌کند، لغو درخواست از طریق `context.Context` را رعایت کند.
 
-Commandهای اصلی را معمولاً خارج از workspace هم نمایش دهید، اما priority وابسته به context را پایین‌تر و Reason را واضح کنید. مقادیر پویا مانند project، branch، file یا environment واقعی فقط زمانی اضافه می‌شوند که state معتبر وجود داشته باشد.
+دستورهای عمومی را معمولاً بیرون از پروژهٔ شناسایی‌شده هم نمایش دهید، اما امتیاز آن‌ها را کمتر کنید و در `Reason` توضیح دهید که ممکن است انتخاب مسیر پروژه لازم باشد. مقدارهای پویا، مانند نام پروژه، شاخه، فایل یا محیط واقعی، فقط زمانی پیشنهاد شوند که وضعیت معتبر پروژه در دسترس باشد.
 
-## مرحله ۵: افزودن Help
+## مرحلهٔ ۵: افزودن راهنما
 
-با پیاده‌سازی `sdk.HelpProvider` کاربران می‌توانند `:? acme` را اجرا کنند. کاتالوگ Help شامل templateهای ثابت command، description و risk است. مقادیر پویا در completion عادی باقی می‌مانند.
+با پیاده‌سازی `sdk.HelpProvider` کاربر می‌تواند دستور `:? acme` را اجرا کند و فهرست دستورهای افزونه را ببیند. این فهرست فقط الگوهای ثابت دستور، توضیح و میزان خطر را نگه می‌دارد. مقدارهای وابسته به پروژه باید همچنان از طریق تکمیل عادی ارائه شوند.
 
-## مرحله ۶: تشخیص پروژه
+## مرحلهٔ ۶: تشخیص پروژه
 
-state مخصوص Plugin مانند `State` را داخل همان package تعریف کنید. `Detect` باید `sdk.DetectionResult` برگرداند، عملیات سبک انجام دهد، پوشه‌های تولیدی را نادیده بگیرد، خروجی قطعی داشته باشد و `CacheFor` منطقی تعیین کند.
+نوعی مانند `State` را در بستهٔ افزونه تعریف کنید تا اطلاعات مخصوص همان ابزار را نگه دارد. متد `Detect` باید یک `sdk.DetectionResult` برگرداند. این متد باید سریع باشد، پوشه‌های تولیدشده و سنگین را نادیده بگیرد، نتایج را همیشه با ترتیب ثابت تولید کند و در `CacheFor` مدت مناسبی برای نگهداری نتیجه تعیین کند.
 
-Core مقدار `Project` را با نوع `any` نگهداری و فقط به همان Plugin برمی‌گرداند:
+هسته مقدار `Project` را بدون شناخت نوع داخلی آن نگهداری می‌کند و هنگام فراخوانی بعدی همان افزونه، آن را برمی‌گرداند. افزونه می‌تواند مقدار را با بررسی امن نوع دریافت کند:
 
-<div dir="ltr">
+<div dir="ltr" align="left">
 
 ```go
 state, detected := input.Project.(State)
@@ -556,25 +556,25 @@ state, detected := input.Project.(State)
 
 </div>
 
-## مرحله ۷: راهنمای workflow
+## مرحلهٔ ۷: پیشنهادهای پس از اجرا
 
-- `NextActions` فقط بعد از اجرای موفق فراخوانی می‌شود.
-- `BestPractices` recommendation اختیاری ارائه می‌دهد و نباید مزاحم UX باشد.
-- `Recover` بعد از شکست command فراخوانی می‌شود و فقط سناریوهای شناخته‌شده را پیشنهاد می‌دهد.
+- `NextActions` پس از اجرای موفق فراخوانی می‌شود و گام منطقی بعدی را پیشنهاد می‌دهد؛ برای مثال، پس از ساخت موفق پروژه می‌تواند اجرای تست را پیشنهاد دهد.
+- `BestPractices` روش بهتر یا بررسی تکمیلی را پیشنهاد می‌دهد. این پیشنهاد باید اختیاری باشد و کاربر را با هشدارهای دائمی آزار ندهد.
+- `Recover` پس از شکست دستور فراخوانی می‌شود و برای خطاهای شناخته‌شده راه‌حل مشخص ارائه می‌دهد.
 
-هر provider باید error برگرداند و برای flow معمول panic نکند. Core خطا را در debug mode ثبت می‌کند و UI فعال می‌ماند.
+هر فراهم‌کننده باید خطا را برگرداند و برای وضعیت‌های عادی از `panic` استفاده نکند. هسته خطا را در حالت اشکال‌زدایی ثبت می‌کند و رابط کاربری همچنان فعال می‌ماند.
 
-## مرحله ۸: جداسازی process خارجی
+## مرحلهٔ ۸: جداسازی اجرای برنامهٔ خارجی
 
-اگر Plugin باید executable خارجی را اجرا کند، یک Runner interface کوچک تزریق کنید. implementation واقعی باید از `exec.CommandContext(ctx, executable, args...)` استفاده کند و حق استفاده از `sh -c`، `cmd /c` یا shell string را ندارد. در تست‌ها از fake runner استفاده کنید تا network و account خارجی لازم نباشد.
+اگر افزونه باید ابزار خارجی را اجرا کند، یک رابط کوچک به نام `Runner` تعریف و آن را از طریق سازنده به افزونه تزریق کنید. پیاده‌سازی واقعی باید از `exec.CommandContext(ctx, executable, args...)` استفاده کند و پوشهٔ کاری را در `cmd.Dir` قرار دهد. استفاده از `sh -c`، `cmd /c` یا یک رشتهٔ کامل پوسته مجاز نیست. در تست‌ها یک Runner ساختگی قرار دهید تا تست به ابزار نصب‌شده، حساب کاربری یا شبکه وابسته نباشد.
 
-در این حالت `Plugin` خالی و تابع `New` مرحلهٔ ۲ را با نسخهٔ دارای `Runner` جایگزین کنید؛ type دیگری با همان نام نسازید. امضای Runner باید working directory را هم دریافت کند تا اجرای process به directory سراسری یا mutable وابسته نباشد.
+در این حالت، نوع خالی `Plugin` و تابع `New` مرحلهٔ دوم را با نسخه‌ای که `Runner` دارد جایگزین کنید؛ نوع دیگری با همان نام نسازید. رابط Runner باید پوشهٔ کاری را نیز دریافت کند تا اجرای برنامه به یک متغیر سراسری و قابل‌تغییر وابسته نشود.
 
-## مرحله ۹: registration صریح
+## مرحلهٔ ۹: ثبت صریح افزونه
 
-package جدید را در `plugins/builtin/plugins.go` import و constructor را صریحاً اضافه کنید:
+بستهٔ جدید را در `plugins/builtin/plugins.go` وارد کنید و سازندهٔ آن را به‌صورت صریح به فهرست افزونه‌ها اضافه کنید:
 
-<div dir="ltr">
+<div dir="ltr" align="left">
 
 ```go
 if acmeEnabled {
@@ -584,42 +584,42 @@ if acmeEnabled {
 
 </div>
 
-این تنها تغییر composition اجباری است. برای Plugin مخصوص یک ابزار نباید `internal/completion`، `internal/ranking`، `internal/terminal`، `internal/execution` یا `internal/history` تغییر کند.
+این تنها تغییر اجباری در نقطهٔ اتصال برنامه است. افزودن یک ابزار جدید نباید نیازمند تغییر بسته‌های عمومی `internal/completion`، `internal/ranking`، `internal/terminal`، `internal/execution` یا `internal/history` باشد.
 
-## مرحله ۱۰: configuration
+## مرحلهٔ ۱۰: افزودن تنظیمات
 
-اگر Plugin قابلیت فعال/غیرفعال شدن دارد:
+اگر می‌خواهید کاربر بتواند افزونه را فعال یا غیرفعال کند:
 
-1. فیلد `AcmeEnabled bool` را با JSON key مناسب به `internal/config.Config` اضافه کنید.
+1. فیلد `AcmeEnabled bool` را با کلید JSON مناسب به `internal/config.Config` اضافه کنید.
 2. مقدار پیش‌فرض را در `Default()` تعیین کنید.
 3. مقدار را در `cmd/assistant/main.go` به `builtin.All` پاس دهید.
-4. تست registration را برای حالت فعال و غیرفعال به‌روزرسانی کنید.
+4. تست ثبت افزونه را برای هر دو حالت فعال و غیرفعال به‌روزرسانی کنید.
 
-اگر Plugin همیشه built-in است، تغییر configuration اختیاری است؛ registration صریح همچنان اجباری خواهد بود.
+اگر افزونه همیشه داخلی و فعال است، تغییر تنظیمات اختیاری است؛ بااین‌حال ثبت صریح آن همچنان اجباری خواهد بود.
 
-## مرحله ۱۱: تست
+## مرحلهٔ ۱۱: تست
 
 حداقل موارد زیر را تست کنید:
 
-- metadata و registration صریح؛
-- prefix ناقص executable؛
-- completion داخل و خارج workspace؛
-- parsing پروژه و نادیده‌گرفتن پوشه‌های تولیدی؛
-- ترتیب قطعی dynamic argumentها؛
-- Placeholderها و Risk؛
+- اطلاعات معرفی افزونه و ثبت صریح آن؛
+- نام ناقص فایل اجرایی؛
+- تکمیل دستور درون و بیرون پروژه؛
+- خواندن وضعیت پروژه و نادیده‌گرفتن پوشه‌های تولیدی؛
+- ترتیب ثابت آرگومان‌های پویا؛
+- محل‌های قابل‌ویرایش و میزان خطر؛
 - Next Action، Best Practice و Recovery؛
-- محتوای Help؛
-- error handling و cancellation.
+- محتوای راهنما؛
+- مدیریت خطا و لغو درخواست.
 
-برای filesystem از `t.TempDir()` و برای process از fake runner استفاده کنید. تست نباید به GitHub، NuGet، credential یا سرویس شبکه نیاز داشته باشد.
+برای تست فایل‌ها از `t.TempDir()` و برای اجرای برنامه از Runner ساختگی استفاده کنید. تست نباید به GitHub، NuGet، اطلاعات ورود یا سرویس شبکه نیاز داشته باشد.
 
-## مرحله ۱۲: مستندات و verification
+## مرحلهٔ ۱۲: مستندسازی و بررسی نهایی
 
-یک سند `docs/acme-plugin.md` با بخش انگلیسی در ابتدا و بخش فارسی داخل `<div dir="rtl">` اضافه کنید. README، configuration، لینک Plugin و roadmap را نیز اصلاح کنید.
+یک سند مانند `docs/acme-plugin.md` بسازید. بخش انگلیسی باید در ابتدا و بخش فارسی پس از آن قرار گیرد. README، نمونهٔ تنظیمات، پیوند راهنمای افزونه و مسیر آیندهٔ پروژه را نیز در صورت نیاز به‌روزرسانی کنید.
 
 سپس اجرا کنید:
 
-<div dir="ltr">
+<div dir="ltr" align="left">
 
 ```text
 make format
@@ -632,7 +632,7 @@ make build-all
 
 در صورت وجود CGO و C compiler:
 
-<div dir="ltr">
+<div dir="ltr" align="left">
 
 ```text
 make test-race
@@ -644,9 +644,9 @@ make test-race
 
 ## چک‌لیست فایل‌ها
 
-یک Plugin قابل تنظیم معمولاً این تغییرات را دارد:
+برای یک افزونهٔ داخلی که امکان فعال یا غیرفعال‌شدن دارد، معمولاً فایل‌های زیر تغییر می‌کنند:
 
-<div dir="ltr">
+<div dir="ltr" align="left">
 
 ```text
 plugins/acme/plugin.go
@@ -664,6 +664,6 @@ README.md
 
 </div>
 
-هیچ تغییر مخصوص ابزار نباید در packageهای عمومی Core لازم باشد.
+نباید هیچ منطق مخصوص ابزار جدیدی به بسته‌های عمومی هسته اضافه شود.
 
 </div>

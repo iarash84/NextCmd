@@ -6,24 +6,24 @@ Before submitting a change, run `gofmt -w .`, `go vet ./...`, `go test ./...`, a
 
 Every delivered change should include a concise suggested commit message that describes that change set.
 
-Documentation is English-first and bilingual. Put the Persian section after the English section and wrap the complete Persian block in `<div dir="rtl">` and `</div>`. Inside that block, wrap fenced code, command output, directory trees, and standalone English text in a nested `<div dir="ltr">`. Keep inline code, commands, paths, and identifiers in backticks so mixed-direction text remains readable.
+Documentation is English-first and bilingual. Put the Persian section after the English section and wrap it in `<div dir="rtl" align="right">` and `</div>`. Wrap fenced code, command output, directory trees, and standalone English text inside that section in `<div dir="ltr" align="left">`. Keep inline code, commands, paths, and identifiers in backticks so mixed-direction text remains readable.
 
 Generated binaries, Make build artifacts, local verification caches, editor metadata, and fallback local configuration/history files are excluded through the repository `.gitignore`.
 
 ---
 
-<div dir="rtl">
+<div dir="rtl" align="right">
 
 # مشارکت در پروژه
 
-تغییرات را صریح، چندسکویی، قطعی و قابل تست نگه دارید. SDK باید مستقل از UI و محدود به Go Standard Library باقی بماند. منطق مخصوص هر ابزار در Plugin همان ابزار قرار می‌گیرد. از registration سراسری، magic و commandهای shell به‌شکل string خودداری کنید.
+تغییرات باید روشن، چندسکویی، قابل‌پیش‌بینی و قابل تست باشند. SDK نباید به رابط کاربری وابسته شود و باید فقط از کتابخانهٔ استاندارد Go استفاده کند. هر منطق مخصوص یک ابزار باید در افزونهٔ همان ابزار قرار گیرد. از ثبت سراسری و مخفی، رفتارهای جادویی و نگهداری دستور پوسته در یک رشته خودداری کنید.
 
-پیش از ارسال تغییر، دستورهای `gofmt -w .`، `go vet ./...`، `go test ./...` و `go test -race ./...` را اجرا کنید. برای unit test از dependencyهای تزریق‌شده و fake استفاده کنید. Integration test می‌تواند با `t.TempDir()` یک repository محلی ایجاد کند، اما نباید به GitHub یا شبکه نیاز داشته باشد.
+پیش از ارسال تغییر، دستورهای `gofmt -w .`، `go vet ./...`، `go test ./...` و `go test -race ./...` را اجرا کنید. در تست واحد، وابستگی‌ها را از بیرون تزریق و نسخهٔ ساختگی آن‌ها را استفاده کنید. تست یکپارچه می‌تواند با `t.TempDir()` یک مخزن موقت محلی بسازد، اما نباید به GitHub یا شبکه نیاز داشته باشد.
 
-قرارداد جدید SDK و رفتار قابل مشاهده برای کاربر را مستند کنید. همراه هر مجموعه تغییر تحویل‌شده، یک پیام commit پیشنهادی کوتاه و مرتبط نیز ارائه دهید.
+هر قرارداد جدید SDK و هر تغییر قابل مشاهده برای کاربر را مستند کنید. برای هر مجموعه تغییر نیز یک پیام commit کوتاه و مرتبط پیشنهاد دهید.
 
-مستندات باید ابتدا انگلیسی و سپس فارسی باشند. تمام بخش فارسی را بین تگ‌های `<div dir="rtl">` و `</div>` قرار دهید. داخل این بخش، code blockها، خروجی command، درخت مسیرها و متن مستقل انگلیسی را در یک `<div dir="ltr">` تو‌در‌تو قرار دهید. کدها، commandها، مسیرها و identifierهای inline را داخل backtick بنویسید تا ترکیب متن راست‌به‌چپ و چپ‌به‌راست خوانا باقی بماند.
+در مستندات دوزبانه، بخش انگلیسی ابتدا و بخش فارسی پس از آن قرار می‌گیرد. بلوک فارسی باید با `<div dir="rtl" align="right">` راست‌به‌چپ و راست‌چین شود. بلوک‌های کد، خروجی دستور، درخت پوشه‌ها و متن مستقل انگلیسی باید بیرون از جهت فارسی یا در `<div dir="ltr" align="left">` قرار گیرند. دستورها، مسیرها و شناسه‌های کوتاه درون جمله نیز باید داخل backtick باشند تا ترتیب نمایش آن‌ها به هم نریزد.
 
-فایل‌های binary تولیدشده، خروجی‌های build مربوط به Make، cacheهای بررسی محلی، metadata ویرایشگر و فایل‌های fallback مربوط به configuration/history توسط `.gitignore` از commit خارج می‌شوند.
+فایل‌های اجرایی تولیدشده، خروجی‌های Make، حافظه‌های موقت بررسی، تنظیمات ویرایشگر و فایل‌های محلی تنظیمات و تاریخچه در `.gitignore` قرار دارند و نباید commit شوند.
 
 </div>
