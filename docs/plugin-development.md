@@ -282,6 +282,7 @@ func All() []sdk.Plugin {
         git.New(),
         dotnet.New(),
         cargo.New(),
+        curl.New(),
         acme.New(),
     }
 }
@@ -559,6 +560,7 @@ return []sdk.Plugin{
     git.New(),
     dotnet.New(),
     cargo.New(),
+    curl.New(),
     acme.New(),
 }
 ```

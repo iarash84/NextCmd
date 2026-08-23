@@ -2,6 +2,7 @@ package builtin
 
 import (
 	"nextcmd/plugins/cargo"
+	"nextcmd/plugins/curl"
 	"nextcmd/plugins/dotnet"
 	"nextcmd/plugins/git"
 	"nextcmd/sdk"
@@ -14,5 +15,6 @@ func All() []sdk.Plugin {
 		git.New(),
 		dotnet.New(),
 		cargo.New(),
+		curl.New(),
 	}
 }
