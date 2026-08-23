@@ -103,16 +103,22 @@ NextCmd یک دستیار خط فرمان برنامه‌نویسی سریع، �
 
 Go نسخه 1.24 یا جدیدتر لازم است:
 
+<div dir="ltr">
+
 ```text
 go build -o nextcmd .
 ./nextcmd
 ```
+
+</div>
 
 در Windows فایل `nextcmd.exe` را اجرا کنید. برای logهای debug از `nextcmd --debug` استفاده کنید.
 
 ### Builder با Make
 
 برای workflow کوتاه و مستقیم پروژه از Makefile استفاده کنید:
+
+<div dir="ltr">
 
 ```text
 make help
@@ -124,6 +130,8 @@ make build-root
 make build-all
 ```
 
+</div>
+
 همه خروجی‌ها داخل `target/` قرار می‌گیرند. `build-root` فقط خروجی سیستم میزبان را در ریشه کپی می‌کند و `build-all` تمام targetهای پشتیبانی‌شده را cross-build می‌کند. جزئیات در [راهنمای دو‌زبانه Make](docs/makefile.md) قرار دارد.
 
 ## معماری
@@ -132,12 +140,16 @@ make build-all
 
 ## توسعه و تست
 
+<div dir="ltr">
+
 ```text
 gofmt -w .
 go vet ./...
 go test ./...
 go test -race ./...
 ```
+
+</div>
 
 ## CI و انتشار نسخه
 

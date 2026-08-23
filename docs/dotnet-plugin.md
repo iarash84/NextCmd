@@ -76,8 +76,12 @@ Best Practiceها شامل `dotnet format --verify-no-changes` و اجرای tes
 
 Plugin به‌صورت پیش‌فرض فعال است و مستقل از Git غیرفعال می‌شود:
 
+<div dir="ltr">
+
 ```json
 {"dotnetEnabled": false}
 ```
+
+</div>
 
 </div>

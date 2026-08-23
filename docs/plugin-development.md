@@ -416,10 +416,14 @@ No tool-specific change should be necessary in `internal/completion`, `internal/
 
 جهت dependencyها به‌شکل زیر است:
 
+<div dir="ltr">
+
 ```text
 your plugin --> sdk <-- Core
                     <-- Terminal UI
 ```
+
+</div>
 
 یک Plugin:
 
@@ -436,20 +440,27 @@ Core با type assertion capabilityهای اختیاری را تشخیص می‌
 
 ## capabilityهای موجود
 
-| Capability | کاربرد |
-|---|---|
-| `sdk.CompletionProvider` | پیشنهاد بر اساس متن editor و context پروژه |
-| `sdk.ProjectDetector` | تشخیص workspace و تولید state قابل cache |
-| `sdk.NextActionProvider` | پیشنهاد بعد از اجرای موفق |
-| `sdk.BestPracticeProvider` | recommendation اختیاری مؤثر بر ranking |
-| `sdk.RecoveryProvider` | پیشنهاد بعد از اجرای ناموفق |
-| `sdk.HelpProvider` | کاتالوگ ثابت command برای `:? <plugin>` |
+<table>
+<thead>
+<tr><th dir="ltr">Capability</th><th dir="rtl">کاربرد</th></tr>
+</thead>
+<tbody>
+<tr><td dir="ltr"><code>sdk.CompletionProvider</code></td><td dir="rtl">پیشنهاد بر اساس متن editor و context پروژه</td></tr>
+<tr><td dir="ltr"><code>sdk.ProjectDetector</code></td><td dir="rtl">تشخیص workspace و تولید state قابل cache</td></tr>
+<tr><td dir="ltr"><code>sdk.NextActionProvider</code></td><td dir="rtl">پیشنهاد بعد از اجرای موفق</td></tr>
+<tr><td dir="ltr"><code>sdk.BestPracticeProvider</code></td><td dir="rtl">recommendation اختیاری مؤثر بر ranking</td></tr>
+<tr><td dir="ltr"><code>sdk.RecoveryProvider</code></td><td dir="rtl">پیشنهاد بعد از اجرای ناموفق</td></tr>
+<tr><td dir="ltr"><code>sdk.HelpProvider</code></td><td dir="rtl">کاتالوگ ثابت command برای <code>:? &lt;plugin&gt;</code></td></tr>
+</tbody>
+</table>
 
 فقط capabilityهایی را پیاده‌سازی کنید که برای ابزار ارزش واقعی دارند.
 
 ## مرحله ۱: ساخت package
 
 یک package در `plugins/<id>` بسازید. ساختار پیشنهادی:
+
+<div dir="ltr">
 
 ```text
 plugins/acme/
@@ -460,9 +471,13 @@ plugins/acme/
 └── plugin_test.go
 ```
 
+</div>
+
 فقط `plugin.go` اجباری است. فایل‌های دیگر صرفاً برای جداسازی مسئولیت‌ها پیشنهاد می‌شوند.
 
 ## مرحله ۲: تعریف metadata
+
+<div dir="ltr">
 
 ```go
 package acme
@@ -485,11 +500,15 @@ func (*Plugin) Info() sdk.PluginInfo {
 }
 ```
 
+</div>
+
 شناسه باید کوتاه، یکتا، پایدار و مناسب استفاده در `:? acme` باشد. از global state قابل تغییر و registration مخفی با `init()` استفاده نکنید.
 
 ## مرحله ۳: ساخت Suggestion
 
 Command را هرگز به‌شکل string مربوط به shell ذخیره نکنید. executable و args باید جدا باشند:
+
+<div dir="ltr">
 
 ```go
 sdk.Suggestion{
@@ -506,6 +525,8 @@ sdk.Suggestion{
     Source:      "acme",
 }
 ```
+
+</div>
 
 Risk را از بین `sdk.Safe`، `sdk.Mutating`، `sdk.Destructive` و `sdk.Dangerous` دقیق انتخاب کنید. Priority فقط metadata مربوط به Plugin است و ranking نهایی در Core انجام می‌شود.
 
@@ -527,9 +548,13 @@ state مخصوص Plugin مانند `State` را داخل همان package تعر
 
 Core مقدار `Project` را با نوع `any` نگهداری و فقط به همان Plugin برمی‌گرداند:
 
+<div dir="ltr">
+
 ```go
 state, detected := input.Project.(State)
 ```
+
+</div>
 
 ## مرحله ۷: راهنمای workflow
 
@@ -549,11 +574,15 @@ state, detected := input.Project.(State)
 
 package جدید را در `plugins/builtin/plugins.go` import و constructor را صریحاً اضافه کنید:
 
+<div dir="ltr">
+
 ```go
 if acmeEnabled {
     plugins = append(plugins, acme.New())
 }
 ```
+
+</div>
 
 این تنها تغییر composition اجباری است. برای Plugin مخصوص یک ابزار نباید `internal/completion`، `internal/ranking`، `internal/terminal`، `internal/execution` یا `internal/history` تغییر کند.
 
@@ -590,6 +619,8 @@ if acmeEnabled {
 
 سپس اجرا کنید:
 
+<div dir="ltr">
+
 ```text
 make format
 make vet
@@ -597,17 +628,25 @@ make test
 make build-all
 ```
 
+</div>
+
 در صورت وجود CGO و C compiler:
+
+<div dir="ltr">
 
 ```text
 make test-race
 ```
+
+</div>
 
 در پایان برنامه را اجرا و `ac` و `:? acme` را آزمایش کنید.
 
 ## چک‌لیست فایل‌ها
 
 یک Plugin قابل تنظیم معمولاً این تغییرات را دارد:
+
+<div dir="ltr">
 
 ```text
 plugins/acme/plugin.go
@@ -622,6 +661,8 @@ cmd/assistant/main.go
 docs/acme-plugin.md
 README.md
 ```
+
+</div>
 
 هیچ تغییر مخصوص ابزار نباید در packageهای عمومی Core لازم باشد.
 

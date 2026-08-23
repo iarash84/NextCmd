@@ -44,10 +44,14 @@ NextCmd بدون باز کردن browser یا اجرای command خارجی، ر
 
 یکی از فرم‌های زیر را تایپ و Enter را فشار دهید:
 
+<div dir="ltr">
+
 ```text
 :?
 :؟
 ```
+
+</div>
 
 خروجی، کنترل‌های keyboard، commandهای داخلی، روش‌های خروج و تمام Pluginهای بارگذاری‌شده را توضیح می‌دهد.
 
@@ -55,12 +59,16 @@ NextCmd بدون باز کردن browser یا اجرای command خارجی، ر
 
 برای نمایش تمام commandهای ثابت یک Plugin همراه description و risk، شناسه آن را اضافه کنید:
 
+<div dir="ltr">
+
 ```text
 :? git
 :? dotnet
 :؟ git
 :؟ dotnet
 ```
+
+</div>
 
 کاتالوگ از طریق capability عمومی `sdk.HelpProvider` توسط خود Plugin ارائه می‌شود. Core و Terminal هیچ فهرست مخصوص Git یا .NET ندارند. مقادیر dynamic مانند branch، file، remote، solution و project واقعی از طریق completion عادی نمایش داده می‌شوند.
 

@@ -53,10 +53,14 @@ NextCmd دو workflow در مسیر `.github/workflows` دارد.
 
 فایل `release.yml` هنگام push شدن tag نسخه‌ای که با `v` شروع شود release می‌سازد:
 
+<div dir="ltr">
+
 ```text
 git tag -a v1.0.0 -m "NextCmd v1.0.0"
 git push origin v1.0.0
 ```
+
+</div>
 
 Workflow معتبر بودن tag و قالب semantic version را بررسی می‌کند، تست‌ها را اجرا می‌کند، تمام targetها را می‌سازد، برای Windows فایل ZIP و برای Linux/macOS فایل `tar.gz` ایجاد می‌کند، checksum از نوع SHA-256 می‌سازد و همه خروجی‌ها را همراه release notes خودکار منتشر می‌کند.
 

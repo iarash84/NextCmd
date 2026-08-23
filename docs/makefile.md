@@ -84,18 +84,28 @@ Make، cache مربوط به Go را در `target/.go-cache` نگهداری می
 
 در Windows می‌توان از GNU Make ارائه‌شده توسط MSYS2، MinGW، Chocolatey، Scoop یا محیط سازگار دیگری استفاده کرد. نصب ابزارها را در همان terminal بررسی کنید:
 
+<div dir="ltr">
+
 ```text
 go version
 make --version
 ```
 
+</div>
+
 ## فرمان‌ها
 
 برای نمایش فهرست کامل فرمان‌ها و توضیح هرکدام در terminal اجرا کنید:
 
+<div dir="ltr">
+
 ```text
 make help
 ```
+
+</div>
+
+<div dir="ltr">
 
 ```text
 make build       # ساخت نسخه سیستم میزبان در target/
@@ -106,7 +116,11 @@ make build-root  # ساخت نسخه میزبان و کپی فایل اجرای�
 make build-all   # ساخت هر شش خروجی سیستم‌عامل و معماری پشتیبانی‌شده
 ```
 
+</div>
+
 فرمان‌های توسعه‌ای دیگر:
+
+<div dir="ltr">
 
 ```text
 make format
@@ -114,16 +128,22 @@ make vet
 make test-race
 ```
 
+</div>
+
 فرمان `make test-race` به CGO و یک C compiler سازگار نیاز دارد.
 
 ## خروجی‌ها
 
 `make build` فقط فایل سیستم‌عامل و معماری فعلی را تولید می‌کند:
 
+<div dir="ltr">
+
 ```text
 target/NextCmd.exe    # Windows
 target/NextCmd        # Linux و macOS
 ```
+
+</div>
 
 `make build-root` همان فایل میزبان را با نام `NextCmd.exe` یا `NextCmd` در ریشه repository کپی می‌کند و cross-build انجام نمی‌دهد.
 

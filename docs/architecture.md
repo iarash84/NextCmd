@@ -24,11 +24,15 @@ Git and .NET built-ins are composed explicitly by `plugins/builtin.All`; removin
 
 جهت dependencyها عمداً یک‌طرفه است:
 
+<div dir="ltr">
+
 ```text
 plugins --> sdk <-- internal core <-- cmd/assistant
                                   ^
                          plugins/builtin
 ```
+
+</div>
 
 package عمومی `sdk` شامل قراردادهای داده پایدار و interfaceهای کوچک و اختیاری مبتنی بر capability است و فقط از Go Standard Library استفاده می‌کند. هر Plugin تنها موظف به پیاده‌سازی `Plugin.Info` است و می‌تواند قابلیت‌های completion، detection، next action، best practice، recovery یا کاتالوگ Help را مستقل از یکدیگر ارائه دهد.
 
