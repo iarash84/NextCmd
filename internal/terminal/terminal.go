@@ -125,7 +125,7 @@ func acceptSelected(line string, suggestions []sdk.Suggestion, selected int) (st
 
 func isInternalCommand(line string) bool {
 	trimmed := strings.ToLower(strings.TrimSpace(line))
-	return trimmed == "cd" || trimmed == ":cd" || strings.HasPrefix(trimmed, "cd ") || strings.HasPrefix(trimmed, ":cd ") || trimmed == "pwd" || trimmed == ":pwd"
+	return trimmed == "cd" || trimmed == ":cd" || strings.HasPrefix(trimmed, "cd ") || strings.HasPrefix(trimmed, ":cd ") || trimmed == "pwd" || trimmed == ":pwd" || trimmed == ":ls" || strings.HasPrefix(trimmed, ":ls ")
 }
 
 func (u *UI) render(line string, suggestions []sdk.Suggestion) {

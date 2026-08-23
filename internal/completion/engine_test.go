@@ -27,7 +27,7 @@ func TestPluginForExecutableUsesPublicCatalog(t *testing.T) {
 
 func TestDirectoryCommandsDoNotReceivePluginSuggestions(t *testing.T) {
 	engine := New([]sdk.Plugin{catalogPlugin{}}, 8, slog.New(slog.NewTextHandler(io.Discard, nil)))
-	for _, input := range []string{"cd", "cd ..", ":cd project", "pwd", ":pwd"} {
+	for _, input := range []string{"cd", "cd ..", ":cd project", "pwd", ":pwd", ":ls", ":ls .."} {
 		if suggestions := engine.Complete(t.Context(), input, ".", nil); len(suggestions) != 0 {
 			t.Errorf("%q received plugin suggestions: %#v", input, suggestions)
 		}

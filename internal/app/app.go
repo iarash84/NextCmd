@@ -54,6 +54,24 @@ func (a *App) Run(ctx context.Context) error {
 			fmt.Println(a.directory)
 			continue
 		}
+		if requested, handled, parseErr := parseListDirectory(line); handled {
+			if parseErr != nil {
+				fmt.Fprintln(os.Stderr, ":ls:", parseErr)
+				continue
+			}
+			directory := a.directory
+			if requested != "" {
+				directory, parseErr = ResolveDirectory(a.directory, requested)
+				if parseErr != nil {
+					fmt.Fprintln(os.Stderr, ":ls:", parseErr)
+					continue
+				}
+			}
+			if listErr := printDirectoryListing(os.Stdout, directory); listErr != nil {
+				fmt.Fprintln(os.Stderr, ":ls:", listErr)
+			}
+			continue
+		}
 		if requested, handled, parseErr := parseChangeDirectory(line); handled {
 			if parseErr != nil {
 				fmt.Fprintln(os.Stderr, "cd:", parseErr)

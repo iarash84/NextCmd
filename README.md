@@ -38,10 +38,14 @@ NextCmd shows the active working directory above every prompt. Start in another 
 
 ```text
 pwd
+:ls
+:ls ..
 cd ..
 cd "C:\Users\Admin\source\repos\My Project"
 :cd /path/to/project
 ```
+
+`:ls` lists the files and directories in the active working directory. Pass a relative, absolute, or quoted path to inspect another directory without changing the active one. Directories are shown first, followed by files, with type and size columns.
 
 `cd` and `:cd` update completion, project detection, command execution, and history together. Running `cd` without a path selects the user home directory. NextCmd keeps this state internally and does not change the parent shell directory.
 
@@ -151,12 +155,16 @@ go build -o nextcmd .
 
 ```text
 pwd
+:ls
+:ls ..
 cd ..
 cd "C:\Users\Admin\source\repos\My Project"
 :cd /path/to/project
 ```
 
 </div>
+
+دستور `:ls` فایل‌ها و پوشه‌های مسیر کاری فعلی را نمایش می‌دهد. برای دیدن محتوای مسیری دیگر، همان مسیر را پس از دستور بنویسید؛ برای مثال `:ls ..` یا `:ls "My Project"`. این کار مسیر کاری فعلی را تغییر نمی‌دهد. در خروجی، ابتدا پوشه‌ها و سپس فایل‌ها همراه با نوع و اندازه نمایش داده می‌شوند.
 
 دستورهای `cd` و `:cd` مسیر مورد استفاده برای پیشنهادها، تشخیص پروژه، اجرای دستور و تاریخچه را هم‌زمان تغییر می‌دهند. اجرای `cd` بدون مسیر، پوشهٔ خانگی کاربر را انتخاب می‌کند. این تغییر فقط داخل NextCmd است و مسیر shell والد را تغییر نمی‌دهد.
 

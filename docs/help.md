@@ -19,6 +19,14 @@ The output explains keyboard controls, built-in commands, exit commands, and all
 
 The active directory is printed above each prompt. Start NextCmd elsewhere with `nextcmd --directory <path>`. Use `pwd` or `:pwd` to print it again. Use `cd <path>` or `:cd <path>` to change the directory used by completion, project detection, execution, and history. Relative paths, absolute paths, quoted paths with spaces, `..`, and `~` are supported. Running `cd` without a path selects the user home directory.
 
+Use `:ls` to list the active directory, or `:ls <path>` to inspect another directory without changing the active one. The output is deterministic: directories appear first, then files, with type and human-readable size columns. This is implemented with Go's cross-platform filesystem APIs and does not invoke Unix `ls` or Windows `dir`.
+
+```text
+:ls
+:ls ..
+:ls "project with spaces"
+```
+
 ## Plugin command catalogs
 
 Append a plugin ID to print every statically supported command with its description and risk:
@@ -100,6 +108,18 @@ NextCmd راهنمای داخلی دارد؛ بنابراین برای دیدن 
 ## دستورهای مسیر کاری
 
 مسیر فعلی بالای هر prompt نمایش داده می‌شود. برای شروع در مسیر دیگر از `nextcmd --directory <path>` استفاده کنید. دستور `pwd` یا `:pwd` مسیر را دوباره چاپ می‌کند. با `cd <path>` یا `:cd <path>` می‌توان مسیر مورد استفاده برای پیشنهادها، تشخیص پروژه، اجرای دستورها و تاریخچه را تغییر داد. مسیر نسبی، مسیر کامل، مسیر نقل‌قول‌شده دارای فاصله، `..` و `~` پشتیبانی می‌شوند. اجرای `cd` بدون آرگومان، پوشهٔ خانگی کاربر را انتخاب می‌کند.
+
+دستور `:ls` محتوای مسیر کاری فعلی را نمایش می‌دهد. برای دیدن محتوای مسیری دیگر، بدون تغییر مسیر کاری فعال، از `:ls <path>` استفاده کنید. خروجی همیشه ترتیب مشخصی دارد: ابتدا پوشه‌ها و سپس فایل‌ها نمایش داده می‌شوند و ستون‌های نوع و اندازه نیز در خروجی وجود دارند. این قابلیت با APIهای چندسکویی Go پیاده‌سازی شده است و دستور `ls` در Unix یا `dir` در Windows را اجرا نمی‌کند.
+
+<div dir="ltr" align="left">
+
+```text
+:ls
+:ls ..
+:ls "project with spaces"
+```
+
+</div>
 
 ## فهرست دستورهای یک افزونه
 

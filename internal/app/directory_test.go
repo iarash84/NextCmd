@@ -1,8 +1,10 @@
 package app
 
 import (
+	"bytes"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -43,5 +45,54 @@ func TestResolveDirectoryRejectsFiles(t *testing.T) {
 	}
 	if _, err := ResolveDirectory(filepath.Dir(path), path); err == nil {
 		t.Fatal("file was accepted as a working directory")
+	}
+}
+
+func TestParseListDirectory(t *testing.T) {
+	tests := []struct {
+		input, want string
+		handled     bool
+	}{
+		{":ls", "", true},
+		{":LS ..", "..", true},
+		{`:ls "project with spaces"`, "project with spaces", true},
+		{"ls", "", false},
+		{"git status", "", false},
+	}
+	for _, test := range tests {
+		got, handled, err := parseListDirectory(test.input)
+		if err != nil || got != test.want || handled != test.handled {
+			t.Errorf("parseListDirectory(%q) = %q, %v, %v", test.input, got, handled, err)
+		}
+	}
+}
+
+func TestParseListDirectoryRejectsUnclosedQuote(t *testing.T) {
+	if _, handled, err := parseListDirectory(`:ls "unfinished`); !handled || err == nil {
+		t.Fatalf("parseListDirectory() handled=%v, error=%v", handled, err)
+	}
+}
+
+func TestPrintDirectoryListingShowsDirectoriesBeforeFiles(t *testing.T) {
+	root := t.TempDir()
+	if err := os.Mkdir(filepath.Join(root, "project"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(root, "notes.txt"), []byte("test"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+
+	var output bytes.Buffer
+	if err := printDirectoryListing(&output, root); err != nil {
+		t.Fatal(err)
+	}
+	text := output.String()
+	for _, want := range []string{"Directory: " + root, "TYPE", "SIZE", "NAME", "DIR", "project", "FILE", "4 B", "notes.txt"} {
+		if !strings.Contains(text, want) {
+			t.Errorf("listing does not contain %q:\n%s", want, text)
+		}
+	}
+	if strings.Index(text, "project") > strings.Index(text, "notes.txt") {
+		t.Errorf("directory must be listed before file:\n%s", text)
 	}
 }

@@ -103,7 +103,7 @@ func TestAcceptSelectedRejectsInvalidIndex(t *testing.T) {
 
 func TestDirectoryCommandsExecuteWithoutAcceptingPluginSuggestion(t *testing.T) {
 	suggestions := []sdk.Suggestion{{Command: sdk.Command{Executable: "cargo", Args: []string{"add", "<crate>"}}}}
-	for _, line := range []string{"cd ..", `cd "project with spaces"`, ":cd ..", "pwd", ":pwd"} {
+	for _, line := range []string{"cd ..", `cd "project with spaces"`, ":cd ..", "pwd", ":pwd", ":ls", ":ls .."} {
 		if accepted, ok := acceptSelected(line, suggestions, 0); ok || accepted != line {
 			t.Errorf("directory command %q accepted suggestion: %q, %v", line, accepted, ok)
 		}

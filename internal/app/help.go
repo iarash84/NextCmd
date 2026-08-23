@@ -55,6 +55,7 @@ func printGeneralHelp(writer io.Writer, engine *completion.Engine) {
 	fmt.Fprintln(writer, "  :? <plugin>           Show every command exposed by a plugin")
 	fmt.Fprintln(writer, "  cd/:cd <path>         Change the working directory")
 	fmt.Fprintln(writer, "  pwd/:pwd              Print the current working directory")
+	fmt.Fprintln(writer, "  :ls [path]            List files and directories")
 	fmt.Fprintln(writer, "  exit, quit, or :q     Exit NextCmd")
 	fmt.Fprintln(writer, "Loaded plugins:")
 	for _, plugin := range engine.Plugins() {

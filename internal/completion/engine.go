@@ -118,7 +118,7 @@ func (e *Engine) Complete(ctx context.Context, input, directory string, previous
 
 func isBuiltinCommandInput(input string) bool {
 	trimmed := strings.ToLower(strings.TrimSpace(input))
-	return trimmed == "cd" || trimmed == ":cd" || strings.HasPrefix(trimmed, "cd ") || strings.HasPrefix(trimmed, ":cd ") || trimmed == "pwd" || trimmed == ":pwd"
+	return trimmed == "cd" || trimmed == ":cd" || strings.HasPrefix(trimmed, "cd ") || strings.HasPrefix(trimmed, ":cd ") || trimmed == "pwd" || trimmed == ":pwd" || trimmed == ":ls" || strings.HasPrefix(trimmed, ":ls ")
 }
 func (e *Engine) add(all *[]sdk.Suggestion, plugin sdk.Plugin, items []sdk.Suggestion, err error) {
 	if err != nil {
