@@ -22,4 +22,7 @@ func TestRegistrationMetadataIsValidAndUnique(t *testing.T) {
 		}
 		seen[id] = true
 	}
+	if !seen["go"] {
+		t.Fatal("Go plugin is not registered")
+	}
 }

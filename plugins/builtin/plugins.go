@@ -5,6 +5,7 @@ import (
 	"nextcmd/plugins/curl"
 	"nextcmd/plugins/dotnet"
 	"nextcmd/plugins/git"
+	"nextcmd/plugins/golang"
 	"nextcmd/sdk"
 )
 
@@ -16,5 +17,6 @@ func All() []sdk.Plugin {
 		dotnet.New(),
 		cargo.New(),
 		curl.New(),
+		golang.New(),
 	}
 }

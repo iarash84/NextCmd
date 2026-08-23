@@ -14,7 +14,7 @@ Commands remain `Executable + Args`; rendering and execution are separate. Execu
 
 `internal/terminal` owns presentation and keyboard behavior. Its raw-mode boundary has separate Windows, Linux, and macOS files. No UI type appears in the SDK. `internal/history` writes portable JSON Lines and redacts common secret arguments and URL user-info before persistence.
 
-Git, .NET, Cargo, and Curl built-ins are composed explicitly by the parameterless `plugins/builtin.All`. Configuration enables or disables them through a generic map keyed by `Plugin.Info().ID`. Adding another built-in changes only the plugin package and this explicit composition list; it adds no config field, `main` argument, or Core branch. Removing any or all plugins leaves Core buildable. There is no `init` registration, reflection, mutable global registry, dynamic library, network access, or third-party dependency.
+Git, .NET, Cargo, Curl, and Go built-ins are composed explicitly by the parameterless `plugins/builtin.All`. Configuration enables or disables them through a generic map keyed by `Plugin.Info().ID`. Adding another built-in changes only the plugin package and this explicit composition list; it adds no config field, `main` argument, or Core branch. Removing any or all plugins leaves Core buildable. There is no `init` registration, reflection, mutable global registry, dynamic library, network access, or third-party dependency.
 
 The application owns a mutable working-directory value without calling process-wide `os.Chdir`. The same value is passed to completion, detection, execution, and history, while the terminal only displays and updates its local editor context. This keeps directory changes explicit and race-free.
 
@@ -44,7 +44,7 @@ plugins --> sdk <-- internal core <-- cmd/assistant
 
 بستهٔ `internal/terminal` مسئول نمایش، رنگ‌ها و واکنش به صفحه‌کلید است. کد ورود به حالت تعاملی پایانه برای ویندوز، لینوکس و macOS جدا شده است. SDK هیچ وابستگی‌ای به رابط کاربری ندارد. بستهٔ `internal/history` تاریخچه را در قالب JSON Lines ذخیره می‌کند و پیش از ذخیره، رمزها، tokenها و اطلاعات ورود موجود در URL را می‌پوشاند.
 
-افزونه‌های Git، .NET، Cargo و Curl در تابع بدون آرگومان `plugins/builtin.All` به‌صورت صریح ساخته می‌شوند. تنظیمات با یک نقشهٔ عمومی و براساس `Plugin.Info().ID` آن‌ها را فعال یا غیرفعال می‌کند. برای افزودن افزونهٔ داخلی جدید فقط package افزونه و همین فهرست صریح تغییر می‌کنند؛ افزودن فیلد تنظیمات، آرگومان `main` یا شرط مخصوص در هسته لازم نیست. با حذف هر تعداد افزونه، هسته همچنان ساخته می‌شود. پروژه از ثبت مخفی با `init`، reflection، فهرست سراسری قابل‌تغییر، کتابخانهٔ پویا، دسترسی شبکه یا کتابخانهٔ جانبی استفاده نمی‌کند.
+افزونه‌های Git، .NET، Cargo، Curl و Go در تابع بدون آرگومان `plugins/builtin.All` به‌صورت صریح ساخته می‌شوند. تنظیمات با یک نقشهٔ عمومی و براساس `Plugin.Info().ID` آن‌ها را فعال یا غیرفعال می‌کند. برای افزودن افزونهٔ داخلی جدید فقط package افزونه و همین فهرست صریح تغییر می‌کنند؛ افزودن فیلد تنظیمات، آرگومان `main` یا شرط مخصوص در هسته لازم نیست. با حذف هر تعداد افزونه، هسته همچنان ساخته می‌شود. پروژه از ثبت مخفی با `init`، reflection، فهرست سراسری قابل‌تغییر، کتابخانهٔ پویا، دسترسی شبکه یا کتابخانهٔ جانبی استفاده نمی‌کند.
 
 برنامه مسیر کاری را در یک مقدار داخلی نگه می‌دارد و `os.Chdir` سراسری را فراخوانی نمی‌کند. همان مسیر به تکمیل دستور، تشخیص پروژه، اجرای process و تاریخچه داده می‌شود. رابط پایانه فقط مسیر را نمایش می‌دهد و context ویرایشگر خود را به‌روزرسانی می‌کند. به این ترتیب تغییر مسیر صریح و بدون race condition باقی می‌ماند.
 
