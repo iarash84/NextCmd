@@ -3,9 +3,12 @@ package builtin
 import (
 	"nextcmd/plugins/cargo"
 	"nextcmd/plugins/curl"
+	"nextcmd/plugins/docker"
 	"nextcmd/plugins/dotnet"
 	"nextcmd/plugins/git"
 	"nextcmd/plugins/golang"
+	"nextcmd/plugins/npm"
+	"nextcmd/plugins/pip"
 	"nextcmd/sdk"
 )
 
@@ -18,5 +21,8 @@ func All() []sdk.Plugin {
 		cargo.New(),
 		curl.New(),
 		golang.New(),
+		docker.New(),
+		npm.New(),
+		pip.New(),
 	}
 }
