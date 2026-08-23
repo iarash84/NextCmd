@@ -56,7 +56,14 @@ func Main() {
 		logger.Debug("loaded plugin", "id", plugin.Info().ID, "version", plugin.Info().Version)
 	}
 	engine := completion.New(plugins, cfg.MaxSuggestions, logger)
-	program := app.New(engine, history.New(history.DefaultPath(), cfg.HistoryEnabled), terminal.New(directory), logger, directory)
+	settings := app.RuntimeSettings{
+		ConfigPath:      *configPath,
+		HistoryEnabled:  cfg.HistoryEnabled,
+		MaxSuggestions:  cfg.MaxSuggestions,
+		Debug:           cfg.Debug,
+		PluginOverrides: cfg.Plugins,
+	}
+	program := app.New(engine, history.New(history.DefaultPath(), cfg.HistoryEnabled), terminal.New(directory), logger, directory, settings)
 	if err := program.Run(context.Background()); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)

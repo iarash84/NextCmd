@@ -118,7 +118,16 @@ func (e *Engine) Complete(ctx context.Context, input, directory string, previous
 
 func isBuiltinCommandInput(input string) bool {
 	trimmed := strings.ToLower(strings.TrimSpace(input))
-	return trimmed == "cd" || trimmed == ":cd" || strings.HasPrefix(trimmed, "cd ") || strings.HasPrefix(trimmed, ":cd ") || trimmed == "pwd" || trimmed == ":pwd" || trimmed == ":ls" || strings.HasPrefix(trimmed, ":ls ")
+	return trimmed == "cd" || trimmed == ":cd" || strings.HasPrefix(trimmed, "cd ") || strings.HasPrefix(trimmed, ":cd ") || trimmed == "pwd" || trimmed == ":pwd" || trimmed == ":ls" || strings.HasPrefix(trimmed, ":ls ") || isUtilityCommandInput(trimmed)
+}
+
+func isUtilityCommandInput(trimmed string) bool {
+	for _, name := range []string{":history", ":plugins", ":clear", ":config", ":which", ":version"} {
+		if trimmed == name || strings.HasPrefix(trimmed, name+" ") {
+			return true
+		}
+	}
+	return false
 }
 func (e *Engine) add(all *[]sdk.Suggestion, plugin sdk.Plugin, items []sdk.Suggestion, err error) {
 	if err != nil {

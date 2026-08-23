@@ -24,10 +24,11 @@ type App struct {
 	ui        *terminal.UI
 	logger    *slog.Logger
 	directory string
+	settings  RuntimeSettings
 }
 
-func New(engine *completion.Engine, store *history.Store, ui *terminal.UI, logger *slog.Logger, directory string) *App {
-	return &App{engine: engine, history: store, ui: ui, logger: logger, directory: directory}
+func New(engine *completion.Engine, store *history.Store, ui *terminal.UI, logger *slog.Logger, directory string, settings RuntimeSettings) *App {
+	return &App{engine: engine, history: store, ui: ui, logger: logger, directory: directory, settings: settings}
 }
 func (a *App) Run(ctx context.Context) error {
 	terminal.PrintWelcome(os.Stdout)
@@ -49,6 +50,34 @@ func (a *App) Run(ctx context.Context) error {
 		}
 		if isExitCommand(line) {
 			return nil
+		}
+		if command, handled, parseErr := parseUtilityCommand(line); handled {
+			if parseErr != nil {
+				fmt.Fprintln(os.Stderr, command.name+":", parseErr)
+				continue
+			}
+			switch command.name {
+			case ":history":
+				if historyErr := printHistory(os.Stdout, a.history, command.count); historyErr != nil {
+					fmt.Fprintln(os.Stderr, ":history:", historyErr)
+				}
+			case ":plugins":
+				printPlugins(os.Stdout, a.engine)
+			case ":clear":
+				a.ui.Clear()
+			case ":config":
+				printConfig(os.Stdout, a.settings, a.history.Path())
+			case ":which":
+				path, whichErr := findExecutable(command.arg)
+				if whichErr != nil {
+					fmt.Fprintln(os.Stderr, ":which:", whichErr)
+				} else {
+					fmt.Fprintln(os.Stdout, path)
+				}
+			case ":version":
+				printVersion(os.Stdout)
+			}
+			continue
 		}
 		if isPrintDirectoryCommand(line) {
 			fmt.Println(a.directory)

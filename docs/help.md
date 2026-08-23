@@ -27,6 +27,31 @@ Use `:ls` to list the active directory, or `:ls <path>` to inspect another direc
 :ls "project with spaces"
 ```
 
+## Utility commands
+
+These commands are handled inside NextCmd. They are not passed to a shell, are not stored in command history, and do not receive plugin suggestions.
+
+| Command | Purpose | Important behavior |
+|---|---|---|
+| `:history [count]` | Show recent commands executed through NextCmd. | Defaults to 20 entries and accepts 1 through 1000. It displays time, exit code, duration, plugin, working directory, and the redacted structured command. If history is disabled, it says so explicitly. |
+| `:plugins` | Show every currently enabled plugin. | Plugins are sorted by ID and displayed with version, name, and description. Disabled plugins are not listed. |
+| `:clear` | Clear the terminal screen and return the cursor to the top-left corner. | It only changes the current display and does not remove history or project state. |
+| `:config` | Show the effective runtime configuration. | Displays the configuration and history paths, history status, suggestion limit, debug status, and sorted plugin overrides. It does not print environment variables or secrets. |
+| `:which <command>` | Locate the executable that NextCmd would find through the operating-system `PATH`. | Uses Go's cross-platform executable lookup, including Windows `PATHEXT`, and prints an absolute path when it can resolve one. |
+| `:version` | Show build and platform information. | Displays the NextCmd version, Go version, OS, architecture, and the source revision when build metadata is available. Official release builds receive their version from the release tag. |
+
+Examples:
+
+```text
+:history
+:history 5
+:plugins
+:clear
+:config
+:which dotnet
+:version
+```
+
 ## Plugin command catalogs
 
 Append a plugin ID to print every statically supported command with its description and risk:
@@ -117,6 +142,40 @@ NextCmd راهنمای داخلی دارد؛ بنابراین برای دیدن 
 :ls
 :ls ..
 :ls "project with spaces"
+```
+
+</div>
+
+## دستورهای کاربردی داخلی
+
+این دستورها درون خود NextCmd پردازش می‌شوند؛ بنابراین به shell فرستاده نمی‌شوند، در تاریخچهٔ اجرای فرمان‌ها ذخیره نمی‌شوند و پیشنهادهای افزونه‌ها نیز با آن‌ها تداخل پیدا نمی‌کنند.
+
+<table>
+<thead>
+<tr><th>دستور</th><th>کاربرد</th><th>رفتار مهم</th></tr>
+</thead>
+<tbody>
+<tr><td dir="ltr"><code>:history [count]</code></td><td>نمایش دستورهایی که اخیراً از طریق NextCmd اجرا شده‌اند.</td><td>به‌طور پیش‌فرض ۲۰ مورد را نشان می‌دهد و عددی بین ۱ تا ۱۰۰۰ می‌پذیرد. زمان، کد خروج، مدت اجرا، افزونه، مسیر کاری و متن پاک‌سازی‌شدهٔ دستور نمایش داده می‌شوند. اگر تاریخچه غیرفعال باشد، برنامه این وضعیت را واضح اعلام می‌کند.</td></tr>
+<tr><td dir="ltr"><code>:plugins</code></td><td>نمایش همهٔ افزونه‌های فعال.</td><td>افزونه‌ها براساس شناسه مرتب می‌شوند و نسخه، نام و توضیح آن‌ها نمایش داده می‌شود. افزونه‌های غیرفعال در این فهرست نیستند.</td></tr>
+<tr><td dir="ltr"><code>:clear</code></td><td>پاک‌کردن صفحهٔ پایانه و انتقال نشانگر به ابتدای صفحه.</td><td>فقط محتوای قابل‌مشاهدهٔ صفحه را پاک می‌کند و تاریخچه یا وضعیت پروژه را تغییر نمی‌دهد.</td></tr>
+<tr><td dir="ltr"><code>:config</code></td><td>نمایش تنظیماتی که برنامه اکنون با آن‌ها اجرا می‌شود.</td><td>مسیر فایل تنظیمات و تاریخچه، وضعیت تاریخچه، تعداد پیشنهادها، وضعیت debug و تنظیمات صریح افزونه‌ها را نشان می‌دهد. متغیرهای محیطی و اطلاعات محرمانه چاپ نمی‌شوند.</td></tr>
+<tr><td dir="ltr"><code>:which &lt;command&gt;</code></td><td>یافتن فایل اجرایی یک دستور از طریق <code>PATH</code> سیستم‌عامل.</td><td>از جست‌وجوی چندسکویی Go استفاده می‌کند و قواعد <code>PATHEXT</code> در Windows را نیز رعایت می‌کند. در صورت امکان مسیر کامل فایل چاپ می‌شود.</td></tr>
+<tr><td dir="ltr"><code>:version</code></td><td>نمایش اطلاعات نسخه و محیط ساخت.</td><td>نسخهٔ NextCmd، نسخهٔ Go، سیستم‌عامل، معماری و در صورت موجود بودن شناسهٔ کوتاه commit را نشان می‌دهد. نسخهٔ buildهای رسمی از tag انتشار گرفته می‌شود.</td></tr>
+</tbody>
+</table>
+
+نمونه‌ها:
+
+<div dir="ltr" align="left">
+
+```text
+:history
+:history 5
+:plugins
+:clear
+:config
+:which dotnet
+:version
 ```
 
 </div>

@@ -45,6 +45,10 @@ func New(directory string) *UI {
 	return &UI{input: os.Stdin, output: os.Stdout, directory: directory, color: supportsColor(os.Stdout)}
 }
 func (u *UI) SetDirectory(directory string) { u.directory = directory }
+func (u *UI) Clear() {
+	u.clearSuggestions()
+	fmt.Fprint(u.output, "\x1b[2J\x1b[H")
+}
 func (u *UI) ReadCommand(ctx context.Context, completer Completer, previous *sdk.ExecutionResult) (string, error) {
 	restore, raw := makeRaw()
 	if raw {
@@ -125,7 +129,15 @@ func acceptSelected(line string, suggestions []sdk.Suggestion, selected int) (st
 
 func isInternalCommand(line string) bool {
 	trimmed := strings.ToLower(strings.TrimSpace(line))
-	return trimmed == "cd" || trimmed == ":cd" || strings.HasPrefix(trimmed, "cd ") || strings.HasPrefix(trimmed, ":cd ") || trimmed == "pwd" || trimmed == ":pwd" || trimmed == ":ls" || strings.HasPrefix(trimmed, ":ls ")
+	if trimmed == "cd" || trimmed == ":cd" || strings.HasPrefix(trimmed, "cd ") || strings.HasPrefix(trimmed, ":cd ") || trimmed == "pwd" || trimmed == ":pwd" || trimmed == ":ls" || strings.HasPrefix(trimmed, ":ls ") {
+		return true
+	}
+	for _, name := range []string{":history", ":plugins", ":clear", ":config", ":which", ":version"} {
+		if trimmed == name || strings.HasPrefix(trimmed, name+" ") {
+			return true
+		}
+	}
+	return false
 }
 
 func (u *UI) render(line string, suggestions []sdk.Suggestion) {

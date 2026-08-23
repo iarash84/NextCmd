@@ -103,9 +103,18 @@ func TestAcceptSelectedRejectsInvalidIndex(t *testing.T) {
 
 func TestDirectoryCommandsExecuteWithoutAcceptingPluginSuggestion(t *testing.T) {
 	suggestions := []sdk.Suggestion{{Command: sdk.Command{Executable: "cargo", Args: []string{"add", "<crate>"}}}}
-	for _, line := range []string{"cd ..", `cd "project with spaces"`, ":cd ..", "pwd", ":pwd", ":ls", ":ls .."} {
+	for _, line := range []string{"cd ..", `cd "project with spaces"`, ":cd ..", "pwd", ":pwd", ":ls", ":ls ..", ":history", ":history 5", ":plugins", ":clear", ":config", ":which go", ":version"} {
 		if accepted, ok := acceptSelected(line, suggestions, 0); ok || accepted != line {
 			t.Errorf("directory command %q accepted suggestion: %q, %v", line, accepted, ok)
 		}
+	}
+}
+
+func TestClearResetsScreenAndRenderedSuggestions(t *testing.T) {
+	var output bytes.Buffer
+	ui := &UI{output: &output, rendered: 0}
+	ui.Clear()
+	if output.String() != "\x1b[2J\x1b[H" || ui.rendered != 0 {
+		t.Fatalf("Clear() output=%q rendered=%d", output.String(), ui.rendered)
 	}
 }

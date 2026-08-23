@@ -67,6 +67,13 @@ target/NextCmd-darwin-amd64
 target/NextCmd-darwin-arm64
 ```
 
+Development builds report `dev` from the `:version` command. Set `VERSION` when you need a labeled local build:
+
+```text
+make build VERSION=v1.2.0
+make build-all VERSION=v1.2.0
+```
+
 ---
 
 <div dir="rtl" align="right">
@@ -148,5 +155,16 @@ target/NextCmd        # Linux و macOS
 `make build-root` نسخهٔ مناسب سیستم فعلی را می‌سازد و با نام `NextCmd.exe` یا `NextCmd` در ریشهٔ پروژه کپی می‌کند. این فرمان برای سیستم‌عامل‌های دیگر خروجی نمی‌سازد.
 
 `make build-all` شش فایل مربوط به ویندوز، لینوکس و macOS را برای معماری‌های amd64 و arm64 در پوشهٔ `target/` تولید می‌کند.
+
+دستور `:version` در buildهای توسعه‌ای مقدار `dev` را نشان می‌دهد. برای ساخت یک خروجی محلی با شمارهٔ نسخهٔ مشخص، متغیر `VERSION` را ارسال کنید:
+
+<div dir="ltr" align="left">
+
+```text
+make build VERSION=v1.2.0
+make build-all VERSION=v1.2.0
+```
+
+</div>
 
 </div>

@@ -1,4 +1,6 @@
 GO ?= go
+VERSION ?= dev
+LDFLAGS := -X nextcmd/internal/buildinfo.Version=$(VERSION)
 TARGET_DIR := target
 HOST_OS := $(shell $(GO) env GOHOSTOS)
 HOST_ARCH := $(shell $(GO) env GOHOSTARCH)
@@ -54,6 +56,7 @@ help:
 	@echo   make run                   Build and run the current host executable.
 	@echo   make build-root            Build for the host and copy the executable to the root.
 	@echo   make build-all             Build all supported OS and architecture combinations.
+	@echo Set VERSION=vX.Y.Z on any build target to embed a version for :version.
 	@echo Individual cross-build targets:
 	@echo   make build-windows-amd64   Build Windows amd64.
 	@echo   make build-windows-arm64   Build Windows arm64.
@@ -68,7 +71,7 @@ $(TARGET_DIR):
 	@mkdir "$(TARGET_DIR)"
 
 $(NATIVE_OUTPUT): $(GO_SOURCES) | $(TARGET_DIR)
-	$(GO) build -trimpath -o "$@" .
+	$(GO) build -trimpath -ldflags "$(LDFLAGS)" -o "$@" .
 
 clean:
 	$(remove_artifacts)
@@ -96,37 +99,37 @@ build-windows-amd64: export GOOS := windows
 build-windows-amd64: export GOARCH := amd64
 build-windows-amd64: export CGO_ENABLED := 0
 build-windows-amd64: | $(TARGET_DIR)
-	$(GO) build -trimpath -o "$(TARGET_DIR)/NextCmd-windows-amd64.exe" .
+	$(GO) build -trimpath -ldflags "$(LDFLAGS)" -o "$(TARGET_DIR)/NextCmd-windows-amd64.exe" .
 
 build-windows-arm64: export GOOS := windows
 build-windows-arm64: export GOARCH := arm64
 build-windows-arm64: export CGO_ENABLED := 0
 build-windows-arm64: | $(TARGET_DIR)
-	$(GO) build -trimpath -o "$(TARGET_DIR)/NextCmd-windows-arm64.exe" .
+	$(GO) build -trimpath -ldflags "$(LDFLAGS)" -o "$(TARGET_DIR)/NextCmd-windows-arm64.exe" .
 
 build-linux-amd64: export GOOS := linux
 build-linux-amd64: export GOARCH := amd64
 build-linux-amd64: export CGO_ENABLED := 0
 build-linux-amd64: | $(TARGET_DIR)
-	$(GO) build -trimpath -o "$(TARGET_DIR)/NextCmd-linux-amd64" .
+	$(GO) build -trimpath -ldflags "$(LDFLAGS)" -o "$(TARGET_DIR)/NextCmd-linux-amd64" .
 
 build-linux-arm64: export GOOS := linux
 build-linux-arm64: export GOARCH := arm64
 build-linux-arm64: export CGO_ENABLED := 0
 build-linux-arm64: | $(TARGET_DIR)
-	$(GO) build -trimpath -o "$(TARGET_DIR)/NextCmd-linux-arm64" .
+	$(GO) build -trimpath -ldflags "$(LDFLAGS)" -o "$(TARGET_DIR)/NextCmd-linux-arm64" .
 
 build-darwin-amd64: export GOOS := darwin
 build-darwin-amd64: export GOARCH := amd64
 build-darwin-amd64: export CGO_ENABLED := 0
 build-darwin-amd64: | $(TARGET_DIR)
-	$(GO) build -trimpath -o "$(TARGET_DIR)/NextCmd-darwin-amd64" .
+	$(GO) build -trimpath -ldflags "$(LDFLAGS)" -o "$(TARGET_DIR)/NextCmd-darwin-amd64" .
 
 build-darwin-arm64: export GOOS := darwin
 build-darwin-arm64: export GOARCH := arm64
 build-darwin-arm64: export CGO_ENABLED := 0
 build-darwin-arm64: | $(TARGET_DIR)
-	$(GO) build -trimpath -o "$(TARGET_DIR)/NextCmd-darwin-arm64" .
+	$(GO) build -trimpath -ldflags "$(LDFLAGS)" -o "$(TARGET_DIR)/NextCmd-darwin-arm64" .
 
 build-all: build-windows-amd64 build-windows-arm64 \
 	build-linux-amd64 build-linux-arm64 \

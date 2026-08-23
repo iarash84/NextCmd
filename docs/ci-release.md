@@ -25,7 +25,7 @@ git tag -a v1.0.0 -m "NextCmd v1.0.0"
 git push origin v1.0.0
 ```
 
-The workflow validates that the tag exists and follows semantic-version syntax, runs tests, builds all targets, creates ZIP files for Windows, `tar.gz` files for Linux and macOS, generates SHA-256 checksums, and publishes the assets with generated release notes.
+The workflow validates that the tag exists and follows semantic-version syntax, runs tests, embeds the release tag as the version reported by `:version`, builds all targets, creates ZIP files for Windows, `tar.gz` files for Linux and macOS, generates SHA-256 checksums, and publishes the assets with generated release notes.
 
 A release can also be re-triggered from the Actions page with `workflow_dispatch`, but the supplied tag must already exist. The release job receives only the `contents: write` permission required to create the GitHub Release. No repository secret is required; it uses the scoped `GITHUB_TOKEN` supplied by GitHub Actions.
 
@@ -62,7 +62,7 @@ git push origin v1.0.0
 
 </div>
 
-گردش کار ابتدا بررسی می‌کند برچسب از قالب نسخه‌گذاری معنایی، مانند `v1.0.0`، پیروی کند. سپس تست‌ها و ساخت همهٔ سیستم‌عامل‌ها را اجرا می‌کند. خروجی ویندوز در فایل ZIP و خروجی لینوکس و macOS در فایل `tar.gz` قرار می‌گیرد. در پایان checksum از نوع SHA-256 و یادداشت انتشار به‌صورت خودکار ساخته و همراه فایل‌ها منتشر می‌شوند.
+گردش کار ابتدا بررسی می‌کند برچسب از قالب نسخه‌گذاری معنایی، مانند `v1.0.0`، پیروی کند. سپس تست‌ها را اجرا می‌کند، مقدار همان برچسب را به‌عنوان خروجی دستور `:version` در فایل‌های اجرایی قرار می‌دهد و همهٔ نسخه‌های سیستم‌عامل‌ها را می‌سازد. خروجی ویندوز در فایل ZIP و خروجی لینوکس و macOS در فایل `tar.gz` قرار می‌گیرد. در پایان checksum از نوع SHA-256 و یادداشت انتشار به‌صورت خودکار ساخته و همراه فایل‌ها منتشر می‌شوند.
 
 می‌توان انتشار را از صفحهٔ Actions دوباره اجرا کرد، اما برچسب واردشده باید از قبل وجود داشته باشد. مرحلهٔ انتشار فقط مجوز `contents: write` دارد و به secret جداگانه نیاز ندارد. احراز هویت با `GITHUB_TOKEN` محدودشدهٔ GitHub Actions انجام می‌شود.
 

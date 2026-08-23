@@ -19,6 +19,8 @@ type Store struct {
 }
 
 func New(path string, enabled bool) *Store { return &Store{path: path, enabled: enabled} }
+func (s *Store) Enabled() bool             { return s.enabled }
+func (s *Store) Path() string              { return s.path }
 func DefaultPath() string {
 	directory, err := os.UserConfigDir()
 	if err != nil {
