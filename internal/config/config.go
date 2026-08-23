@@ -13,10 +13,11 @@ type Config struct {
 	Debug          bool `json:"debug"`
 	GitEnabled     bool `json:"gitEnabled"`
 	DotnetEnabled  bool `json:"dotnetEnabled"`
+	CargoEnabled   bool `json:"cargoEnabled"`
 }
 
 func Default() Config {
-	return Config{HistoryEnabled: true, MaxSuggestions: 8, GitEnabled: true, DotnetEnabled: true}
+	return Config{HistoryEnabled: true, MaxSuggestions: 8, GitEnabled: true, DotnetEnabled: true, CargoEnabled: true}
 }
 func Load(path string) (Config, error) {
 	cfg := Default()

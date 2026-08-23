@@ -14,7 +14,7 @@ Commands remain `Executable + Args`; rendering and execution are separate. Execu
 
 `internal/terminal` owns presentation and keyboard behavior. Its raw-mode boundary has separate Windows, Linux, and macOS files. No UI type appears in the SDK. `internal/history` writes portable JSON Lines and redacts common secret arguments and URL user-info before persistence.
 
-Git and .NET built-ins are composed explicitly by `plugins/builtin.All`; removing either or both from that list leaves Core buildable. There is no `init` registration, reflection, mutable global registry, dynamic library, network access, or third-party dependency.
+Git, .NET, and Cargo built-ins are composed explicitly by `plugins/builtin.All`; removing any or all of them from that list leaves Core buildable. There is no `init` registration, reflection, mutable global registry, dynamic library, network access, or third-party dependency.
 
 ---
 
@@ -42,6 +42,6 @@ plugins --> sdk <-- internal core <-- cmd/assistant
 
 بستهٔ `internal/terminal` مسئول نمایش، رنگ‌ها و واکنش به صفحه‌کلید است. کد ورود به حالت تعاملی پایانه برای ویندوز، لینوکس و macOS جدا شده است. SDK هیچ وابستگی‌ای به رابط کاربری ندارد. بستهٔ `internal/history` تاریخچه را در قالب JSON Lines ذخیره می‌کند و پیش از ذخیره، رمزها، tokenها و اطلاعات ورود موجود در URL را می‌پوشاند.
 
-افزونه‌های Git و .NET به‌صورت صریح در تابع `plugins/builtin.All` ساخته می‌شوند. اگر یکی یا هر دو افزونه از این فهرست حذف شوند، هسته همچنان بدون تغییر ساخته می‌شود. پروژه از ثبت مخفی با `init`، reflection، فهرست سراسری قابل‌تغییر، کتابخانهٔ پویا، دسترسی شبکه یا کتابخانهٔ جانبی استفاده نمی‌کند.
+افزونه‌های Git، .NET و Cargo به‌صورت صریح در تابع `plugins/builtin.All` ساخته می‌شوند. اگر هرکدام یا همهٔ آن‌ها از این فهرست حذف شوند، هسته همچنان بدون تغییر ساخته می‌شود. پروژه از ثبت مخفی با `init`، reflection، فهرست سراسری قابل‌تغییر، کتابخانهٔ پویا، دسترسی شبکه یا کتابخانهٔ جانبی استفاده نمی‌کند.
 
 </div>

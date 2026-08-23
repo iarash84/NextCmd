@@ -22,8 +22,10 @@ Append a plugin ID to print every statically supported command with its descript
 ```text
 :? git
 :? dotnet
+:? cargo
 :؟ git
 :؟ dotnet
+:؟ cargo
 ```
 
 The catalog comes from the plugin through the public `sdk.HelpProvider` capability. Core and Terminal do not contain Git or .NET command lists. Dynamic values such as actual branches, files, remotes, solutions, and projects remain available through normal completion.
@@ -68,8 +70,10 @@ NextCmd راهنمای داخلی دارد؛ بنابراین برای دیدن 
 ```text
 :? git
 :? dotnet
+:? cargo
 :؟ git
 :؟ dotnet
+:؟ cargo
 ```
 
 </div>

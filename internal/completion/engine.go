@@ -26,6 +26,20 @@ func New(plugins []sdk.Plugin, max int, logger *slog.Logger) *Engine {
 	return &Engine{plugins: append([]sdk.Plugin(nil), plugins...), max: max, logger: logger, cache: map[string]cachedProject{}}
 }
 func (e *Engine) Plugins() []sdk.Plugin { return append([]sdk.Plugin(nil), e.plugins...) }
+func (e *Engine) PluginForExecutable(executable string) string {
+	for _, plugin := range e.plugins {
+		provider, ok := plugin.(sdk.HelpProvider)
+		if !ok {
+			continue
+		}
+		for _, command := range provider.Help() {
+			if strings.EqualFold(command.Command.Executable, executable) {
+				return plugin.Info().ID
+			}
+		}
+	}
+	return ""
+}
 func (e *Engine) Help(pluginName string) (sdk.PluginInfo, []sdk.CommandHelp, bool) {
 	for _, plugin := range e.plugins {
 		info := plugin.Info()

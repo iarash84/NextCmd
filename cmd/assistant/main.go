@@ -37,7 +37,7 @@ func Main() {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(2)
 	}
-	plugins := builtin.All(cfg.GitEnabled, cfg.DotnetEnabled)
+	plugins := builtin.All(cfg.GitEnabled, cfg.DotnetEnabled, cfg.CargoEnabled)
 	for _, plugin := range plugins {
 		logger.Debug("loaded plugin", "id", plugin.Info().ID, "version", plugin.Info().Version)
 	}

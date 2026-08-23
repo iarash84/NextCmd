@@ -2,7 +2,7 @@
 
 English | [فارسی](#فارسی)
 
-NextCmd is a fast, deterministic, cross-platform programming command-line assistant written in Go. It suggests editable commands from the current input, project state, and previous execution. The MVP ships with explicitly registered Git and .NET plugins and uses no AI, network service, shell execution, or third-party Go dependency.
+NextCmd is a fast, deterministic, cross-platform programming command-line assistant written in Go. It suggests editable commands from the current input, project state, and previous execution. It ships with explicitly registered Git, .NET, and Cargo plugins and uses no AI, network service, shell execution, or third-party Go dependency.
 
 ## Features
 
@@ -11,7 +11,7 @@ NextCmd is a fast, deterministic, cross-platform programming command-line assist
 - Built-in `:?`/`:؟` help, per-plugin command catalogs, and suggestions from incomplete executable prefixes such as `gi` or `dot`.
 - Structured, shell-independent commands and captured stdout, stderr, exit code, and duration.
 - Capability-based public plugin SDK and explicit compile-time registration.
-- Git and .NET workspace detection, cached context, dynamic completion, next actions, best practices, and recovery.
+- Git, .NET, and Cargo workspace detection, cached context, dynamic completion, next actions, best practices, and recovery.
 - Deterministic prefix/fuzzy ranking and JSON-lines history with secret redaction.
 - Standard-library-only implementation with platform-specific terminal boundaries.
 
@@ -27,7 +27,7 @@ go build -o nextcmd .
 On Windows run `nextcmd.exe`. Debug logging is enabled with `nextcmd --debug`. Configuration defaults to the OS user configuration directory at `nextcmd/config.json`:
 
 ```json
-{"historyEnabled":true,"maxSuggestions":8,"debug":false,"gitEnabled":true,"dotnetEnabled":true}
+{"historyEnabled":true,"maxSuggestions":8,"debug":false,"gitEnabled":true,"dotnetEnabled":true,"cargoEnabled":true}
 ```
 
 Cross-build examples:
@@ -57,7 +57,7 @@ All artifacts are written to `target/`. `build-root` copies only the current hos
 
 ## Architecture
 
-`sdk` is the only package plugin authors need. Core discovers optional capabilities with type assertions, merges results, and owns ranking. Plugins return structured commands, descriptions, reasons, and risk metadata; only the terminal package decides how those fields look on screen. Built-ins are listed explicitly in `plugins/builtin`. See [architecture](docs/architecture.md), [plugin development](docs/plugin-development.md), the [Git plugin](docs/git-plugin.md), and the [.NET plugin](docs/dotnet-plugin.md).
+`sdk` is the only package plugin authors need. Core discovers optional capabilities with type assertions, merges results, and owns ranking. Plugins return structured commands, descriptions, reasons, and risk metadata; only the terminal package decides how those fields look on screen. Built-ins are listed explicitly in `plugins/builtin`. See [architecture](docs/architecture.md), [plugin development](docs/plugin-development.md), the [Git plugin](docs/git-plugin.md), the [.NET plugin](docs/dotnet-plugin.md), and the [Cargo plugin](docs/cargo-plugin.md).
 
 For keyboard controls and plugin command catalogs, see the bilingual [interactive help guide](docs/help.md) or type `:?` inside NextCmd.
 
@@ -76,7 +76,7 @@ GitHub Actions runs formatting, vet, tests, race detection, and all six cross-bu
 
 ## Roadmap
 
-Future compile-time plugins may support Go, Cargo, Docker, Kubernetes, Terraform, npm, pnpm, and GitHub CLI. Dynamic plugins, AI, telemetry, marketplaces, and cloud sync are intentionally outside this MVP.
+Future compile-time plugins may support Go, Docker, Kubernetes, Terraform, npm, pnpm, and GitHub CLI. Dynamic plugins, AI, telemetry, marketplaces, and cloud sync are intentionally outside this MVP.
 
 ## License
 
@@ -88,7 +88,7 @@ MIT. See [LICENSE](LICENSE).
 
 # فارسی
 
-NextCmd یک دستیار خط فرمان سریع و چندسکویی است که با زبان Go نوشته شده است. برنامه هنگام تایپ، متن فعلی، وضعیت پروژه و نتیجهٔ آخرین دستور را بررسی می‌کند و چند دستور قابل‌ویرایش پیشنهاد می‌دهد. نسخهٔ اولیه افزونه‌های Git و .NET را به‌صورت صریح در زمان ساخت برنامه ثبت می‌کند. این نسخه از هوش مصنوعی، سرویس شبکه، اجرای دستور از طریق پوسته و کتابخانهٔ جانبی Go استفاده نمی‌کند.
+NextCmd یک دستیار خط فرمان سریع و چندسکویی است که با زبان Go نوشته شده است. برنامه هنگام تایپ، متن فعلی، وضعیت پروژه و نتیجهٔ آخرین دستور را بررسی می‌کند و چند دستور قابل‌ویرایش پیشنهاد می‌دهد. افزونه‌های Git، .NET و Cargo به‌صورت صریح در زمان ساخت برنامه ثبت می‌شوند. برنامه از هوش مصنوعی، سرویس شبکه، اجرای دستور از طریق پوسته و کتابخانهٔ جانبی Go استفاده نمی‌کند.
 
 ## قابلیت‌ها
 
@@ -97,7 +97,7 @@ NextCmd یک دستیار خط فرمان سریع و چندسکویی است ک
 - راهنمای داخلی با دستورهای `:?` و `:؟` و امکان مشاهدهٔ همهٔ دستورهای شناخته‌شدهٔ هر افزونه.
 - نمایش پیشنهاد پیش از کامل‌شدن نام ابزار؛ برای مثال، با نوشتن `gi` پیشنهادهای Git و با نوشتن `dot` پیشنهادهای .NET ظاهر می‌شوند.
 - نگهداری دستور به‌صورت نام برنامه و آرگومان‌های جداگانه؛ بنابراین دستورها بدون عبور از پوسته اجرا می‌شوند. خروجی عادی، خروجی خطا، کد خروج و مدت اجرا ثبت می‌شود.
-- تشخیص مخزن Git و فضای کاری .NET، نگهداری کوتاه‌مدت وضعیت پروژه برای افزایش سرعت، تکمیل مقادیر پویا و ارائهٔ پیشنهاد بعد از موفقیت یا شکست دستور.
+- تشخیص مخزن Git و فضای کاری .NET و Cargo، نگهداری کوتاه‌مدت وضعیت پروژه برای افزایش سرعت، تکمیل مقادیر پویا و ارائهٔ پیشنهاد بعد از موفقیت یا شکست دستور.
 - مرتب‌سازی ثابت و قابل‌پیش‌بینی پیشنهادها و ذخیرهٔ تاریخچه در قالب JSON Lines پس از حذف اطلاعات حساس.
 - پیاده‌سازی فقط با کتابخانهٔ استاندارد Go و کد جداگانه برای رفتارهای وابسته به هر سیستم‌عامل.
 
@@ -159,7 +159,7 @@ GitHub Actions قالب‌بندی کد، بررسی `go vet`، تست‌ها، 
 
 ## مسیر آینده
 
-در آینده می‌توان افزونه‌های Go، Cargo، Docker، Kubernetes، Terraform، npm، pnpm و GitHub CLI را در زمان ساخت به برنامه اضافه کرد. افزونهٔ پویا، هوش مصنوعی، ارسال داده‌های آماری، بازار افزونه و همگام‌سازی ابری عمداً در محدودهٔ نسخهٔ اولیه نیستند.
+در آینده می‌توان افزونه‌های Go، Docker، Kubernetes، Terraform، npm، pnpm و GitHub CLI را در زمان ساخت به برنامه اضافه کرد. افزونهٔ پویا، هوش مصنوعی، ارسال داده‌های آماری، بازار افزونه و همگام‌سازی ابری عمداً در محدودهٔ نسخهٔ اولیه نیستند.
 
 ## مجوز
 

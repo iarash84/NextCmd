@@ -67,10 +67,7 @@ func (a *App) Run(ctx context.Context) error {
 			fmt.Fprintln(os.Stderr, "command failed:", result.Err)
 		}
 		terminal.PrintExecutionSummary(os.Stdout, result)
-		plugin := ""
-		if command.Executable == "git" {
-			plugin = "git"
-		}
+		plugin := a.engine.PluginForExecutable(command.Executable)
 		if err := a.history.Append(sdk.HistoryEntry{Command: command, WorkingDirectory: a.directory, Timestamp: time.Now(), ExitCode: result.ExitCode, Duration: result.Duration, Plugin: plugin}); err != nil {
 			a.logger.Debug("history write failed", "error", err)
 		}
