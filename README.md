@@ -27,8 +27,23 @@ go build -o nextcmd .
 On Windows run `nextcmd.exe`. Debug logging is enabled with `nextcmd --debug`. Configuration defaults to the OS user configuration directory at `nextcmd/config.json`:
 
 ```json
-{"historyEnabled":true,"maxSuggestions":8,"debug":false,"gitEnabled":true,"dotnetEnabled":true,"cargoEnabled":true}
+{"historyEnabled":true,"maxSuggestions":8,"debug":false,"plugins":{"git":true,"dotnet":true,"cargo":true}}
 ```
+
+Every registered plugin is enabled unless its ID is set to `false` in `plugins`. Legacy `gitEnabled`, `dotnetEnabled`, and `cargoEnabled` keys are still read for backward compatibility.
+
+### Working directory
+
+NextCmd shows the active working directory above every prompt. Start in another directory with `nextcmd --directory <path>`, or change it without restarting:
+
+```text
+pwd
+cd ..
+cd "C:\Users\Admin\source\repos\My Project"
+:cd /path/to/project
+```
+
+`cd` and `:cd` update completion, project detection, command execution, and history together. Running `cd` without a path selects the user home directory. NextCmd keeps this state internally and does not change the parent shell directory.
 
 Cross-build examples:
 
@@ -115,6 +130,35 @@ go build -o nextcmd .
 </div>
 
 در ویندوز فایل `nextcmd.exe` را اجرا کنید. برای مشاهدهٔ گزارش‌های فنی، برنامه را با `nextcmd --debug` اجرا کنید.
+
+تنظیمات افزونه‌ها عمومی است و برای افزونهٔ جدید به فیلد تازه نیاز ندارد. همهٔ افزونه‌ها فعال‌اند، مگر اینکه شناسهٔ آن‌ها در نقشهٔ `plugins` برابر `false` باشد:
+
+<div dir="ltr" align="left">
+
+```json
+{"historyEnabled":true,"maxSuggestions":8,"debug":false,"plugins":{"git":true,"dotnet":true,"cargo":true}}
+```
+
+</div>
+
+کلیدهای قدیمی `gitEnabled`، `dotnetEnabled` و `cargoEnabled` برای سازگاری با نسخه‌های پیشین همچنان خوانده می‌شوند.
+
+### مسیر کاری
+
+مسیر کاری فعلی بالای هر prompt نمایش داده می‌شود. برای شروع برنامه در مسیر دیگری از `nextcmd --directory <path>` استفاده کنید. داخل برنامه نیز می‌توانید مسیر را بدون جابه‌جاکردن فایل اجرایی یا راه‌اندازی دوباره تغییر دهید:
+
+<div dir="ltr" align="left">
+
+```text
+pwd
+cd ..
+cd "C:\Users\Admin\source\repos\My Project"
+:cd /path/to/project
+```
+
+</div>
+
+دستورهای `cd` و `:cd` مسیر مورد استفاده برای پیشنهادها، تشخیص پروژه، اجرای دستور و تاریخچه را هم‌زمان تغییر می‌دهند. اجرای `cd` بدون مسیر، پوشهٔ خانگی کاربر را انتخاب می‌کند. این تغییر فقط داخل NextCmd است و مسیر shell والد را تغییر نمی‌دهد.
 
 ### ساخت با Make
 

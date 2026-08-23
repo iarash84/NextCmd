@@ -50,6 +50,28 @@ func (a *App) Run(ctx context.Context) error {
 		if isExitCommand(line) {
 			return nil
 		}
+		if isPrintDirectoryCommand(line) {
+			fmt.Println(a.directory)
+			continue
+		}
+		if requested, handled, parseErr := parseChangeDirectory(line); handled {
+			if parseErr != nil {
+				fmt.Fprintln(os.Stderr, "cd:", parseErr)
+				continue
+			}
+			directory, resolveErr := ResolveDirectory(a.directory, requested)
+			if resolveErr != nil {
+				fmt.Fprintln(os.Stderr, "cd:", resolveErr)
+				continue
+			}
+			oldDirectory := a.directory
+			a.directory = directory
+			a.ui.SetDirectory(directory)
+			a.engine.Invalidate(oldDirectory)
+			a.engine.Invalidate(directory)
+			previous = nil
+			continue
+		}
 		command, err := commandline.Parse(line, a.directory)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, "parse:", err)

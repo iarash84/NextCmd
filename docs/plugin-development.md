@@ -272,55 +272,36 @@ Here the second string is the working directory. This step replaces the empty `P
 
 ## Step 9: Register the plugin explicitly
 
-Registration is the only required composition change. Import the package in `plugins/builtin/plugins.go`, add an enable flag, and append the constructor explicitly:
+Registration is the only required composition change. Import the package in `plugins/builtin/plugins.go` and append its constructor to the explicit list:
 
 ```go
 import "nextcmd/plugins/acme"
 
-func All(gitEnabled, dotnetEnabled, acmeEnabled bool) []sdk.Plugin {
-    plugins := []sdk.Plugin{}
-    if gitEnabled {
-        plugins = append(plugins, git.New())
+func All() []sdk.Plugin {
+    return []sdk.Plugin{
+        git.New(),
+        dotnet.New(),
+        cargo.New(),
+        acme.New(),
     }
-    if dotnetEnabled {
-        plugins = append(plugins, dotnet.New())
-    }
-    if acmeEnabled {
-        plugins = append(plugins, acme.New())
-    }
-    return plugins
 }
 ```
 
-Do not register with `init()` and do not modify Completion Engine, Ranking, Terminal, History, or Execution for a tool-specific plugin.
+Do not register with `init()`. Do not modify configuration structs, `cmd/assistant/main.go`, Completion Engine, Ranking, Terminal, History, or Execution for a tool-specific plugin.
 
 ## Step 10: Add configuration
 
-Add an independent flag to `internal/config.Config` and enable it in `Default()`:
+No Go change is needed for configuration. Every registered plugin is enabled by default. Users disable any plugin by its public ID in the generic `plugins` map:
 
-```go
-type Config struct {
-    // Existing fields...
-    AcmeEnabled bool `json:"acmeEnabled"`
-}
-
-func Default() Config {
-    return Config{
-        // Existing defaults...
-        AcmeEnabled: true,
-    }
+```json
+{
+  "plugins": {
+    "acme": false
+  }
 }
 ```
 
-Pass the flag from `cmd/assistant/main.go` to `builtin.All`:
-
-```go
-plugins := builtin.All(cfg.GitEnabled, cfg.DotnetEnabled, cfg.AcmeEnabled)
-```
-
-Update `plugins/builtin/plugins_test.go` to prove that the new plugin is registered when enabled and that every plugin can be disabled independently.
-
-If the plugin should always be built in and does not need a switch, configuration changes are optional; explicit registration is still required.
+`cmd/assistant` filters the list using `plugin.Info().ID`, so future plugin IDs require no new Core field or constructor argument. The existing registry test validates every entry generically, so adding an entry does not require changing that test.
 
 ## Step 11: Test the plugin
 
@@ -386,7 +367,7 @@ The incomplete prefix should show suggestions and the Help command should print 
 
 ## Files changed checklist
 
-For a typical configurable built-in plugin, the final change contains:
+For a typical built-in plugin, the final change contains:
 
 ```text
 plugins/acme/plugin.go
@@ -395,9 +376,6 @@ plugins/acme/context.go             # if detection is supported
 plugins/acme/workflow.go            # if workflow providers are supported
 plugins/acme/plugin_test.go
 plugins/builtin/plugins.go
-plugins/builtin/plugins_test.go
-internal/config/config.go           # only for an enable/disable setting
-cmd/assistant/main.go               # only to pass that setting
 docs/acme-plugin.md
 README.md
 ```
@@ -577,8 +555,11 @@ state, detected := input.Project.(State)
 <div dir="ltr" align="left">
 
 ```go
-if acmeEnabled {
-    plugins = append(plugins, acme.New())
+return []sdk.Plugin{
+    git.New(),
+    dotnet.New(),
+    cargo.New(),
+    acme.New(),
 }
 ```
 
@@ -588,14 +569,21 @@ if acmeEnabled {
 
 ## مرحلهٔ ۱۰: افزودن تنظیمات
 
-اگر می‌خواهید کاربر بتواند افزونه را فعال یا غیرفعال کند:
+برای تنظیمات نیازی به تغییر کد Go نیست. همهٔ افزونه‌های ثبت‌شده به‌صورت پیش‌فرض فعال‌اند. کاربر می‌تواند هر افزونه را با شناسهٔ عمومی آن در نقشهٔ `plugins` غیرفعال کند:
 
-1. فیلد `AcmeEnabled bool` را با کلید JSON مناسب به `internal/config.Config` اضافه کنید.
-2. مقدار پیش‌فرض را در `Default()` تعیین کنید.
-3. مقدار را در `cmd/assistant/main.go` به `builtin.All` پاس دهید.
-4. تست ثبت افزونه را برای هر دو حالت فعال و غیرفعال به‌روزرسانی کنید.
+<div dir="ltr" align="left">
 
-اگر افزونه همیشه داخلی و فعال است، تغییر تنظیمات اختیاری است؛ بااین‌حال ثبت صریح آن همچنان اجباری خواهد بود.
+```json
+{
+  "plugins": {
+    "acme": false
+  }
+}
+```
+
+</div>
+
+برنامه فهرست افزونه‌ها را با `plugin.Info().ID` فیلتر می‌کند. بنابراین افزونهٔ آینده به فیلد جدید در تنظیمات یا آرگومان جدید در `main` نیاز ندارد. تست فعلی registry نیز همهٔ ورودی‌ها را به‌صورت عمومی بررسی می‌کند و با افزودن ورودی جدید به تغییر نیاز ندارد.
 
 ## مرحلهٔ ۱۱: تست
 
@@ -644,7 +632,7 @@ make test-race
 
 ## چک‌لیست فایل‌ها
 
-برای یک افزونهٔ داخلی که امکان فعال یا غیرفعال‌شدن دارد، معمولاً فایل‌های زیر تغییر می‌کنند:
+برای یک افزونهٔ داخلی معمولاً فایل‌های زیر تغییر می‌کنند:
 
 <div dir="ltr" align="left">
 
@@ -655,9 +643,6 @@ plugins/acme/context.go
 plugins/acme/workflow.go
 plugins/acme/plugin_test.go
 plugins/builtin/plugins.go
-plugins/builtin/plugins_test.go
-internal/config/config.go
-cmd/assistant/main.go
 docs/acme-plugin.md
 README.md
 ```

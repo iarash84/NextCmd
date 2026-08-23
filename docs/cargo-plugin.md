@@ -27,7 +27,7 @@ Recovery handles a missing `Cargo.toml`, invalid workspace package selections, a
 Cargo is enabled by default and can be disabled independently:
 
 ```json
-{"cargoEnabled": false}
+{"plugins":{"cargo":false}}
 ```
 
 Use `:? cargo` inside NextCmd to view its static command catalog.
@@ -65,7 +65,7 @@ Cargo به‌صورت پیش‌فرض فعال است و می‌توان آن ر
 <div dir="ltr" align="left">
 
 ```json
-{"cargoEnabled": false}
+{"plugins":{"cargo":false}}
 ```
 
 </div>

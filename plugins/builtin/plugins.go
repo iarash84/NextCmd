@@ -7,16 +7,12 @@ import (
 	"nextcmd/sdk"
 )
 
-func All(gitEnabled, dotnetEnabled, cargoEnabled bool) []sdk.Plugin {
-	plugins := []sdk.Plugin{}
-	if gitEnabled {
-		plugins = append(plugins, git.New())
+// All is the single explicit composition point for built-in plugins. Adding a
+// plugin here requires no matching flag, constructor argument, or Core change.
+func All() []sdk.Plugin {
+	return []sdk.Plugin{
+		git.New(),
+		dotnet.New(),
+		cargo.New(),
 	}
-	if dotnetEnabled {
-		plugins = append(plugins, dotnet.New())
-	}
-	if cargoEnabled {
-		plugins = append(plugins, cargo.New())
-	}
-	return plugins
 }

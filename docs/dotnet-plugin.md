@@ -35,7 +35,7 @@ Best-practice suggestions include `dotnet format --verify-no-changes` and test e
 The plugin is enabled by default and can be disabled independently:
 
 ```json
-{"dotnetEnabled": false}
+{"plugins":{"dotnet":false}}
 ```
 
 ---
@@ -79,7 +79,7 @@ The plugin is enabled by default and can be disabled independently:
 <div dir="ltr" align="left">
 
 ```json
-{"dotnetEnabled": false}
+{"plugins":{"dotnet":false}}
 ```
 
 </div>

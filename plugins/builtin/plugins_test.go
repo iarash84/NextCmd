@@ -1,19 +1,25 @@
 package builtin
 
-import "testing"
+import (
+	"strings"
+	"testing"
+)
 
-func TestRegistrationIsExplicitAndOptional(t *testing.T) {
-	plugins := All(true, true, true)
-	if len(plugins) != 3 || plugins[0].Info().ID != "git" || plugins[1].Info().ID != "dotnet" || plugins[2].Info().ID != "cargo" {
-		t.Fatalf("unexpected built-ins: %#v", plugins)
+func TestRegistrationMetadataIsValidAndUnique(t *testing.T) {
+	plugins := All()
+	if len(plugins) == 0 {
+		t.Fatal("no built-in plugins registered")
 	}
-	if len(All(false, false, false)) != 0 {
-		t.Fatal("disabled plugins registered")
-	}
-	if plugins := All(false, true, false); len(plugins) != 1 || plugins[0].Info().ID != "dotnet" {
-		t.Fatal("dotnet registration is not independent")
-	}
-	if plugins := All(false, false, true); len(plugins) != 1 || plugins[0].Info().ID != "cargo" {
-		t.Fatal("cargo registration is not independent")
+	seen := map[string]bool{}
+	for _, plugin := range plugins {
+		info := plugin.Info()
+		if info.ID == "" || info.Name == "" || info.Version == "" {
+			t.Fatalf("plugin has incomplete metadata: %#v", info)
+		}
+		id := strings.ToLower(info.ID)
+		if seen[id] {
+			t.Fatalf("duplicate plugin ID %q", info.ID)
+		}
+		seen[id] = true
 	}
 }

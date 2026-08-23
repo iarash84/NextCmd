@@ -44,12 +44,14 @@ type UI struct {
 func New(directory string) *UI {
 	return &UI{input: os.Stdin, output: os.Stdout, directory: directory, color: supportsColor(os.Stdout)}
 }
+func (u *UI) SetDirectory(directory string) { u.directory = directory }
 func (u *UI) ReadCommand(ctx context.Context, completer Completer, previous *sdk.ExecutionResult) (string, error) {
 	restore, raw := makeRaw()
 	if raw {
 		defer restore()
 	}
 	line := ""
+	fmt.Fprintf(u.output, "%s %s\n", paint(u.color, ansiDim, "cwd"), paint(u.color, ansiCyan, u.directory))
 	suggestions := completer.Complete(ctx, line, u.directory, previous)
 	u.render(line, suggestions)
 	for {
@@ -108,6 +110,9 @@ func (u *UI) ReadCommand(ctx context.Context, completer Completer, previous *sdk
 // acceptSelected keeps suggestion acceptance separate from command execution.
 // Enter accepts a highlighted suggestion first; a subsequent Enter executes it.
 func acceptSelected(line string, suggestions []sdk.Suggestion, selected int) (string, bool) {
+	if isInternalCommand(line) {
+		return line, false
+	}
 	if selected < 0 || selected >= len(suggestions) {
 		return line, false
 	}
@@ -116,6 +121,11 @@ func acceptSelected(line string, suggestions []sdk.Suggestion, selected int) (st
 		return line, false
 	}
 	return command, true
+}
+
+func isInternalCommand(line string) bool {
+	trimmed := strings.ToLower(strings.TrimSpace(line))
+	return trimmed == "cd" || trimmed == ":cd" || strings.HasPrefix(trimmed, "cd ") || strings.HasPrefix(trimmed, ":cd ") || trimmed == "pwd" || trimmed == ":pwd"
 }
 
 func (u *UI) render(line string, suggestions []sdk.Suggestion) {

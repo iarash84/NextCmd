@@ -15,6 +15,10 @@ Type either form and press Enter:
 
 The output explains keyboard controls, built-in commands, exit commands, and all loaded plugins.
 
+## Working directory commands
+
+The active directory is printed above each prompt. Start NextCmd elsewhere with `nextcmd --directory <path>`. Use `pwd` or `:pwd` to print it again. Use `cd <path>` or `:cd <path>` to change the directory used by completion, project detection, execution, and history. Relative paths, absolute paths, quoted paths with spaces, `..`, and `~` are supported. Running `cd` without a path selects the user home directory.
+
 ## Plugin command catalogs
 
 Append a plugin ID to print every statically supported command with its description and risk:
@@ -60,6 +64,10 @@ NextCmd راهنمای داخلی دارد؛ بنابراین برای دیدن 
 </div>
 
 برنامه کاربرد کلیدهای صفحه‌کلید، دستورهای داخلی، روش‌های خروج و نام افزونه‌های فعال را نمایش می‌دهد.
+
+## دستورهای مسیر کاری
+
+مسیر فعلی بالای هر prompt نمایش داده می‌شود. برای شروع در مسیر دیگر از `nextcmd --directory <path>` استفاده کنید. دستور `pwd` یا `:pwd` مسیر را دوباره چاپ می‌کند. با `cd <path>` یا `:cd <path>` می‌توان مسیر مورد استفاده برای پیشنهادها، تشخیص پروژه، اجرای دستورها و تاریخچه را تغییر داد. مسیر نسبی، مسیر کامل، مسیر نقل‌قول‌شده دارای فاصله، `..` و `~` پشتیبانی می‌شوند. اجرای `cd` بدون آرگومان، پوشهٔ خانگی کاربر را انتخاب می‌کند.
 
 ## فهرست دستورهای یک افزونه
 

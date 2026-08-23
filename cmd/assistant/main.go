@@ -13,11 +13,13 @@ import (
 	"nextcmd/internal/history"
 	"nextcmd/internal/terminal"
 	"nextcmd/plugins/builtin"
+	"nextcmd/sdk"
 )
 
 func Main() {
 	debug := flag.Bool("debug", false, "enable debug logging")
 	configPath := flag.String("config", config.DefaultPath(), "configuration file")
+	workingDirectory := flag.String("directory", "", "initial working directory")
 	flag.Parse()
 	cfg, err := config.Load(*configPath)
 	if err != nil {
@@ -37,7 +39,19 @@ func Main() {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(2)
 	}
-	plugins := builtin.All(cfg.GitEnabled, cfg.DotnetEnabled, cfg.CargoEnabled)
+	if *workingDirectory != "" {
+		directory, err = app.ResolveDirectory(directory, *workingDirectory)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, "directory:", err)
+			os.Exit(2)
+		}
+	}
+	plugins := []sdk.Plugin{}
+	for _, plugin := range builtin.All() {
+		if cfg.PluginEnabled(plugin.Info().ID) {
+			plugins = append(plugins, plugin)
+		}
+	}
 	for _, plugin := range plugins {
 		logger.Debug("loaded plugin", "id", plugin.Info().ID, "version", plugin.Info().Version)
 	}

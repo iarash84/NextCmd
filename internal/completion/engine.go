@@ -85,6 +85,9 @@ func (e *Engine) project(ctx context.Context, directory string) map[string]any {
 	return values
 }
 func (e *Engine) Complete(ctx context.Context, input, directory string, previous *sdk.ExecutionResult) []sdk.Suggestion {
+	if isBuiltinCommandInput(input) {
+		return nil
+	}
 	projects := e.project(ctx, directory)
 	all := []sdk.Suggestion{}
 	for _, plugin := range e.plugins {
@@ -111,6 +114,11 @@ func (e *Engine) Complete(ctx context.Context, input, directory string, previous
 		}
 	}
 	return ranking.Rank(input, all, e.max)
+}
+
+func isBuiltinCommandInput(input string) bool {
+	trimmed := strings.ToLower(strings.TrimSpace(input))
+	return trimmed == "cd" || trimmed == ":cd" || strings.HasPrefix(trimmed, "cd ") || strings.HasPrefix(trimmed, ":cd ") || trimmed == "pwd" || trimmed == ":pwd"
 }
 func (e *Engine) add(all *[]sdk.Suggestion, plugin sdk.Plugin, items []sdk.Suggestion, err error) {
 	if err != nil {

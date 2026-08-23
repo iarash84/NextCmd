@@ -2,10 +2,36 @@ package terminal
 
 import (
 	"bytes"
+	"context"
+	"io"
 	"testing"
 
 	"nextcmd/sdk"
 )
+
+type directoryCompleter struct{ directory string }
+
+func (c *directoryCompleter) Complete(_ context.Context, _ string, directory string, _ *sdk.ExecutionResult) []sdk.Suggestion {
+	c.directory = directory
+	return nil
+}
+
+func TestSetDirectoryUpdatesCompletionContextAndDisplay(t *testing.T) {
+	var output bytes.Buffer
+	completer := &directoryCompleter{}
+	ui := &UI{input: bytes.NewReader([]byte{'\r'}), output: &output, directory: "old"}
+	ui.SetDirectory("new-project")
+	command, err := ui.ReadCommand(context.Background(), completer, nil)
+	if err != nil && err != io.EOF {
+		t.Fatal(err)
+	}
+	if command != "" || completer.directory != "new-project" {
+		t.Fatalf("command=%q directory=%q", command, completer.directory)
+	}
+	if !bytes.Contains(output.Bytes(), []byte("cwd new-project")) {
+		t.Fatalf("working directory is not visible: %q", output.String())
+	}
+}
 
 func TestAcceptSelected(t *testing.T) {
 	suggestions := []sdk.Suggestion{{
@@ -72,5 +98,14 @@ func TestAcceptSelectedRejectsInvalidIndex(t *testing.T) {
 	line, ok := acceptSelected("git", nil, 0)
 	if ok || line != "git" {
 		t.Fatalf("invalid selection changed the line: %q, %v", line, ok)
+	}
+}
+
+func TestDirectoryCommandsExecuteWithoutAcceptingPluginSuggestion(t *testing.T) {
+	suggestions := []sdk.Suggestion{{Command: sdk.Command{Executable: "cargo", Args: []string{"add", "<crate>"}}}}
+	for _, line := range []string{"cd ..", `cd "project with spaces"`, ":cd ..", "pwd", ":pwd"} {
+		if accepted, ok := acceptSelected(line, suggestions, 0); ok || accepted != line {
+			t.Errorf("directory command %q accepted suggestion: %q, %v", line, accepted, ok)
+		}
 	}
 }
