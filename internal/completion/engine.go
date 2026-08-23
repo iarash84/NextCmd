@@ -88,6 +88,9 @@ func (e *Engine) Complete(ctx context.Context, input, directory string, previous
 	if isBuiltinCommandInput(input) {
 		return nil
 	}
+	if strings.HasPrefix(strings.TrimSpace(input), ":") {
+		return ranking.Rank(input, builtinSuggestions(), 0)
+	}
 	projects := e.project(ctx, directory)
 	all := []sdk.Suggestion{}
 	for _, plugin := range e.plugins {

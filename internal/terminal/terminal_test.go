@@ -101,6 +101,17 @@ func TestAcceptSelectedRejectsInvalidIndex(t *testing.T) {
 	}
 }
 
+func TestAcceptSelectedAcceptsBuiltinFromColonPrefix(t *testing.T) {
+	suggestions := []sdk.Suggestion{{Command: sdk.Command{Executable: ":plugins"}, Source: "nextcmd"}}
+	line, ok := acceptSelected(":pl", suggestions, 0)
+	if !ok || line != ":plugins" {
+		t.Fatalf("acceptSelected() = %q, %v", line, ok)
+	}
+	if line, ok = acceptSelected(line, suggestions, 0); ok || line != ":plugins" {
+		t.Fatalf("accepted command must be ready to execute: %q, %v", line, ok)
+	}
+}
+
 func TestDirectoryCommandsExecuteWithoutAcceptingPluginSuggestion(t *testing.T) {
 	suggestions := []sdk.Suggestion{{Command: sdk.Command{Executable: "cargo", Args: []string{"add", "<crate>"}}}}
 	for _, line := range []string{"cd ..", `cd "project with spaces"`, ":cd ..", "pwd", ":pwd", ":ls", ":ls ..", ":history", ":history 5", ":plugins", ":clear", ":config", ":which go", ":version"} {

@@ -15,6 +15,8 @@ Type either form and press Enter:
 
 The output explains keyboard controls, built-in commands, exit commands, and all loaded plugins.
 
+Type `:` in the command editor to open the built-in command palette. Continue typing to filter it—for example, `:pl` leaves `:plugins`. Use Up/Down to highlight an item and Tab, Right Arrow, or Enter to place it in the editable command line. Commands that require a value are shown with an editable placeholder, such as `:which <command>` and `:cd <path>`. Because the catalog is small and local, all matching built-ins are shown without running plugins or project detection.
+
 ## Working directory commands
 
 The active directory is printed above each prompt. Start NextCmd elsewhere with `nextcmd --directory <path>`. Use `pwd` or `:pwd` to print it again. Use `cd <path>` or `:cd <path>` to change the directory used by completion, project detection, execution, and history. Relative paths, absolute paths, quoted paths with spaces, `..`, and `~` are supported. Running `cd` without a path selects the user home directory.
@@ -129,6 +131,8 @@ NextCmd راهنمای داخلی دارد؛ بنابراین برای دیدن 
 </div>
 
 برنامه کاربرد کلیدهای صفحه‌کلید، دستورهای داخلی، روش‌های خروج و نام افزونه‌های فعال را نمایش می‌دهد.
+
+برای دیدن فهرست فرمان‌های داخلی، در ویرایشگر دستور فقط `:` را تایپ کنید. با ادامهٔ تایپ، فهرست محدود می‌شود؛ برای نمونه، `:pl` فقط پیشنهاد `:plugins` را باقی می‌گذارد. با کلیدهای بالا و پایین یک مورد را انتخاب کنید و با Tab، جهت راست یا Enter آن را وارد خط فرمان قابل‌ویرایش کنید. فرمان‌هایی که به مقدار نیاز دارند با جای‌نگهدار نمایش داده می‌شوند؛ مانند `:which <command>` و `:cd <path>`. این فهرست کوچک کاملاً داخلی است و برای نمایش آن هیچ افزونه یا عملیات تشخیص پروژه اجرا نمی‌شود.
 
 ## دستورهای مسیر کاری
 

@@ -43,6 +43,7 @@ func printHelp(writer io.Writer, engine *completion.Engine, pluginName string) {
 
 func printGeneralHelp(writer io.Writer, engine *completion.Engine) {
 	fmt.Fprintln(writer, "NextCmd help")
+	fmt.Fprintln(writer, "Type : in the command editor to show all built-in commands.")
 	fmt.Fprintln(writer, "Keyboard:")
 	fmt.Fprintln(writer, "  Up/Down       Highlight suggestions")
 	fmt.Fprintln(writer, "  Tab/Right     Accept the highlighted suggestion")

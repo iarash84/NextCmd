@@ -33,3 +33,37 @@ func TestDirectoryCommandsDoNotReceivePluginSuggestions(t *testing.T) {
 		}
 	}
 }
+
+func TestColonSuggestsBuiltinCommands(t *testing.T) {
+	engine := New([]sdk.Plugin{catalogPlugin{}}, 20, slog.New(slog.NewTextHandler(io.Discard, nil)))
+	suggestions := engine.Complete(t.Context(), ":", ".", nil)
+	wanted := map[string]bool{":q": false, ":ls": false, ":plugins": false, ":history": false, ":clear": false, ":config": false, ":which <command>": false, ":version": false, ":?": false}
+	for _, suggestion := range suggestions {
+		if _, ok := wanted[suggestion.Command.Display()]; ok {
+			wanted[suggestion.Command.Display()] = true
+		}
+		if suggestion.Source != "nextcmd" {
+			t.Errorf("built-in suggestion source = %q", suggestion.Source)
+		}
+	}
+	for command, found := range wanted {
+		if !found {
+			t.Errorf("%s was not suggested for colon input", command)
+		}
+	}
+}
+
+func TestBuiltinSuggestionsSupportPrefixFiltering(t *testing.T) {
+	engine := New(nil, 8, slog.New(slog.NewTextHandler(io.Discard, nil)))
+	suggestions := engine.Complete(t.Context(), ":pl", ".", nil)
+	if len(suggestions) != 1 || suggestions[0].Command.Display() != ":plugins" {
+		t.Fatalf("Complete(:pl) = %#v", suggestions)
+	}
+}
+
+func TestAcceptedBuiltinCommandHasNoSuggestions(t *testing.T) {
+	engine := New(nil, 8, slog.New(slog.NewTextHandler(io.Discard, nil)))
+	if suggestions := engine.Complete(t.Context(), ":plugins", ".", nil); len(suggestions) != 0 {
+		t.Fatalf("accepted built-in received suggestions: %#v", suggestions)
+	}
+}
