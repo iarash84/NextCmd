@@ -7,7 +7,7 @@ NextCmd is a fast, deterministic, cross-platform programming command-line assist
 ## Features
 
 - Interactive editor: Up/Down highlights a suggestion; Tab, Right Arrow, or the first Enter accepts it into the editor; Left Arrow clears the command line; the next Enter executes an accepted command. Use `exit`, `quit`, `:q`, or Ctrl+C to exit.
-- Color-aware terminal theme with highlighted selection, suggestion and risk badges, plugin source, and execution status. Colors stay out of redirected output and can be disabled with `NO_COLOR`.
+- Color-aware terminal theme with highlighted selection, suggestion and risk badges, plugin source, and execution status. Colors stay out of redirected output and can be disabled with `NO_COLOR`; see the [complete badge and risk reference](docs/help.md#suggestion-kinds).
 - Built-in `:?`/`:؟` help, per-plugin command catalogs, and suggestions from incomplete executable prefixes such as `gi` or `dot`.
 - Structured, shell-independent commands and captured stdout, stderr, exit code, and duration.
 - Capability-based public plugin SDK and explicit compile-time registration.
@@ -108,7 +108,7 @@ NextCmd یک دستیار خط فرمان سریع و چندسکویی است ک
 ## قابلیت‌ها
 
 - ویرایشگر تعاملی: کلیدهای بالا و پایین میان پیشنهادها جابه‌جا می‌شوند. کلید Tab، جهت راست یا اولین Enter پیشنهاد را وارد ویرایشگر می‌کند. جهت چپ کل متن را پاک می‌کند و Enter بعدی دستور را اجرا می‌کند. برای خروج می‌توان از `exit`، `quit`، `:q` یا Ctrl+C استفاده کرد.
-- ظاهر رنگی پایانه: پیشنهاد انتخاب‌شده، نوع پیشنهاد، میزان خطر، افزونهٔ پیشنهاددهنده و نتیجهٔ اجرای دستور با رنگ‌های متفاوت نمایش داده می‌شوند. با تنظیم متغیر `NO_COLOR` می‌توان رنگ‌ها را غیرفعال کرد.
+- ظاهر رنگی پایانه: پیشنهاد انتخاب‌شده، نوع پیشنهاد، میزان خطر، افزونهٔ پیشنهاددهنده و نتیجهٔ اجرای دستور با رنگ‌های متفاوت نمایش داده می‌شوند. با تنظیم متغیر `NO_COLOR` می‌توان رنگ‌ها را غیرفعال کرد. معنی کامل برچسب‌ها و سطح‌های خطر در [راهنمای تعاملی](docs/help.md#نوع-پیشنهاد) آمده است.
 - راهنمای داخلی با دستورهای `:?` و `:؟` و امکان مشاهدهٔ همهٔ دستورهای شناخته‌شدهٔ هر افزونه.
 - نمایش پیشنهاد پیش از کامل‌شدن نام ابزار؛ برای مثال، با نوشتن `gi` پیشنهادهای Git و با نوشتن `dot` پیشنهادهای .NET ظاهر می‌شوند.
 - نگهداری دستور به‌صورت نام برنامه و آرگومان‌های جداگانه؛ بنابراین دستورها بدون عبور از پوسته اجرا می‌شوند. خروجی عادی، خروجی خطا، کد خروج و مدت اجرا ثبت می‌شود.
