@@ -34,6 +34,8 @@ Plugin suggestions appear before the executable name is complete. For example, `
 
 ---
 
+<div dir="rtl">
+
 # راهنمای تعاملی
 
 NextCmd بدون باز کردن browser یا اجرای command خارجی، راهنمای داخلی ارائه می‌دهد.
@@ -65,3 +67,5 @@ NextCmd بدون باز کردن browser یا اجرای command خارجی، ر
 ## prefix نام executable
 
 پیشنهادها پیش از کامل شدن نام executable ظاهر می‌شوند. برای نمونه `g` و `gi` پیشنهادهای Git و `dot`، `dotn` و `dotnet` پیشنهادهای .NET را نمایش می‌دهند. ranking نهایی همچنان قطعی و بر اساس تمام متن فعلی است.
+
+</div>

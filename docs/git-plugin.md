@@ -14,6 +14,8 @@ Limitations: porcelain rename paths receive only minimal parsing; commit hash, t
 
 ---
 
+<div dir="rtl">
+
 # Git Plugin
 
 Git Plugin مجموعه گسترده‌ای از دستورهای status، staging، commit، history، branch، stash، remote، tag، integration، worktree، submodule، configuration، ساخت repository و clone را می‌شناسد. دستورهای show، reflog، blame، grep، annotated tag، cherry-pick، revert، reset/clean امن، worktree و submodule نیز پشتیبانی می‌شوند.
@@ -29,3 +31,5 @@ metadata مربوط به priority از وضعیت واقعی repository تأثی
 پس از ساخت یا تعویض branch، Plugin می‌تواند انتشار branch و تنظیم upstream را پیشنهاد دهد. برای stash، merge، rebase، cherry-pick، revert و fetch نیز اقدام بعدی وابسته به context ارائه می‌شود.
 
 محدودیت‌ها: مسیر rename در porcelain به‌شکل ساده parse می‌شود؛ تکمیل commit hash، نام tag و remote branch هنوز پویا نیست؛ cache کوتاه ممکن است برای لحظه‌ای وضعیت قدیمی نشان دهد؛ recovery عمداً فقط خطاهای رایج را می‌شناسد.
+
+</div>

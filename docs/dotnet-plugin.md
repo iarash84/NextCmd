@@ -40,6 +40,8 @@ The plugin is enabled by default and can be disabled independently:
 
 ---
 
+<div dir="rtl">
+
 # پلاگین .NET
 
 پلاگین built-in مربوط به .NET پیشنهادهای قطعی برای CLI چندسکویی `dotnet` ارائه می‌دهد. این Plugin فقط از SDK عمومی و Go Standard Library استفاده می‌کند و Core هیچ نوع یا قانون مخصوص .NET ندارد.
@@ -77,3 +79,5 @@ Plugin به‌صورت پیش‌فرض فعال است و مستقل از Git غ
 ```json
 {"dotnetEnabled": false}
 ```
+
+</div>

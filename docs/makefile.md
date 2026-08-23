@@ -69,6 +69,8 @@ target/NextCmd-darwin-arm64
 
 ---
 
+<div dir="rtl">
+
 # ساخت با Make
 
 فایل Makefile فرمان‌های کوتاه موردنیاز برای توسعه روزمره را فراهم می‌کند. این builder فقط Go toolchain نصب‌شده روی سیستم را فراخوانی می‌کند و dependency دانلود نمی‌کند.
@@ -126,3 +128,5 @@ target/NextCmd        # Linux و macOS
 `make build-root` همان فایل میزبان را با نام `NextCmd.exe` یا `NextCmd` در ریشه repository کپی می‌کند و cross-build انجام نمی‌دهد.
 
 `make build-all` شش فایل Windows، Linux و macOS را برای amd64 و arm64 داخل `target/` تولید می‌کند.
+
+</div>

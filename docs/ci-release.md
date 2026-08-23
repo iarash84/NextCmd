@@ -31,6 +31,8 @@ A release can also be re-triggered from the Actions page with `workflow_dispatch
 
 ---
 
+<div dir="rtl">
+
 # یکپارچه‌سازی و انتشار
 
 NextCmd دو workflow در مسیر `.github/workflows` دارد.
@@ -59,3 +61,5 @@ git push origin v1.0.0
 Workflow معتبر بودن tag و قالب semantic version را بررسی می‌کند، تست‌ها را اجرا می‌کند، تمام targetها را می‌سازد، برای Windows فایل ZIP و برای Linux/macOS فایل `tar.gz` ایجاد می‌کند، checksum از نوع SHA-256 می‌سازد و همه خروجی‌ها را همراه release notes خودکار منتشر می‌کند.
 
 امکان اجرای دوباره از صفحه Actions نیز وجود دارد، اما tag واردشده باید از قبل وجود داشته باشد. job انتشار فقط مجوز `contents: write` دارد و به secret جداگانه نیاز ندارد؛ احراز هویت با `GITHUB_TOKEN` محدودشده GitHub Actions انجام می‌شود.
+
+</div>

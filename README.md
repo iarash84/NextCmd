@@ -83,6 +83,8 @@ MIT. See [LICENSE](LICENSE).
 
 ---
 
+<div dir="rtl">
+
 # فارسی
 
 NextCmd یک دستیار خط فرمان برنامه‌نویسی سریع، قطعی و چندسکویی است که با Go نوشته شده است. برنامه با توجه به متن فعلی، وضعیت پروژه و نتیجه دستور قبلی، دستورهای قابل‌ویرایش پیشنهاد می‌دهد. نسخه MVP شامل Git Plugin و Dotnet Plugin با registration صریح است و از AI، سرویس شبکه، اجرای shell یا dependency خارجی Go استفاده نمی‌کند.
@@ -148,3 +150,5 @@ GitHub Actions فرمت، vet، تست‌ها، race detector و هر شش cross
 ## مجوز
 
 پروژه تحت مجوز MIT منتشر می‌شود. متن رسمی در [LICENSE](LICENSE) قرار دارد.
+
+</div>

@@ -18,6 +18,8 @@ Git and .NET built-ins are composed explicitly by `plugins/builtin.All`; removin
 
 ---
 
+<div dir="rtl">
+
 # معماری
 
 جهت dependencyها عمداً یک‌طرفه است:
@@ -37,3 +39,5 @@ Command همیشه به‌صورت `Executable + Args` باقی می‌ماند 
 `internal/terminal` مسئول نمایش و keyboard behavior است و برای Windows، Linux و macOS مرز raw-mode جداگانه دارد. هیچ نوع UI وارد SDK نشده است. `internal/history` اطلاعات را به‌شکل JSON Lines ذخیره و secretهای رایج و credential موجود در URL را پیش از ذخیره حذف می‌کند.
 
 Git و .NET به‌صورت صریح توسط `plugins/builtin.All` ساخته می‌شوند. با حذف هرکدام یا هردو از این فهرست، Core همچنان build می‌شود. پروژه از registration مخفی با `init`، reflection، registry سراسری mutable، dynamic library، دسترسی شبکه و dependency خارجی استفاده نمی‌کند.
+
+</div>
