@@ -32,6 +32,10 @@ The catalog comes from the plugin through the public `sdk.HelpProvider` capabili
 
 Plugin suggestions appear before the executable name is complete. For example, `g` and `gi` show Git suggestions, while `dot`, `dotn`, and `dotnet` show .NET suggestions. Final ranking remains deterministic and uses the full current input.
 
+## Terminal theme
+
+The cyan prompt and arrow identify the editor and selected row. Each suggestion includes a compact kind badge (`COMP`, `NEXT`, `TIP`, or `FIX`), a color-coded risk, and its source plugin. After execution, a green or red status line reports the exit code and duration. Set `NO_COLOR` to any non-empty value for plain output; colors are also omitted when output is redirected.
+
 ---
 
 <div dir="rtl">
@@ -75,5 +79,9 @@ NextCmd بدون باز کردن browser یا اجرای command خارجی، ر
 ## prefix نام executable
 
 پیشنهادها پیش از کامل شدن نام executable ظاهر می‌شوند. برای نمونه `g` و `gi` پیشنهادهای Git و `dot`، `dotn` و `dotnet` پیشنهادهای .NET را نمایش می‌دهند. ranking نهایی همچنان قطعی و بر اساس تمام متن فعلی است.
+
+## ظاهر Terminal
+
+prompt و فلش فیروزه‌ای، editor و سطر انتخاب‌شده را مشخص می‌کنند. هر suggestion یک badge کوتاه برای نوع (`COMP`، `NEXT`، `TIP` یا `FIX`)، ریسک رنگی و شناسهٔ Plugin منبع دارد. پس از اجرا نیز یک سطر سبز یا قرمز exit code و مدت اجرا را نمایش می‌دهد. برای خروجی ساده، متغیر استاندارد `NO_COLOR` را روی یک مقدار غیرخالی قرار دهید؛ هنگام redirect شدن خروجی نیز رنگ‌ها خودکار حذف می‌شوند.
 
 </div>

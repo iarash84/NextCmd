@@ -7,6 +7,7 @@ NextCmd is a fast, deterministic, cross-platform programming command-line assist
 ## Features
 
 - Interactive editor: Up/Down highlights a suggestion; Tab, Right Arrow, or the first Enter accepts it into the editor; Left Arrow clears the command line; the next Enter executes an accepted command. Use `exit`, `quit`, `:q`, or Ctrl+C to exit.
+- Color-aware terminal theme with highlighted selection, suggestion and risk badges, plugin source, and execution status. Colors stay out of redirected output and can be disabled with `NO_COLOR`.
 - Built-in `:?`/`:؟` help, per-plugin command catalogs, and suggestions from incomplete executable prefixes such as `gi` or `dot`.
 - Structured, shell-independent commands and captured stdout, stderr, exit code, and duration.
 - Capability-based public plugin SDK and explicit compile-time registration.
@@ -92,6 +93,7 @@ NextCmd یک دستیار خط فرمان برنامه‌نویسی سریع، �
 ## قابلیت‌ها
 
 - ویرایشگر تعاملی: جهت بالا/پایین یک پیشنهاد را مشخص می‌کند؛ Tab، جهت راست یا اولین Enter آن را وارد editor می‌کند؛ جهت چپ کل سطر command را پاک می‌کند و Enter بعدی command پذیرفته‌شده را اجرا می‌کند. خروج با `exit`، `quit`، `:q` یا Ctrl+C انجام می‌شود و UI پیش از خروج پاک‌سازی می‌شود.
+- theme رنگی Terminal با مشخص‌کردن پیشنهاد انتخاب‌شده، badge نوع و ریسک، منبع Plugin و وضعیت اجرای command. هنگام redirect شدن خروجی رنگی تولید نمی‌شود و با متغیر `NO_COLOR` نیز می‌توان رنگ را غیرفعال کرد.
 - راهنمای داخلی `:?`/`:؟`، کاتالوگ commandهای هر Plugin و نمایش پیشنهاد پیش از کامل شدن executable مانند `gi` یا `dot`.
 - commandهای ساختاریافته و مستقل از shell همراه با ثبت stdout، stderr، exit code و مدت اجرا.
 - Plugin SDK مبتنی بر capability و registration صریح در زمان build.

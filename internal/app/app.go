@@ -30,7 +30,7 @@ func New(engine *completion.Engine, store *history.Store, ui *terminal.UI, logge
 	return &App{engine: engine, history: store, ui: ui, logger: logger, directory: directory}
 }
 func (a *App) Run(ctx context.Context) error {
-	fmt.Println("NextCmd — arrows: select, Tab/Right: accept, Enter: run, :? help, exit/quit/:q: exit")
+	terminal.PrintWelcome(os.Stdout)
 	var previous *sdk.ExecutionResult
 	for {
 		line, err := a.ui.ReadCommand(ctx, a.engine, previous)
@@ -66,6 +66,7 @@ func (a *App) Run(ctx context.Context) error {
 		if result.Err != nil {
 			fmt.Fprintln(os.Stderr, "command failed:", result.Err)
 		}
+		terminal.PrintExecutionSummary(os.Stdout, result)
 		plugin := ""
 		if command.Executable == "git" {
 			plugin = "git"

@@ -38,9 +38,12 @@ type UI struct {
 	output             io.Writer
 	directory          string
 	selected, rendered int
+	color              bool
 }
 
-func New(directory string) *UI { return &UI{input: os.Stdin, output: os.Stdout, directory: directory} }
+func New(directory string) *UI {
+	return &UI{input: os.Stdin, output: os.Stdout, directory: directory, color: supportsColor(os.Stdout)}
+}
 func (u *UI) ReadCommand(ctx context.Context, completer Completer, previous *sdk.ExecutionResult) (string, error) {
 	restore, raw := makeRaw()
 	if raw {
@@ -85,7 +88,7 @@ func (u *UI) ReadCommand(ctx context.Context, completer Completer, previous *sdk
 				break
 			}
 			u.clearSuggestions()
-			fmt.Fprint(u.output, "\r\x1b[2K> ", line, "\n")
+			fmt.Fprint(u.output, "\r\x1b[2K", paint(u.color, ansiBold+ansiCyan, "❯ "), line, "\n")
 			return strings.TrimSpace(line), nil
 		case KeyEscape, KeyEOF:
 			u.clearSuggestions()
@@ -117,13 +120,22 @@ func acceptSelected(line string, suggestions []sdk.Suggestion, selected int) (st
 
 func (u *UI) render(line string, suggestions []sdk.Suggestion) {
 	u.clearSuggestions()
-	fmt.Fprint(u.output, "\r\x1b[2K> ", line)
+	fmt.Fprint(u.output, "\r\x1b[2K", paint(u.color, ansiBold+ansiCyan, "❯ "), line)
 	for i, suggestion := range suggestions {
 		marker := "  "
 		if i == u.selected {
-			marker = "❯ "
+			marker = paint(u.color, ansiBold+ansiCyan, "❯ ")
 		}
-		fmt.Fprintf(u.output, "\n\x1b[2K%s%s  [%s/%s]", marker, suggestion.Command.Display(), suggestion.Kind, suggestion.Risk)
+		commandColor := ansiWhite
+		if i == u.selected {
+			commandColor = ansiBold + ansiWhite
+		}
+		fmt.Fprintf(u.output, "\n\x1b[2K%s%s  %s %s %s",
+			marker,
+			paint(u.color, commandColor, suggestion.Command.Display()),
+			paint(u.color, kindColor(suggestion.Kind), suggestionBadge(suggestion.Kind)),
+			paint(u.color, riskColor(suggestion.Risk), strings.ToUpper(string(suggestion.Risk))),
+			paint(u.color, ansiDim, "· "+suggestion.Source))
 	}
 	if len(suggestions) > 0 {
 		fmt.Fprintf(u.output, "\x1b[%dA\r\x1b[%dC", len(suggestions), len(line)+2)
