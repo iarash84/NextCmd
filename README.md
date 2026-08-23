@@ -7,6 +7,7 @@ NextCmd is a fast, deterministic, cross-platform programming command-line assist
 ## Features
 
 - Interactive editor: Up/Down highlights a suggestion; Tab, Right Arrow, or the first Enter accepts it into the editor; Left Arrow clears the command line; the next Enter executes an accepted command. Use `exit`, `quit`, `:q`, or Ctrl+C to exit.
+- Built-in `:?`/`:؟` help, per-plugin command catalogs, and suggestions from incomplete executable prefixes such as `gi` or `dot`.
 - Structured, shell-independent commands and captured stdout, stderr, exit code, and duration.
 - Capability-based public plugin SDK and explicit compile-time registration.
 - Git and .NET workspace detection, cached context, dynamic completion, next actions, best practices, and recovery.
@@ -57,6 +58,8 @@ All artifacts are written to `target/`. `build-root` copies only the current hos
 
 `sdk` is the only package plugin authors need. Core discovers optional capabilities with type assertions, merges results, and owns ranking. Plugins return data and never render UI. Built-ins are listed explicitly in `plugins/builtin`. See [architecture](docs/architecture.md), [plugin development](docs/plugin-development.md), the [Git plugin](docs/git-plugin.md), and the [.NET plugin](docs/dotnet-plugin.md).
 
+For keyboard controls and plugin command catalogs, see the bilingual [interactive help guide](docs/help.md) or type `:?` inside NextCmd.
+
 ## Development and testing
 
 ```text
@@ -87,6 +90,7 @@ NextCmd یک دستیار خط فرمان برنامه‌نویسی سریع، �
 ## قابلیت‌ها
 
 - ویرایشگر تعاملی: جهت بالا/پایین یک پیشنهاد را مشخص می‌کند؛ Tab، جهت راست یا اولین Enter آن را وارد editor می‌کند؛ جهت چپ کل سطر command را پاک می‌کند و Enter بعدی command پذیرفته‌شده را اجرا می‌کند. خروج با `exit`، `quit`، `:q` یا Ctrl+C انجام می‌شود و UI پیش از خروج پاک‌سازی می‌شود.
+- راهنمای داخلی `:?`/`:؟`، کاتالوگ commandهای هر Plugin و نمایش پیشنهاد پیش از کامل شدن executable مانند `gi` یا `dot`.
 - commandهای ساختاریافته و مستقل از shell همراه با ثبت stdout، stderr، exit code و مدت اجرا.
 - Plugin SDK مبتنی بر capability و registration صریح در زمان build.
 - تشخیص Git repository و .NET workspace، context دارای cache، تکمیل پویا، اقدام بعدی، best practice و recovery.

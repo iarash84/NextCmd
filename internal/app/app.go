@@ -30,7 +30,7 @@ func New(engine *completion.Engine, store *history.Store, ui *terminal.UI, logge
 	return &App{engine: engine, history: store, ui: ui, logger: logger, directory: directory}
 }
 func (a *App) Run(ctx context.Context) error {
-	fmt.Println("NextCmd — arrows: select, Tab: accept, Enter: run, exit/quit/:q or Ctrl+C: exit")
+	fmt.Println("NextCmd — arrows: select, Tab/Right: accept, Enter: run, :? help, exit/quit/:q: exit")
 	var previous *sdk.ExecutionResult
 	for {
 		line, err := a.ui.ReadCommand(ctx, a.engine, previous)
@@ -41,6 +41,10 @@ func (a *App) Run(ctx context.Context) error {
 			return err
 		}
 		if line == "" {
+			continue
+		}
+		if pluginName, help := parseHelpCommand(line); help {
+			printHelp(os.Stdout, a.engine, pluginName)
 			continue
 		}
 		if isExitCommand(line) {

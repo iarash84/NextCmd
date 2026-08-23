@@ -8,7 +8,7 @@ plugins ──> sdk <── internal core <── cmd/assistant
                          plugins/builtin
 ```
 
-The `sdk` contains stable data contracts and small optional capability interfaces. It imports only the Go standard library. A plugin must implement `Plugin.Info`; it may independently implement completion, detection, next-action, best-practice, or recovery capabilities. The completion engine uses type assertions, isolates provider errors, caches detection briefly, merges suggestions, and delegates final order to Core ranking.
+The `sdk` contains stable data contracts and small optional capability interfaces. It imports only the Go standard library. A plugin must implement `Plugin.Info`; it may independently implement completion, detection, next-action, best-practice, recovery, or help-catalog capabilities. The completion engine uses type assertions, isolates provider errors, caches detection briefly, merges suggestions, and delegates final order to Core ranking.
 
 Commands remain `Executable + Args`; rendering and execution are separate. Execution calls `exec.CommandContext` directly and never invokes a shell. Git-specific process calls and parsing live exclusively in `plugins/git`.
 
@@ -28,7 +28,7 @@ plugins --> sdk <-- internal core <-- cmd/assistant
                          plugins/builtin
 ```
 
-package عمومی `sdk` شامل قراردادهای داده پایدار و interfaceهای کوچک و اختیاری مبتنی بر capability است و فقط از Go Standard Library استفاده می‌کند. هر Plugin تنها موظف به پیاده‌سازی `Plugin.Info` است و می‌تواند قابلیت‌های completion، detection، next action، best practice یا recovery را مستقل از یکدیگر ارائه دهد.
+package عمومی `sdk` شامل قراردادهای داده پایدار و interfaceهای کوچک و اختیاری مبتنی بر capability است و فقط از Go Standard Library استفاده می‌کند. هر Plugin تنها موظف به پیاده‌سازی `Plugin.Info` است و می‌تواند قابلیت‌های completion، detection، next action، best practice، recovery یا کاتالوگ Help را مستقل از یکدیگر ارائه دهد.
 
 Completion Engine قابلیت‌ها را با type assertion تشخیص می‌دهد، خطای هر provider را از برنامه جدا نگه می‌دارد، نتیجه detection را برای مدت کوتاه cache می‌کند، suggestionها را ترکیب می‌کند و ترتیب نهایی را به ranking در Core می‌سپارد.
 

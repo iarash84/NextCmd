@@ -55,6 +55,13 @@ func TestCompletionOutsideWorkspaceKeepsCoreCommandsAvailable(t *testing.T) {
 	}
 }
 
+func TestIncompleteExecutablePrefix(t *testing.T) {
+	got, err := New().Complete(context.Background(), sdk.CompletionContext{Input: "dot"})
+	if err != nil || len(got) == 0 || !containsCommand(got, "dotnet build") {
+		t.Fatalf("dotnet suggestions missing for executable prefix: %#v, %v", got, err)
+	}
+}
+
 func TestDynamicProjectAndTestCompletion(t *testing.T) {
 	state := State{Projects: []Project{{Path: "src/App/App.csproj", Name: "App"}, {Path: "tests/App.Tests/App.Tests.csproj", Name: "App.Tests", Test: true}}}
 	plugin := New()

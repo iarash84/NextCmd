@@ -73,7 +73,7 @@ var commands = []commandSpec{
 
 func (p *Plugin) Complete(_ context.Context, input sdk.CompletionContext) ([]sdk.Suggestion, error) {
 	trimmed := strings.TrimSpace(input.Input)
-	if trimmed != "" && !strings.HasPrefix(strings.ToLower(trimmed), "git") {
+	if !matchesExecutable(trimmed, "git") {
 		return nil, nil
 	}
 	state, _ := input.Project.(State)
@@ -97,6 +97,22 @@ func (p *Plugin) Complete(_ context.Context, input sdk.CompletionContext) ([]sdk
 	}
 	suggestions = append(suggestions, dynamic(input.Input, state)...)
 	return suggestions, nil
+}
+
+func (*Plugin) Help() []sdk.CommandHelp {
+	out := make([]sdk.CommandHelp, 0, len(commands))
+	for _, spec := range commands {
+		out = append(out, sdk.CommandHelp{Command: sdk.Command{Executable: "git", Args: append([]string(nil), spec.args...)}, Description: spec.title, Risk: spec.risk})
+	}
+	return out
+}
+
+func matchesExecutable(input, executable string) bool {
+	if input == "" {
+		return true
+	}
+	first := strings.ToLower(strings.Fields(input)[0])
+	return strings.HasPrefix(executable, first) || first == executable
 }
 func dynamic(input string, state State) []sdk.Suggestion {
 	fields := strings.Fields(strings.ToLower(input))

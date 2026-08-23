@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"nextcmd/internal/ranking"
 	"nextcmd/sdk"
+	"strings"
 	"sync"
 	"time"
 )
@@ -24,7 +25,21 @@ type Engine struct {
 func New(plugins []sdk.Plugin, max int, logger *slog.Logger) *Engine {
 	return &Engine{plugins: append([]sdk.Plugin(nil), plugins...), max: max, logger: logger, cache: map[string]cachedProject{}}
 }
-func (e *Engine) Plugins() []sdk.Plugin       { return append([]sdk.Plugin(nil), e.plugins...) }
+func (e *Engine) Plugins() []sdk.Plugin { return append([]sdk.Plugin(nil), e.plugins...) }
+func (e *Engine) Help(pluginName string) (sdk.PluginInfo, []sdk.CommandHelp, bool) {
+	for _, plugin := range e.plugins {
+		info := plugin.Info()
+		if !strings.EqualFold(pluginName, info.ID) && !strings.EqualFold(pluginName, info.Name) {
+			continue
+		}
+		provider, ok := plugin.(sdk.HelpProvider)
+		if !ok {
+			return info, nil, true
+		}
+		return info, provider.Help(), true
+	}
+	return sdk.PluginInfo{}, nil, false
+}
 func (e *Engine) Invalidate(directory string) { e.mu.Lock(); delete(e.cache, directory); e.mu.Unlock() }
 func (e *Engine) project(ctx context.Context, directory string) map[string]any {
 	e.mu.Lock()

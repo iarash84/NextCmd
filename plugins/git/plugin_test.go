@@ -41,6 +41,13 @@ func TestCompletionOutsideRepository(t *testing.T) {
 		}
 	}
 }
+
+func TestIncompleteExecutablePrefix(t *testing.T) {
+	got, err := New().Complete(context.Background(), sdk.CompletionContext{Input: "gi", Project: State{InRepository: true}})
+	if err != nil || len(got) == 0 {
+		t.Fatalf("git suggestions missing for executable prefix: %#v, %v", got, err)
+	}
+}
 func TestDynamicBranchCompletion(t *testing.T) {
 	p := New()
 	got, _ := p.Complete(context.Background(), sdk.CompletionContext{Input: "git switch ", Project: State{InRepository: true, Branches: []string{"main", "feature/auth"}}})
