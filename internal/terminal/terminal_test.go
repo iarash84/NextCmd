@@ -94,6 +94,54 @@ func TestReadKeyRecognizesLeftArrow(t *testing.T) {
 	}
 }
 
+// runKeystrokes feeds keystrokes to ReadCommand and ends the line with
+// Enter, returning the submitted line and the caret position at submit
+// time. (EOF returns an empty line, so it cannot carry caret state.)
+func runKeystrokes(t *testing.T, keystrokes []byte) (string, int) {
+	t.Helper()
+	var output bytes.Buffer
+	completer := &directoryCompleter{}
+	ui := &UI{input: bytes.NewReader(keystrokes), output: &output, directory: "d"}
+	line, err := ui.ReadCommand(context.Background(), completer, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return line, ui.caretForTest()
+}
+
+func TestLeftArrowMovesCaretInsteadOfClearingLine(t *testing.T) {
+	// "ab" then Left, Left (caret=0), then Left again (no-op), Enter.
+	line, caret := runKeystrokes(t, []byte("ab\x1b[D\x1b[D\x1b[D\r"))
+	if line != "ab" {
+		t.Fatalf("left arrow must not clear the line: %q", line)
+	}
+	if caret != 0 {
+		t.Fatalf("caret should be at home after 3 lefts: %d", caret)
+	}
+}
+
+func TestTypingAtCaretInsertsMidLine(t *testing.T) {
+	// "ac", Left (caret=1), type "b" => "abc" with caret at 2.
+	line, caret := runKeystrokes(t, []byte("ac\x1b[Db\r"))
+	if line != "abc" {
+		t.Fatalf("mid-line insert failed: %q", line)
+	}
+	if caret != 2 {
+		t.Fatalf("caret after insert: %d", caret)
+	}
+}
+
+func TestRightArrowMovesCaretWhenNoSuggestions(t *testing.T) {
+	// "ab", Left, Left, Right, Right, Right (clamped at end), Enter.
+	line, caret := runKeystrokes(t, []byte("ab\x1b[D\x1b[D\x1b[C\x1b[C\x1b[C\r"))
+	if line != "ab" {
+		t.Fatalf("right arrow must not change the line: %q", line)
+	}
+	if caret != 2 {
+		t.Fatalf("caret should clamp at line end: %d", caret)
+	}
+}
+
 func TestAcceptSelectedRejectsInvalidIndex(t *testing.T) {
 	line, ok := acceptSelected("git", nil, 0)
 	if ok || line != "git" {
@@ -114,10 +162,20 @@ func TestAcceptSelectedAcceptsBuiltinFromColonPrefix(t *testing.T) {
 
 func TestDirectoryCommandsExecuteWithoutAcceptingPluginSuggestion(t *testing.T) {
 	suggestions := []sdk.Suggestion{{Command: sdk.Command{Executable: "cargo", Args: []string{"add", "<crate>"}}}}
-	for _, line := range []string{"cd ..", `cd "project with spaces"`, ":cd ..", "pwd", ":pwd", ":ls", ":ls ..", ":history", ":history 5", ":plugins", ":clear", ":config", ":which go", ":version"} {
+	for _, line := range []string{"cd ..", `cd "project with spaces"`, ":cd ..", "pwd", ":pwd", ":ls", ":ls ..", ":mkdir old", ":del old", ":history", ":history 5", ":plugins", ":clear", ":config", ":which go", ":version"} {
 		if accepted, ok := acceptSelected(line, suggestions, 0); ok || accepted != line {
 			t.Errorf("directory command %q accepted suggestion: %q, %v", line, accepted, ok)
 		}
+	}
+}
+
+func TestEscapeClearsLine(t *testing.T) {
+	line, caret := runKeystrokes(t, []byte("abc\x1bde\r"))
+	if line != "de" {
+		t.Fatalf("escape should clear current line before more typing: %q", line)
+	}
+	if caret != 2 {
+		t.Fatalf("caret after escape and typing: %d", caret)
 	}
 }
 

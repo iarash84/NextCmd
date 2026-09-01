@@ -79,6 +79,35 @@ func (a *App) Run(ctx context.Context) error {
 			}
 			continue
 		}
+		if requested, handled, parseErr := parseMakeDirectory(line); handled {
+			if parseErr != nil {
+				fmt.Fprintln(os.Stderr, ":mkdir:", parseErr)
+				continue
+			}
+			created, mkdirErr := makeDirectory(a.directory, requested)
+			if mkdirErr != nil {
+				fmt.Fprintln(os.Stderr, ":mkdir:", mkdirErr)
+				continue
+			}
+			fmt.Fprintf(os.Stdout, "Created directory: %s\n", created)
+			continue
+		}
+		if requested, handled, parseErr := parseDeletePath(line); handled {
+			if parseErr != nil {
+				fmt.Fprintln(os.Stderr, ":del:", parseErr)
+				continue
+			}
+			deleted, deleteErr := deletePath(a.directory, requested, func(candidates []deleteCandidate) (deleteKind, error) {
+				return promptDeleteKind(os.Stdin, os.Stdout, candidates)
+			})
+			if deleteErr != nil {
+				fmt.Fprintln(os.Stderr, ":del:", deleteErr)
+				continue
+			}
+			fmt.Fprintf(os.Stdout, "Deleted %s: %s\n", deleted.kind, deleted.path)
+			a.engine.Invalidate(a.directory)
+			continue
+		}
 		if isPrintDirectoryCommand(line) {
 			fmt.Println(a.directory)
 			continue

@@ -1,13 +1,25 @@
 package terminal
 
-import "io"
+import (
+	"bufio"
+	"io"
+)
+
+type byteScanner interface {
+	io.ByteReader
+	UnreadByte() error
+}
 
 func readKey(reader io.Reader) (keyEvent, error) {
-	var b [1]byte
-	if _, err := reader.Read(b[:]); err != nil {
+	scanner, ok := reader.(byteScanner)
+	if !ok {
+		scanner = bufio.NewReader(reader)
+	}
+	first, err := scanner.ReadByte()
+	if err != nil {
 		return keyEvent{}, err
 	}
-	switch b[0] {
+	switch first {
 	case 3, 4:
 		return keyEvent{kind: KeyEOF}, nil
 	case 13, 10:
@@ -17,41 +29,50 @@ func readKey(reader io.Reader) (keyEvent, error) {
 	case 8, 127:
 		return keyEvent{kind: KeyBackspace}, nil
 	case 0, 224:
-		if _, err := reader.Read(b[:]); err != nil {
+		next, err := scanner.ReadByte()
+		if err != nil {
 			return keyEvent{}, err
 		}
-		if b[0] == 72 {
+		if next == 72 {
 			return keyEvent{kind: KeyUp}, nil
 		}
-		if b[0] == 80 {
+		if next == 80 {
 			return keyEvent{kind: KeyDown}, nil
 		}
-		if b[0] == 77 {
+		if next == 77 {
 			return keyEvent{kind: KeyRight}, nil
 		}
-		if b[0] == 75 {
+		if next == 75 {
 			return keyEvent{kind: KeyLeft}, nil
 		}
 		return keyEvent{kind: KeyIgnored}, nil
 	case 27:
-		var sequence [2]byte
-		if _, err := io.ReadFull(reader, sequence[:]); err != nil {
+		next, err := scanner.ReadByte()
+		if err != nil {
 			return keyEvent{kind: KeyEscape}, nil
 		}
-		if sequence[0] == '[' && sequence[1] == 'A' {
+		if next != '[' {
+			_ = scanner.UnreadByte()
+			return keyEvent{kind: KeyEscape}, nil
+		}
+		final, err := scanner.ReadByte()
+		if err != nil {
+			return keyEvent{kind: KeyEscape}, nil
+		}
+		if final == 'A' {
 			return keyEvent{kind: KeyUp}, nil
 		}
-		if sequence[0] == '[' && sequence[1] == 'B' {
+		if final == 'B' {
 			return keyEvent{kind: KeyDown}, nil
 		}
-		if sequence[0] == '[' && sequence[1] == 'C' {
+		if final == 'C' {
 			return keyEvent{kind: KeyRight}, nil
 		}
-		if sequence[0] == '[' && sequence[1] == 'D' {
+		if final == 'D' {
 			return keyEvent{kind: KeyLeft}, nil
 		}
 		return keyEvent{kind: KeyIgnored}, nil
 	default:
-		return keyEvent{kind: KeyRune, value: b[0]}, nil
+		return keyEvent{kind: KeyRune, value: first}, nil
 	}
 }

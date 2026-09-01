@@ -15,7 +15,19 @@ Type either form and press Enter:
 
 The output explains keyboard controls, built-in commands, exit commands, and all loaded plugins.
 
-Type `:` in the command editor to open the built-in command palette. Continue typing to filter it—for example, `:pl` leaves `:plugins`. Use Up/Down to highlight an item and Tab, Right Arrow, or Enter to place it in the editable command line. Commands that require a value are shown with an editable placeholder, such as `:which <command>` and `:cd <path>`. Because the catalog is small and local, all matching built-ins are shown without running plugins or project detection.
+Type `:` in the command editor to open the built-in command palette. Continue typing to filter it—for example, `:pl` leaves `:plugins`. Use Up/Down to highlight an item and Tab, Right Arrow, or Enter to place it in the editable command line. Commands that require a value are shown with an editable placeholder, such as `:del <path>`, `:which <command>`, and `:cd <path>`. Because the catalog is small and local, all matching built-ins are shown without running plugins or project detection.
+
+Keyboard controls:
+
+| Key | Behavior |
+|---|---|
+| Up/Down | Highlight suggestions. |
+| Tab/Right | Accept the highlighted suggestion. |
+| Left/Right | Move the caret inside the command editor. |
+| Enter | Accept a suggestion, then execute on the next press. |
+| Backspace | Delete the previous character. |
+| Escape | Clear the current command line. |
+| Ctrl+C/Ctrl+D | Exit and clean the terminal UI. |
 
 ## Working directory commands
 
@@ -27,6 +39,8 @@ Use `:ls` to list the active directory, or `:ls <path>` to inspect another direc
 :ls
 :ls ..
 :ls "project with spaces"
+:del old.txt
+:del "old directory"
 ```
 
 ## Utility commands
@@ -38,6 +52,7 @@ These commands are handled inside NextCmd. They are not passed to a shell, are n
 | `:history [count]` | Show recent commands executed through NextCmd. | Defaults to 20 entries and accepts 1 through 1000. It displays time, exit code, duration, plugin, working directory, and the redacted structured command. If history is disabled, it says so explicitly. |
 | `:plugins` | Show every currently enabled plugin. | Plugins are sorted by ID and displayed with version, name, and description. Disabled plugins are not listed. |
 | `:clear` | Clear the terminal screen and return the cursor to the top-left corner. | It only changes the current display and does not remove history or project state. |
+| `:del <path>` | Delete a file or directory. | Resolves relative, absolute, quoted, and `~` paths against the active working directory. It detects whether the target is a file or directory, recursively removes directories, and asks which target to remove if both a matching file and directory are found. |
 | `:config` | Show the effective runtime configuration. | Displays the configuration and history paths, history status, suggestion limit, debug status, and sorted plugin overrides. It does not print environment variables or secrets. |
 | `:which <command>` | Locate the executable that NextCmd would find through the operating-system `PATH`. | Uses Go's cross-platform executable lookup, including Windows `PATHEXT`, and prints an absolute path when it can resolve one. |
 | `:version` | Show build and platform information. | Displays the NextCmd version, Go version, OS, architecture, and the source revision when build metadata is available. Official release builds receive their version from the release tag. |
@@ -49,6 +64,7 @@ Examples:
 :history 5
 :plugins
 :clear
+:del old.txt
 :config
 :which dotnet
 :version
@@ -154,6 +170,8 @@ NextCmd راهنمای داخلی دارد؛ بنابراین برای دیدن 
 :ls
 :ls ..
 :ls "project with spaces"
+:del old.txt
+:del "old directory"
 ```
 
 </div>
@@ -170,6 +188,7 @@ NextCmd راهنمای داخلی دارد؛ بنابراین برای دیدن 
 <tr><td dir="ltr"><code>:history [count]</code></td><td>نمایش دستورهایی که اخیراً از طریق NextCmd اجرا شده‌اند.</td><td>به‌طور پیش‌فرض ۲۰ مورد را نشان می‌دهد و عددی بین ۱ تا ۱۰۰۰ می‌پذیرد. زمان، کد خروج، مدت اجرا، افزونه، مسیر کاری و متن پاک‌سازی‌شدهٔ دستور نمایش داده می‌شوند. اگر تاریخچه غیرفعال باشد، برنامه این وضعیت را واضح اعلام می‌کند.</td></tr>
 <tr><td dir="ltr"><code>:plugins</code></td><td>نمایش همهٔ افزونه‌های فعال.</td><td>افزونه‌ها براساس شناسه مرتب می‌شوند و نسخه، نام و توضیح آن‌ها نمایش داده می‌شود. افزونه‌های غیرفعال در این فهرست نیستند.</td></tr>
 <tr><td dir="ltr"><code>:clear</code></td><td>پاک‌کردن صفحهٔ پایانه و انتقال نشانگر به ابتدای صفحه.</td><td>فقط محتوای قابل‌مشاهدهٔ صفحه را پاک می‌کند و تاریخچه یا وضعیت پروژه را تغییر نمی‌دهد.</td></tr>
+<tr><td dir="ltr"><code>:del &lt;path&gt;</code></td><td>حذف فایل یا پوشه.</td><td>مسیرهای نسبی، کامل، نقل‌قول‌شده و <code>~</code> را نسبت به مسیر کاری فعال حل می‌کند. برنامه تشخیص می‌دهد هدف فایل است یا پوشه، پوشه‌ها را به‌صورت بازگشتی حذف می‌کند و اگر هم فایل و هم پوشهٔ مطابق پیدا شود از کاربر می‌پرسد کدام حذف شود.</td></tr>
 <tr><td dir="ltr"><code>:config</code></td><td>نمایش تنظیماتی که برنامه اکنون با آن‌ها اجرا می‌شود.</td><td>مسیر فایل تنظیمات و تاریخچه، وضعیت تاریخچه، تعداد پیشنهادها، وضعیت debug و تنظیمات صریح افزونه‌ها را نشان می‌دهد. متغیرهای محیطی و اطلاعات محرمانه چاپ نمی‌شوند.</td></tr>
 <tr><td dir="ltr"><code>:which &lt;command&gt;</code></td><td>یافتن فایل اجرایی یک دستور از طریق <code>PATH</code> سیستم‌عامل.</td><td>از جست‌وجوی چندسکویی Go استفاده می‌کند و قواعد <code>PATHEXT</code> در Windows را نیز رعایت می‌کند. در صورت امکان مسیر کامل فایل چاپ می‌شود.</td></tr>
 <tr><td dir="ltr"><code>:version</code></td><td>نمایش اطلاعات نسخه و محیط ساخت.</td><td>نسخهٔ NextCmd، نسخهٔ Go، سیستم‌عامل، معماری و در صورت موجود بودن شناسهٔ کوتاه commit را نشان می‌دهد. نسخهٔ buildهای رسمی از tag انتشار گرفته می‌شود.</td></tr>
@@ -185,6 +204,7 @@ NextCmd راهنمای داخلی دارد؛ بنابراین برای دیدن 
 :history 5
 :plugins
 :clear
+:del old.txt
 :config
 :which dotnet
 :version

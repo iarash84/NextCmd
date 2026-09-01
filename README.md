@@ -6,7 +6,7 @@ NextCmd is a fast, deterministic, cross-platform programming command-line assist
 
 ## Features
 
-- Interactive editor: Up/Down highlights a suggestion; Tab, Right Arrow, or the first Enter accepts it into the editor; Left Arrow clears the command line; the next Enter executes an accepted command. Use `exit`, `quit`, `:q`, or Ctrl+C to exit.
+- Interactive editor: Up/Down highlights a suggestion; Tab, Right Arrow, or the first Enter accepts it into the editor; Left/Right moves the caret; Escape clears the command line; the next Enter executes an accepted command. Use `exit`, `quit`, `:q`, Ctrl+C, or Ctrl+D to exit.
 - Color-aware terminal theme with highlighted selection, suggestion and risk badges, plugin source, and execution status. Colors stay out of redirected output and can be disabled with `NO_COLOR`; see the [complete badge and risk reference](docs/help.md#suggestion-kinds).
 - Built-in command palette when `:` is typed, `:?`/`:؟` help, per-plugin command catalogs, and suggestions from incomplete executable prefixes such as `gi` or `dot`.
 - Built-in workspace utilities for listing files, viewing redacted history, inspecting plugins and configuration, locating executables, clearing the screen, and checking version information.
@@ -41,12 +41,15 @@ NextCmd shows the active working directory above every prompt. Start in another 
 pwd
 :ls
 :ls ..
+:del old.txt
 cd ..
 cd "C:\Users\Admin\source\repos\My Project"
 :cd /path/to/project
 ```
 
 `:ls` lists the files and directories in the active working directory. Pass a relative, absolute, or quoted path to inspect another directory without changing the active one. Directories are shown first, followed by files, with type and size columns.
+
+`:del <path>` deletes a file or directory from the active working directory. It resolves relative, absolute, quoted, and `~` paths, detects whether the target is a file or directory, and asks which one to remove if both a matching file and directory are found.
 
 `cd` and `:cd` update completion, project detection, command execution, and history together. Running `cd` without a path selects the user home directory. NextCmd keeps this state internally and does not change the parent shell directory.
 
@@ -56,6 +59,7 @@ Useful built-in commands:
 :history 10
 :plugins
 :clear
+:del old.txt
 :config
 :which git
 :version
@@ -125,7 +129,7 @@ NextCmd یک دستیار خط فرمان سریع و چندسکویی است ک
 
 ## قابلیت‌ها
 
-- ویرایشگر تعاملی: کلیدهای بالا و پایین میان پیشنهادها جابه‌جا می‌شوند. کلید Tab، جهت راست یا اولین Enter پیشنهاد را وارد ویرایشگر می‌کند. جهت چپ کل متن را پاک می‌کند و Enter بعدی دستور را اجرا می‌کند. برای خروج می‌توان از `exit`، `quit`، `:q` یا Ctrl+C استفاده کرد.
+- ویرایشگر تعاملی: کلیدهای بالا و پایین میان پیشنهادها جابه‌جا می‌شوند. کلید Tab، جهت راست یا اولین Enter پیشنهاد را وارد ویرایشگر می‌کند. جهت چپ و راست نشانگر را داخل خط فرمان جابه‌جا می‌کنند. Escape خط فرمان فعلی را پاک می‌کند و Enter بعدی دستور را اجرا می‌کند. برای خروج می‌توان از `exit`، `quit`، `:q`، Ctrl+C یا Ctrl+D استفاده کرد.
 - ظاهر رنگی پایانه: پیشنهاد انتخاب‌شده، نوع پیشنهاد، میزان خطر، افزونهٔ پیشنهاددهنده و نتیجهٔ اجرای دستور با رنگ‌های متفاوت نمایش داده می‌شوند. با تنظیم متغیر `NO_COLOR` می‌توان رنگ‌ها را غیرفعال کرد. معنی کامل برچسب‌ها و سطح‌های خطر در [راهنمای تعاملی](docs/help.md#نوع-پیشنهاد) آمده است.
 - نمایش فهرست فرمان‌های داخلی با تایپ `:`، راهنمای داخلی با دستورهای `:?` و `:؟` و امکان مشاهدهٔ همهٔ دستورهای شناخته‌شدهٔ هر افزونه.
 - ابزارهای داخلی برای نمایش فایل‌ها، مشاهدهٔ تاریخچهٔ پاک‌سازی‌شده، بررسی افزونه‌ها و تنظیمات، یافتن فایل اجرایی، پاک‌کردن صفحه و دیدن اطلاعات نسخه.
@@ -172,6 +176,7 @@ go build -o nextcmd .
 pwd
 :ls
 :ls ..
+:del old.txt
 cd ..
 cd "C:\Users\Admin\source\repos\My Project"
 :cd /path/to/project
@@ -180,6 +185,8 @@ cd "C:\Users\Admin\source\repos\My Project"
 </div>
 
 دستور `:ls` فایل‌ها و پوشه‌های مسیر کاری فعلی را نمایش می‌دهد. برای دیدن محتوای مسیری دیگر، همان مسیر را پس از دستور بنویسید؛ برای مثال `:ls ..` یا `:ls "My Project"`. این کار مسیر کاری فعلی را تغییر نمی‌دهد. در خروجی، ابتدا پوشه‌ها و سپس فایل‌ها همراه با نوع و اندازه نمایش داده می‌شوند.
+
+دستور `:del <path>` فایل یا پوشه را از مسیر کاری فعال حذف می‌کند. مسیرهای نسبی، کامل، نقل‌قول‌شده و `~` پشتیبانی می‌شوند. برنامه تشخیص می‌دهد هدف فایل است یا پوشه و اگر هم فایل و هم پوشهٔ مطابق پیدا شود، از کاربر می‌پرسد کدام مورد حذف شود.
 
 دستورهای `cd` و `:cd` مسیر مورد استفاده برای پیشنهادها، تشخیص پروژه، اجرای دستور و تاریخچه را هم‌زمان تغییر می‌دهند. اجرای `cd` بدون مسیر، پوشهٔ خانگی کاربر را انتخاب می‌کند. این تغییر فقط داخل NextCmd است و مسیر shell والد را تغییر نمی‌دهد.
 
@@ -191,6 +198,7 @@ cd "C:\Users\Admin\source\repos\My Project"
 :history 10
 :plugins
 :clear
+:del old.txt
 :config
 :which git
 :version

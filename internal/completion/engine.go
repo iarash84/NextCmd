@@ -121,7 +121,7 @@ func (e *Engine) Complete(ctx context.Context, input, directory string, previous
 
 func isBuiltinCommandInput(input string) bool {
 	trimmed := strings.ToLower(strings.TrimSpace(input))
-	return trimmed == "cd" || trimmed == ":cd" || strings.HasPrefix(trimmed, "cd ") || strings.HasPrefix(trimmed, ":cd ") || trimmed == "pwd" || trimmed == ":pwd" || trimmed == ":ls" || strings.HasPrefix(trimmed, ":ls ") || isUtilityCommandInput(trimmed)
+	return trimmed == "cd" || trimmed == ":cd" || strings.HasPrefix(trimmed, "cd ") || strings.HasPrefix(trimmed, ":cd ") || trimmed == "pwd" || trimmed == ":pwd" || trimmed == ":ls" || strings.HasPrefix(trimmed, ":ls ") || trimmed == ":mkdir" || strings.HasPrefix(trimmed, ":mkdir ") || trimmed == ":del" || strings.HasPrefix(trimmed, ":del ") || isUtilityCommandInput(trimmed)
 }
 
 func isUtilityCommandInput(trimmed string) bool {

@@ -7,6 +7,8 @@ func builtinSuggestions() []sdk.Suggestion {
 		builtin(":?", "Show help", "Show keyboard controls, built-in commands, and loaded plugins", 100),
 		builtin(":q", "Exit NextCmd", "Exit the application and restore the terminal", 95),
 		builtin(":ls", "List directory", "List files and folders in the active working directory", 90),
+		builtinWithArgument(":mkdir", "<path>", "Make directory", "Create a directory (and parents) in the active working directory", 88),
+		builtinWithArgument(":del", "<path>", "Delete file or directory", "Delete a file or directory from the active working directory", 87),
 		builtin(":plugins", "Show plugins", "List every enabled plugin with its version and description", 85),
 		builtin(":history", "Show history", "Show the 20 most recent redacted commands", 80),
 		builtin(":clear", "Clear screen", "Clear the terminal without changing application state", 75),

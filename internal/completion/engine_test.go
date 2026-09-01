@@ -27,7 +27,7 @@ func TestPluginForExecutableUsesPublicCatalog(t *testing.T) {
 
 func TestDirectoryCommandsDoNotReceivePluginSuggestions(t *testing.T) {
 	engine := New([]sdk.Plugin{catalogPlugin{}}, 8, slog.New(slog.NewTextHandler(io.Discard, nil)))
-	for _, input := range []string{"cd", "cd ..", ":cd project", "pwd", ":pwd", ":ls", ":ls ..", ":history", ":history 5", ":plugins", ":clear", ":config", ":which go", ":version"} {
+	for _, input := range []string{"cd", "cd ..", ":cd project", "pwd", ":pwd", ":ls", ":ls ..", ":mkdir old", ":del old", ":history", ":history 5", ":plugins", ":clear", ":config", ":which go", ":version"} {
 		if suggestions := engine.Complete(t.Context(), input, ".", nil); len(suggestions) != 0 {
 			t.Errorf("%q received plugin suggestions: %#v", input, suggestions)
 		}
@@ -37,7 +37,7 @@ func TestDirectoryCommandsDoNotReceivePluginSuggestions(t *testing.T) {
 func TestColonSuggestsBuiltinCommands(t *testing.T) {
 	engine := New([]sdk.Plugin{catalogPlugin{}}, 20, slog.New(slog.NewTextHandler(io.Discard, nil)))
 	suggestions := engine.Complete(t.Context(), ":", ".", nil)
-	wanted := map[string]bool{":q": false, ":ls": false, ":plugins": false, ":history": false, ":clear": false, ":config": false, ":which <command>": false, ":version": false, ":?": false}
+	wanted := map[string]bool{":q": false, ":ls": false, ":mkdir <path>": false, ":del <path>": false, ":plugins": false, ":history": false, ":clear": false, ":config": false, ":which <command>": false, ":version": false, ":?": false}
 	for _, suggestion := range suggestions {
 		if _, ok := wanted[suggestion.Command.Display()]; ok {
 			wanted[suggestion.Command.Display()] = true

@@ -1,6 +1,7 @@
 package terminal
 
 import (
+	"bufio"
 	"context"
 	"fmt"
 	"io"
@@ -38,8 +39,12 @@ type UI struct {
 	output             io.Writer
 	directory          string
 	selected, rendered int
+	caret              int
 	color              bool
 }
+
+// caretForTest exposes the caret position for regression tests.
+func (u *UI) caretForTest() int { return u.caret }
 
 func New(directory string) *UI {
 	return &UI{input: os.Stdin, output: os.Stdout, directory: directory, color: supportsColor(os.Stdout)}
@@ -55,21 +60,29 @@ func (u *UI) ReadCommand(ctx context.Context, completer Completer, previous *sdk
 		defer restore()
 	}
 	line := ""
+	// caret is a byte offset into line. Left/Right move it so an accepted
+	// command can be edited in place; appending at the end (the common
+	// case) behaves exactly like the old line += ... code path.
+	caret := 0
+	u.caret = 0
 	fmt.Fprintf(u.output, "%s %s\n", paint(u.color, ansiDim, "cwd"), paint(u.color, ansiCyan, u.directory))
 	suggestions := completer.Complete(ctx, line, u.directory, previous)
-	u.render(line, suggestions)
+	u.render(line, suggestions, caret)
+	keyInput := bufio.NewReader(u.input)
 	for {
-		event, err := readKey(u.input)
+		event, err := readKey(keyInput)
 		if err != nil {
 			return "", err
 		}
 		switch event.kind {
 		case KeyRune:
-			line += string(event.value)
+			line = line[:caret] + string(event.value) + line[caret:]
+			caret++
 			u.selected = 0
 		case KeyBackspace:
-			if len(line) > 0 {
-				line = line[:len(line)-1]
+			if caret > 0 {
+				line = line[:caret-1] + line[caret:]
+				caret--
 			}
 			u.selected = 0
 		case KeyUp:
@@ -83,20 +96,32 @@ func (u *UI) ReadCommand(ctx context.Context, completer Completer, previous *sdk
 		case KeyTab, KeyRight:
 			if len(suggestions) > 0 {
 				line = suggestions[u.selected].Command.Display()
+				caret = len(line)
+			} else if event.kind == KeyRight && caret < len(line) {
+				caret++
 			}
 		case KeyLeft:
+			// Move the caret instead of clearing the line so part of an
+			// accepted command can be rewritten. Home (column 0) stops.
+			if caret > 0 {
+				caret--
+			}
+		case KeyEscape:
 			line = ""
+			caret = 0
 			u.selected = 0
 		case KeyEnter:
 			if accepted, ok := acceptSelected(line, suggestions, u.selected); ok {
 				line = accepted
+				caret = len(line)
 				u.selected = 0
 				break
 			}
+			u.caret = caret
 			u.clearSuggestions()
 			fmt.Fprint(u.output, "\r\x1b[2K", paint(u.color, ansiBold+ansiCyan, "❯ "), line, "\n")
 			return strings.TrimSpace(line), nil
-		case KeyEscape, KeyEOF:
+		case KeyEOF:
 			u.clearSuggestions()
 			fmt.Fprint(u.output, "\r\x1b[2K\n")
 			return "", io.EOF
@@ -107,7 +132,8 @@ func (u *UI) ReadCommand(ctx context.Context, completer Completer, previous *sdk
 		if u.selected >= len(suggestions) {
 			u.selected = 0
 		}
-		u.render(line, suggestions)
+		u.render(line, suggestions, caret)
+		u.caret = caret
 	}
 }
 
@@ -129,7 +155,7 @@ func acceptSelected(line string, suggestions []sdk.Suggestion, selected int) (st
 
 func isInternalCommand(line string) bool {
 	trimmed := strings.ToLower(strings.TrimSpace(line))
-	if trimmed == "cd" || trimmed == ":cd" || strings.HasPrefix(trimmed, "cd ") || strings.HasPrefix(trimmed, ":cd ") || trimmed == "pwd" || trimmed == ":pwd" || trimmed == ":ls" || strings.HasPrefix(trimmed, ":ls ") {
+	if trimmed == "cd" || trimmed == ":cd" || strings.HasPrefix(trimmed, "cd ") || strings.HasPrefix(trimmed, ":cd ") || trimmed == "pwd" || trimmed == ":pwd" || trimmed == ":ls" || strings.HasPrefix(trimmed, ":ls ") || trimmed == ":mkdir" || strings.HasPrefix(trimmed, ":mkdir ") || trimmed == ":del" || strings.HasPrefix(trimmed, ":del ") {
 		return true
 	}
 	for _, name := range []string{":history", ":plugins", ":clear", ":config", ":which", ":version"} {
@@ -140,7 +166,7 @@ func isInternalCommand(line string) bool {
 	return false
 }
 
-func (u *UI) render(line string, suggestions []sdk.Suggestion) {
+func (u *UI) render(line string, suggestions []sdk.Suggestion, caret int) {
 	u.clearSuggestions()
 	fmt.Fprint(u.output, "\r\x1b[2K", paint(u.color, ansiBold+ansiCyan, "❯ "), line)
 	for i, suggestion := range suggestions {
@@ -160,8 +186,10 @@ func (u *UI) render(line string, suggestions []sdk.Suggestion) {
 			paint(u.color, ansiDim, "· "+suggestion.Source))
 	}
 	if len(suggestions) > 0 {
-		fmt.Fprintf(u.output, "\x1b[%dA\r\x1b[%dC", len(suggestions), len(line)+2)
+		fmt.Fprintf(u.output, "\x1b[%dA", len(suggestions))
 	}
+	// Park the terminal cursor on the editing caret, not the line end.
+	fmt.Fprintf(u.output, "\r\x1b[%dC", caret+2)
 	u.rendered = len(suggestions)
 }
 func (u *UI) clearSuggestions() {

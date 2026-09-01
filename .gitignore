@@ -26,3 +26,4 @@ Desktop.ini
 # Local NextCmd configuration and history fallbacks
 /nextcmd.json
 /.nextcmd-history.jsonl
+.freebuff/project-id
