@@ -27,6 +27,7 @@ type deleteOptions struct {
 	requested string
 	dryRun    bool
 	permanent bool
+	approved  bool
 }
 
 type deleteCounts struct {
@@ -52,7 +53,7 @@ func parseDeletePath(input string) (deleteOptions, bool, error) {
 	command := ""
 	switch {
 	case lower == ":del":
-		return deleteOptions{}, true, fmt.Errorf("usage: :del [--dry-run] [--permanent] <path>")
+		return deleteOptions{}, true, fmt.Errorf("usage: :del [--dry-run] [--permanent] [--yes] <path>")
 	case lower == ":trash":
 		return deleteOptions{}, true, fmt.Errorf("usage: :trash <path>")
 	case strings.HasPrefix(lower, ":del "):
@@ -83,12 +84,23 @@ func parseDeletePath(input string) (deleteOptions, bool, error) {
 			requested = strings.TrimSpace(strings.TrimPrefix(requested, "--permanent"))
 		case requested == "--permanent":
 			return deleteOptions{}, true, fmt.Errorf("usage: :del --permanent <path>")
+		case strings.HasPrefix(requested, "--yes "):
+			if command == ":trash" {
+				return deleteOptions{}, true, fmt.Errorf(":trash does not accept --yes")
+			}
+			options.approved = true
+			requested = strings.TrimSpace(strings.TrimPrefix(requested, "--yes"))
+		case requested == "--yes":
+			return deleteOptions{}, true, fmt.Errorf("usage: :del --permanent --yes <path>")
 		default:
 			goto parsedFlags
 		}
 	}
 
 parsedFlags:
+	if options.approved && !options.permanent {
+		return deleteOptions{}, true, fmt.Errorf("--yes requires --permanent")
+	}
 	if requested == "" {
 		return deleteOptions{}, true, fmt.Errorf("usage: %s <path>", command)
 	}
@@ -141,15 +153,19 @@ func deletePath(current string, options deleteOptions, choose func([]deleteCandi
 	if options.dryRun {
 		return deleteResult{target: target, dryRun: true, counts: counts}, nil
 	}
-	if confirm == nil {
+	if options.approved {
+		confirm = nil
+	} else if confirm == nil {
 		confirm = func(deleteCandidate, deleteOptions, deleteCounts) (bool, error) { return true, nil }
 	}
-	ok, err := confirm(target, options, counts)
-	if err != nil {
-		return deleteResult{}, err
-	}
-	if !ok {
-		return deleteResult{}, fmt.Errorf("cancelled")
+	if confirm != nil {
+		ok, err := confirm(target, options, counts)
+		if err != nil {
+			return deleteResult{}, err
+		}
+		if !ok {
+			return deleteResult{}, fmt.Errorf("cancelled")
+		}
 	}
 
 	if options.permanent {

@@ -4,6 +4,14 @@ English | [فارسی](#راهنمای-تعاملی)
 
 NextCmd provides built-in help without opening a browser or invoking an external command.
 
+Normal commands are executed directly. Prefix a command with `!` to opt into the operating-system shell (`cmd.exe` on Windows, `/bin/sh` on Linux and macOS), for example `! dir` or `! printf '%s\n' hello | grep hello`. Shell syntax can redirect files and run multiple processes, so only execute trusted input.
+
+Recognized high-risk commands require confirmation with a default answer of no. This includes recursive forced removal, `git reset --hard`, forced Git cleanup or push, Docker prune, and Windows equivalents. Append `--yes` for deliberate non-interactive approval; NextCmd removes that final flag before launching an external or shell command. For permanent built-in deletion use `:del --permanent --yes <path>`.
+
+Stdout and stderr are displayed as the process produces them, rather than after it exits. Pressing Ctrl+C during execution cancels the child process and returns to the NextCmd prompt; pressing Ctrl+C or Ctrl+D while editing a command exits NextCmd.
+
+History redaction covers common sensitive options such as token and password flags, credential options, environment assignments, authentication headers, and URL user information in direct and shell commands. It is best-effort and does not replace the safer secret-input features provided by individual tools.
+
 ## General help
 
 Type either form and press Enter:
@@ -17,19 +25,25 @@ The output explains keyboard controls, built-in commands, exit commands, and all
 
 Type `:` in the command editor to open the built-in command palette. Continue typing to filter it—for example, `:pl` leaves `:plugins`. Use Up/Down to highlight an item and Tab, Right Arrow, or Enter to place it in the editable command line. Commands that require a value are shown with an editable placeholder, such as `:del <path>`, `:which <command>`, and `:cd <path>`. Built-in path arguments for `cd`, `:cd`, `:ls`, `:mkdir`, `:del`, and `:trash` complete from the active working directory.
 
+Path completion also applies to ordinary command arguments. Type a file or directory prefix such as `git add src/ma` or `docker compose -f compose.` and accept the matching suggestion. Earlier arguments, relative prefixes, nested directories, and paths containing spaces are preserved. Arguments beginning with `-` and commands beginning with `!` are intentionally excluded; neither the target command nor a shell is invoked to discover paths.
+
 Keyboard controls:
 
 | Key | Behavior |
 |---|---|
 | Up/Down | Highlight suggestions. |
-| Tab/Right | Accept the highlighted suggestion. |
+| Tab/Right | Accept the highlighted suggestion. After acceptance, Tab moves through unresolved placeholders. |
 | Left/Right | Move the caret inside the command editor. |
+| Ctrl+P/Ctrl+N | Recall the previous/next executed command. Moving past the newest entry restores the draft that was present before history navigation. |
+| Ctrl+R | Start reverse fuzzy history search. Type to refine, press Ctrl+R again for an older match, Enter/Tab/Right to place the match in the editor, or Escape to restore the draft. |
 | Ctrl+A/Ctrl+E | Move to the start or end of the command line. |
 | Ctrl+U | Clear the current command line. |
 | Enter | Accept a suggestion, then execute on the next press. |
 | Backspace | Delete the previous character. |
 | Escape | Clear the current command line. |
-| Ctrl+C/Ctrl+D | Exit and clean the terminal UI. |
+| Ctrl+C/Ctrl+D | Exit and clean the terminal UI while at the prompt. During command execution, Ctrl+C cancels only the running process and returns to the prompt. |
+
+When an accepted suggestion contains fields such as `<container>` or `feature/<name>`, the caret starts at the first field. Typing replaces the complete active placeholder while preserving surrounding text. Press Tab to move to the next unresolved field. NextCmd does not execute an accepted command while any tracked placeholder remains unresolved.
 
 ## Working directory commands
 
@@ -57,7 +71,7 @@ These commands are handled inside NextCmd. They are not passed to a shell, are n
 | `:history [count]` | Show recent commands executed through NextCmd. | Defaults to 20 entries and accepts 1 through 1000. It displays time, exit code, duration, plugin, working directory, and the redacted structured command. If history is disabled, it says so explicitly. |
 | `:plugins` | Show every currently enabled plugin. | Plugins are sorted by ID and displayed with version, name, and description. Disabled plugins are not listed. |
 | `:clear` | Clear the terminal screen and return the cursor to the top-left corner. | It only changes the current display and does not remove history or project state. |
-| `:del <path>` | Move a file or directory to trash. | Resolves relative, absolute, quoted, and `~` paths against the active working directory. It detects whether the target is a file or directory, asks for confirmation, recursively counts directories before removal, and asks which target to use if both a matching file and directory are found. Use `--dry-run` to preview and `--permanent` to delete without undo support. |
+| `:del <path>` | Move a file or directory to trash. | Resolves relative, absolute, quoted, and `~` paths against the active working directory. It detects whether the target is a file or directory, asks for confirmation, recursively counts directories before removal, and asks which target to use if both a matching file and directory are found. Use `--dry-run` to preview, `--permanent` to delete without undo support, and combine `--permanent --yes` only for deliberate non-interactive deletion. |
 | `:trash <path>` | Move a file or directory to trash. | Alias for the safe delete path. The item is moved into `.nextcmd-trash` and can be restored with `:undo` during the same session. |
 | `:undo` | Restore the last trashed item. | Restores the most recent file or directory moved to trash in this NextCmd session unless the original path already exists. |
 | `:config` | Show the effective runtime configuration. | Displays the configuration and history paths, history status, suggestion limit, debug status, and sorted plugin overrides. It does not print environment variables or secrets. |
@@ -92,6 +106,8 @@ Append a plugin ID to print every statically supported command with its descript
 :? docker
 :? npm
 :? pip
+:? kubernetes
+:? terraform
 :؟ git
 :؟ dotnet
 :؟ cargo
@@ -100,6 +116,8 @@ Append a plugin ID to print every statically supported command with its descript
 :؟ docker
 :؟ npm
 :؟ pip
+:؟ kubernetes
+:؟ terraform
 ```
 
 The catalog comes from the plugin through the public `sdk.HelpProvider` capability. Core and Terminal do not contain Git or .NET command lists. Dynamic values such as actual branches, files, remotes, solutions, and projects remain available through normal completion.
@@ -140,13 +158,21 @@ git add .  COMP MUTATING · git
 | `DESTRUCTIVE` | Red | Can delete, overwrite, or discard data and may be difficult to undo. | Branch deletion, cleanup, reset variants, or an HTTP DELETE request. |
 | `DANGEROUS` | Magenta | Has an unusually high security or data-loss risk and requires careful review. | Disabling TLS verification or publishing sensitive/external changes. |
 
-The final `· git`, `· cargo`, `· curl`, or similar suffix identifies the plugin that produced the suggestion. Kind and risk badges are informational metadata supplied by plugins. The badges affect presentation; ranking uses separate priority and relevance metadata. They do not block execution, request confirmation, or replace reviewing the command yourself. With `NO_COLOR`, all labels remain visible as plain text.
+The final `· git`, `· cargo`, `· curl`, or similar suffix identifies the plugin that produced the suggestion. Kind and risk badges are informational metadata supplied by plugins. The badges affect presentation and ranking uses separate priority and relevance metadata. Independently, Core recognizes a focused set of high-risk command forms and asks for confirmation based on their final syntax. Neither mechanism replaces reviewing the command yourself. With `NO_COLOR`, all labels remain visible as plain text.
 
 ---
 
 <div dir="rtl" align="right">
 
 # راهنمای تعاملی
+
+دستورهای عادی مستقیماً اجرا می‌شوند. برای اجرای صریح از طریق shell سیستم‌عامل، ابتدای دستور `!` قرار دهید؛ در Windows از `cmd.exe` و در Linux و macOS از `/bin/sh` استفاده می‌شود. قابلیت‌های shell می‌توانند فایل‌ها را بازنویسی یا چند process را اجرا کنند، پس فقط دستور مورداعتماد را به این روش اجرا کنید.
+
+فرمان‌های پرخطر شناخته‌شده با پاسخ پیش‌فرض منفی به تأیید نیاز دارند. حذف بازگشتی اجباری، `git reset --hard`، پاک‌سازی یا push اجباری Git، Docker prune و معادل‌های Windows پوشش داده می‌شوند. برای تأیید آگاهانهٔ غیرتعاملی، `--yes` را در انتهای فرمان قرار دهید؛ NextCmd آن را پیش از اجرای فرمان خارجی یا shell حذف می‌کند. برای حذف دائمی داخلی از `:del --permanent --yes <path>` استفاده کنید.
+
+خروجی عادی و خطا هم‌زمان با تولید توسط process نمایش داده می‌شوند. هنگام اجرا، Ctrl+C فقط process فرزند را لغو می‌کند و برنامه به prompt بازمی‌گردد؛ Ctrl+C یا Ctrl+D هنگام ویرایش دستور از NextCmd خارج می‌شود.
+
+پاک‌سازی تاریخچه، optionهای رایج token و password، گزینه‌های credential، مقداردهی متغیرهای حساس، headerهای احراز هویت و اطلاعات کاربری URL را در فرمان‌های مستقیم و shell پوشش می‌دهد. این محافظ best-effort است و جای روش‌های امن دریافت secret در هر ابزار را نمی‌گیرد.
 
 NextCmd راهنمای داخلی دارد؛ بنابراین برای دیدن کلیدها و دستورهای پشتیبانی‌شده لازم نیست مرورگر باز کنید یا برنامهٔ دیگری اجرا کنید.
 
@@ -166,6 +192,14 @@ NextCmd راهنمای داخلی دارد؛ بنابراین برای دیدن 
 برنامه کاربرد کلیدهای صفحه‌کلید، دستورهای داخلی، روش‌های خروج و نام افزونه‌های فعال را نمایش می‌دهد.
 
 برای دیدن فهرست فرمان‌های داخلی، در ویرایشگر دستور فقط `:` را تایپ کنید. با ادامهٔ تایپ، فهرست محدود می‌شود؛ برای نمونه، `:pl` فقط پیشنهاد `:plugins` را باقی می‌گذارد. با کلیدهای بالا و پایین یک مورد را انتخاب کنید و با Tab، جهت راست یا Enter آن را وارد خط فرمان قابل‌ویرایش کنید. فرمان‌هایی که به مقدار نیاز دارند با جای‌نگهدار نمایش داده می‌شوند؛ مانند `:which <command>` و `:cd <path>`. این فهرست کوچک کاملاً داخلی است و برای نمایش آن هیچ افزونه یا عملیات تشخیص پروژه اجرا نمی‌شود.
+
+تکمیل مسیر برای آرگومان دستورهای عادی نیز فعال است. برای نمونه با تایپ `git add src/ma` یا `docker compose -f compose.` می‌توان مسیر منطبق را انتخاب کرد. آرگومان‌های قبلی، پیشوندهای نسبی، پوشه‌های تو‌در‌تو و مسیرهای دارای فاصله حفظ می‌شوند. آرگومان‌های شروع‌شده با `-` و دستورهای شروع‌شده با `!` عمداً در این تکمیل وارد نمی‌شوند و برای کشف مسیر نیز هیچ دستور یا shell اجرا نمی‌شود.
+
+برای پیمایش تاریخچه، Ctrl+P دستور اجراشدهٔ قبلی و Ctrl+N دستور بعدی را وارد ویرایشگر می‌کند. پس از عبور از جدیدترین مورد، متنی که پیش از شروع پیمایش نوشته بودید بازگردانده می‌شود. دستورهای تکراری متوالی نیز فقط یک بار در این پیمایش نمایش داده می‌شوند.
+
+Ctrl+R جست‌وجوی معکوس fuzzy را آغاز می‌کند. برای محدودکردن نتایج تایپ کنید و برای رفتن به تطبیق قدیمی‌تر دوباره Ctrl+R را بزنید. Enter، Tab یا جهت راست نتیجه را وارد ویرایشگر می‌کند و Escape متن اولیه را برمی‌گرداند.
+
+اگر پیشنهاد پذیرفته‌شده جای‌نگهداری مانند `<container>` یا `feature/<name>` داشته باشد، نشانگر روی اولین فیلد قرار می‌گیرد. تایپ‌کردن کل جای‌نگهدار فعال را با مقدار جدید عوض می‌کند و متن اطراف را حفظ می‌کند. Tab به فیلد حل‌نشدهٔ بعدی می‌رود و تا وقتی جای‌نگهداری باقی مانده باشد، NextCmd فرمان را اجرا نمی‌کند.
 
 ## دستورهای مسیر کاری
 
@@ -241,6 +275,8 @@ NextCmd راهنمای داخلی دارد؛ بنابراین برای دیدن 
 :? docker
 :? npm
 :? pip
+:? kubernetes
+:? terraform
 :؟ git
 :؟ dotnet
 :؟ cargo
@@ -249,6 +285,8 @@ NextCmd راهنمای داخلی دارد؛ بنابراین برای دیدن 
 :؟ docker
 :؟ npm
 :؟ pip
+:؟ kubernetes
+:؟ terraform
 ```
 
 </div>
@@ -305,6 +343,6 @@ git add .  COMP MUTATING · git
 </tbody>
 </table>
 
-بخش پایانی مانند `· git`، `· cargo` یا `· curl` شناسهٔ افزونه‌ای است که پیشنهاد را ساخته است. نوع پیشنهاد و سطح خطر فقط اطلاعات کمکی هستند که افزونه ارائه می‌دهد. خود این برچسب‌ها روی ظاهر اثر دارند؛ مرتب‌سازی با metadata جداگانهٔ priority و relevance انجام می‌شود. این اطلاعات اجرای دستور را مسدود نمی‌کنند، تأیید جداگانه نمی‌گیرند و جای بررسی خود دستور توسط کاربر را نمی‌گیرند. با فعال‌کردن `NO_COLOR` رنگ‌ها حذف می‌شوند، ولی متن همهٔ برچسب‌ها همچنان نمایش داده می‌شود.
+بخش پایانی مانند `· git`، `· cargo` یا `· curl` شناسهٔ افزونه‌ای است که پیشنهاد را ساخته است. نوع پیشنهاد و سطح خطر اطلاعات کمکی افزونه هستند و مرتب‌سازی با metadata جداگانهٔ priority و relevance انجام می‌شود. مستقل از این برچسب‌ها، هسته شکل نهایی مجموعه‌ای محدود از فرمان‌های پرخطر را تشخیص می‌دهد و تأیید می‌گیرد. هیچ‌یک جای بررسی خود فرمان توسط کاربر را نمی‌گیرد. با فعال‌کردن `NO_COLOR` رنگ‌ها حذف می‌شوند، ولی متن همهٔ برچسب‌ها همچنان نمایش داده می‌شود.
 
 </div>

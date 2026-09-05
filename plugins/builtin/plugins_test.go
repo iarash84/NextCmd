@@ -25,7 +25,7 @@ func TestRegistrationMetadataIsValidAndUnique(t *testing.T) {
 	if !seen["go"] {
 		t.Fatal("Go plugin is not registered")
 	}
-	for _, id := range []string{"docker", "npm", "pip"} {
+	for _, id := range []string{"docker", "npm", "pip", "kubernetes", "terraform"} {
 		if !seen[id] {
 			t.Errorf("%s plugin is not registered", id)
 		}

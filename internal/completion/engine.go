@@ -119,6 +119,7 @@ func (e *Engine) Complete(ctx context.Context, input, directory string, previous
 			}
 		}
 	}
+	all = append(all, completeCommandPath(input, directory)...)
 	return ranking.Rank(input, all, e.max)
 }
 

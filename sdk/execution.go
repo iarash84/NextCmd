@@ -7,5 +7,6 @@ type ExecutionResult struct {
 	Stdout, Stderr string
 	ExitCode       int
 	Duration       time.Duration
+	Canceled       bool
 	Err            error
 }

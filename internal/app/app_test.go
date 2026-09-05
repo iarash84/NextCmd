@@ -66,7 +66,7 @@ func TestPrintBuiltinHelp(t *testing.T) {
 	var output bytes.Buffer
 	printHelp(&output, engine, "del")
 	text := output.String()
-	if !strings.Contains(text, ":del [--dry-run] [--permanent] <path>") || !strings.Contains(text, "--permanent") {
+	if !strings.Contains(text, ":del [--dry-run] [--permanent] [--yes] <path>") || !strings.Contains(text, "--permanent") {
 		t.Fatalf("unexpected built-in help: %s", text)
 	}
 }

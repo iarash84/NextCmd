@@ -26,6 +26,12 @@ func readKey(reader io.Reader) (keyEvent, error) {
 		return keyEvent{kind: KeyEOF}, nil
 	case 5:
 		return keyEvent{kind: KeyEnd}, nil
+	case 14:
+		return keyEvent{kind: KeyHistoryNext}, nil
+	case 16:
+		return keyEvent{kind: KeyHistoryPrevious}, nil
+	case 18:
+		return keyEvent{kind: KeyHistorySearch}, nil
 	case 21:
 		return keyEvent{kind: KeyClearLine}, nil
 	case 13, 10:

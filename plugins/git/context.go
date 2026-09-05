@@ -9,9 +9,6 @@ import (
 	"nextcmd/sdk"
 )
 
-type Runner interface {
-	Run(context.Context, string, ...string) (string, error)
-}
 type State struct {
 	InRepository                bool
 	Branch                      string
@@ -28,14 +25,18 @@ func (p *Plugin) Detect(ctx context.Context, input sdk.ProjectContext) (sdk.Dete
 	return sdk.DetectionResult{Detected: state.InRepository, Project: state, CacheFor: time.Second}, nil
 }
 func (p *Plugin) readState(ctx context.Context, directory string) (State, error) {
-	inside, err := p.runner.Run(ctx, directory, "rev-parse", "--is-inside-work-tree")
+	run := func(args ...string) (string, error) {
+		result := p.runner.Run(ctx, sdk.Command{Executable: "git", Args: args, WorkingDirectory: directory})
+		return result.Stdout, result.Err
+	}
+	inside, err := run("rev-parse", "--is-inside-work-tree")
 	if err != nil || strings.TrimSpace(inside) != "true" {
 		return State{}, nil
 	}
 	state := State{InRepository: true}
-	state.Branch, _ = p.runner.Run(ctx, directory, "branch", "--show-current")
+	state.Branch, _ = run("branch", "--show-current")
 	state.Branch = strings.TrimSpace(state.Branch)
-	status, err := p.runner.Run(ctx, directory, "status", "--porcelain=v1")
+	status, err := run("status", "--porcelain=v1")
 	if err != nil {
 		return State{}, fmt.Errorf("git status: %w", err)
 	}
@@ -56,13 +57,13 @@ func (p *Plugin) readState(ctx context.Context, directory string) (State, error)
 		}
 		state.Files = append(state.Files, strings.TrimSpace(line[3:]))
 	}
-	branches, _ := p.runner.Run(ctx, directory, "for-each-ref", "--format=%(refname:short)", "refs/heads")
+	branches, _ := run("for-each-ref", "--format=%(refname:short)", "refs/heads")
 	state.Branches = lines(branches)
-	remotes, _ := p.runner.Run(ctx, directory, "remote")
+	remotes, _ := run("remote")
 	state.Remotes = lines(remotes)
-	if _, err := p.runner.Run(ctx, directory, "rev-parse", "--abbrev-ref", "@{upstream}"); err == nil {
+	if _, err := run("rev-parse", "--abbrev-ref", "@{upstream}"); err == nil {
 		state.HasUpstream = true
-		ahead, _ := p.runner.Run(ctx, directory, "rev-list", "--count", "@{upstream}..HEAD")
+		ahead, _ := run("rev-list", "--count", "@{upstream}..HEAD")
 		state.Ahead = strings.TrimSpace(ahead) != "" && strings.TrimSpace(ahead) != "0"
 	}
 	return state, nil

@@ -9,11 +9,15 @@ import (
 type Command struct {
 	Executable       string            `json:"executable"`
 	Args             []string          `json:"args,omitempty"`
+	ShellCommand     string            `json:"shellCommand,omitempty"`
 	WorkingDirectory string            `json:"workingDirectory,omitempty"`
 	Environment      map[string]string `json:"environment,omitempty"`
 }
 
 func (c Command) Display() string {
+	if c.ShellCommand != "" {
+		return "! " + c.ShellCommand
+	}
 	parts := append([]string{quote(c.Executable)}, mapStrings(c.Args, quote)...)
 	return strings.Join(parts, " ")
 }

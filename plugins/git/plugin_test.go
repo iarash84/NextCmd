@@ -10,13 +10,13 @@ import (
 
 type fakeRunner map[string]string
 
-func (f fakeRunner) Run(_ context.Context, _ string, args ...string) (string, error) {
-	key := strings.Join(args, " ")
+func (f fakeRunner) Run(_ context.Context, command sdk.Command) sdk.ExecutionResult {
+	key := strings.Join(command.Args, " ")
 	value, ok := f[key]
 	if !ok {
-		return "", errors.New("not configured")
+		return sdk.ExecutionResult{Command: command, ExitCode: -1, Err: errors.New("not configured")}
 	}
-	return value, nil
+	return sdk.ExecutionResult{Command: command, Stdout: value, ExitCode: 0}
 }
 func repositoryRunner() fakeRunner {
 	return fakeRunner{"rev-parse --is-inside-work-tree": "true\n", "branch --show-current": "main\n", "status --porcelain=v1": " M main.go\nA  staged.go\n?? new.go\n", "for-each-ref --format=%(refname:short) refs/heads": "main\ndevelop\n", "remote": "origin\n", "rev-parse --abbrev-ref @{upstream}": "origin/main\n", "rev-list --count @{upstream}..HEAD": "1\n"}

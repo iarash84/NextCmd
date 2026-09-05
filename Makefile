@@ -30,6 +30,7 @@ endif
 
 NATIVE_OUTPUT := $(TARGET_DIR)/$(HOST_EXECUTABLE)
 GO_SOURCES := main.go go.mod \
+	$(wildcard *.syso) \
 	$(wildcard sdk/*.go) \
 	$(wildcard cmd/*/*.go) \
 	$(wildcard internal/*/*.go) \

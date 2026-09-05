@@ -6,6 +6,7 @@ import (
 	"io"
 	"log/slog"
 	"os"
+	"os/signal"
 	"strings"
 	"time"
 
@@ -19,7 +20,7 @@ import (
 
 type App struct {
 	engine     *completion.Engine
-	executor   execution.Executor
+	executor   sdk.StreamingRunner
 	history    *history.Store
 	ui         *terminal.UI
 	logger     *slog.Logger
@@ -29,10 +30,25 @@ type App struct {
 }
 
 func New(engine *completion.Engine, store *history.Store, ui *terminal.UI, logger *slog.Logger, directory string, settings RuntimeSettings) *App {
-	return &App{engine: engine, history: store, ui: ui, logger: logger, directory: directory, settings: settings}
+	return NewWithRunner(engine, store, ui, logger, directory, settings, execution.Executor{})
+}
+
+// NewWithRunner creates an application with an injectable command runner.
+// New remains the production constructor and supplies the system executor.
+func NewWithRunner(engine *completion.Engine, store *history.Store, ui *terminal.UI, logger *slog.Logger, directory string, settings RuntimeSettings, runner sdk.StreamingRunner) *App {
+	if runner == nil {
+		runner = execution.Executor{}
+	}
+	return &App{engine: engine, executor: runner, history: store, ui: ui, logger: logger, directory: directory, settings: settings}
 }
 func (a *App) Run(ctx context.Context) error {
 	terminal.PrintWelcome(os.Stdout)
+	entries, err := a.history.Load(1000)
+	if err != nil {
+		a.logger.Debug("history load failed", "error", err)
+	} else {
+		a.ui.SetHistory(entries)
+	}
 	var previous *sdk.ExecutionResult
 	for {
 		line, err := a.ui.ReadCommand(ctx, a.engine, previous)
@@ -171,22 +187,36 @@ func (a *App) Run(ctx context.Context) error {
 			fmt.Fprintln(os.Stderr, "parse:", err)
 			continue
 		}
-		result := a.executor.Run(ctx, command)
+		if safety := assessCommandSafety(command); safety.requiresConfirmation {
+			var approved bool
+			command, approved = stripSafetyApproval(command)
+			if !approved {
+				confirmed, confirmErr := confirmUnsafeCommand(os.Stdin, os.Stdout, command, safety)
+				if confirmErr != nil && confirmErr != io.EOF {
+					fmt.Fprintln(os.Stderr, "safety confirmation:", confirmErr)
+				}
+				if !confirmed {
+					fmt.Fprintln(os.Stdout, "Command canceled.")
+					continue
+				}
+			}
+		}
+		executionContext, stopExecution := signal.NotifyContext(ctx, os.Interrupt)
+		result := a.executor.RunStreaming(executionContext, command, os.Stdout, os.Stderr)
+		stopExecution()
 		a.engine.Invalidate(a.directory)
-		if result.Stdout != "" {
-			fmt.Print(result.Stdout)
-		}
-		if result.Stderr != "" {
-			fmt.Fprint(os.Stderr, result.Stderr)
-		}
-		if result.Err != nil {
+		if result.Err != nil && !result.Canceled {
 			fmt.Fprintln(os.Stderr, "command failed:", result.Err)
 		}
 		terminal.PrintExecutionSummary(os.Stdout, result)
-		plugin := a.engine.PluginForExecutable(command.Executable)
+		plugin := ""
+		if command.ShellCommand == "" {
+			plugin = a.engine.PluginForExecutable(command.Executable)
+		}
 		if err := a.history.Append(sdk.HistoryEntry{Command: command, WorkingDirectory: a.directory, Timestamp: time.Now(), ExitCode: result.ExitCode, Duration: result.Duration, Plugin: plugin}); err != nil {
 			a.logger.Debug("history write failed", "error", err)
 		}
+		a.ui.AddHistory(command.Display())
 		previous = &result
 	}
 }

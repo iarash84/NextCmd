@@ -9,7 +9,7 @@ import (
 func printBuiltinHelp(writer io.Writer, name string) bool {
 	key := strings.TrimPrefix(strings.ToLower(strings.TrimSpace(name)), ":")
 	help, ok := map[string]string{
-		"del":     "Usage: :del [--dry-run] [--permanent] <path>\nMoves a file or directory to .nextcmd-trash after confirmation. Use --dry-run to preview the target and --permanent to remove it without undo support. If both a file and directory match, NextCmd asks which one to use.",
+		"del":     "Usage: :del [--dry-run] [--permanent] [--yes] <path>\nMoves a file or directory to .nextcmd-trash after confirmation. Use --dry-run to preview the target, --permanent to remove it without undo support, and --yes with --permanent to bypass confirmation. If both a file and directory match, NextCmd asks which one to use.",
 		"trash":   "Usage: :trash <path>\nMoves a file or directory to .nextcmd-trash after confirmation. Run :undo to restore the last trashed item in this session.",
 		"undo":    "Usage: :undo\nRestores the last file or directory moved to trash in this NextCmd session, unless the original path already exists.",
 		"cd":      "Usage: cd <path> or :cd <path>\nChanges NextCmd's active working directory. Relative, absolute, quoted, .., and ~ paths are supported.",
