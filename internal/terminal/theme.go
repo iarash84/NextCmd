@@ -93,7 +93,9 @@ func PrintWelcome(writer io.Writer) {
 func PrintExecutionSummary(writer io.Writer, result sdk.ExecutionResult) {
 	color := supportsColor(writer)
 	label, tone := "done", ansiGreen
-	if result.ExitCode != 0 || result.Err != nil {
+	if result.Canceled {
+		label, tone = "canceled", ansiYellow
+	} else if result.ExitCode != 0 || result.Err != nil {
 		label, tone = "failed", ansiRed
 	}
 	fmt.Fprintf(writer, "%s %s\n", paint(color, tone+ansiBold, "● "+label), paint(color, ansiDim, fmt.Sprintf("exit %d · %s", result.ExitCode, result.Duration.Round(1e6))))

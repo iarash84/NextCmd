@@ -6,6 +6,8 @@ NextCmd provides built-in help without opening a browser or invoking an external
 
 Normal commands are executed directly. Prefix a command with `!` to opt into the operating-system shell (`cmd.exe` on Windows, `/bin/sh` on Linux and macOS), for example `! dir` or `! printf '%s\n' hello | grep hello`. Shell syntax can redirect files and run multiple processes, so only execute trusted input.
 
+Stdout and stderr are displayed as the process produces them, rather than after it exits. Pressing Ctrl+C during execution cancels the child process and returns to the NextCmd prompt; pressing Ctrl+C or Ctrl+D while editing a command exits NextCmd.
+
 ## General help
 
 Type either form and press Enter:
@@ -33,7 +35,7 @@ Keyboard controls:
 | Enter | Accept a suggestion, then execute on the next press. |
 | Backspace | Delete the previous character. |
 | Escape | Clear the current command line. |
-| Ctrl+C/Ctrl+D | Exit and clean the terminal UI. |
+| Ctrl+C/Ctrl+D | Exit and clean the terminal UI while at the prompt. During command execution, Ctrl+C cancels only the running process and returns to the prompt. |
 
 ## Working directory commands
 
@@ -153,6 +155,8 @@ The final `· git`, `· cargo`, `· curl`, or similar suffix identifies the plug
 # راهنمای تعاملی
 
 دستورهای عادی مستقیماً اجرا می‌شوند. برای اجرای صریح از طریق shell سیستم‌عامل، ابتدای دستور `!` قرار دهید؛ در Windows از `cmd.exe` و در Linux و macOS از `/bin/sh` استفاده می‌شود. قابلیت‌های shell می‌توانند فایل‌ها را بازنویسی یا چند process را اجرا کنند، پس فقط دستور مورداعتماد را به این روش اجرا کنید.
+
+خروجی عادی و خطا هم‌زمان با تولید توسط process نمایش داده می‌شوند. هنگام اجرا، Ctrl+C فقط process فرزند را لغو می‌کند و برنامه به prompt بازمی‌گردد؛ Ctrl+C یا Ctrl+D هنگام ویرایش دستور از NextCmd خارج می‌شود.
 
 NextCmd راهنمای داخلی دارد؛ بنابراین برای دیدن کلیدها و دستورهای پشتیبانی‌شده لازم نیست مرورگر باز کنید یا برنامهٔ دیگری اجرا کنید.
 

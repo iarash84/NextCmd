@@ -37,3 +37,11 @@ func TestPrintExecutionSummaryWithoutTerminalColors(t *testing.T) {
 		t.Fatalf("non-terminal output contains ANSI colors: %q", text)
 	}
 }
+
+func TestPrintExecutionSummaryShowsCancellation(t *testing.T) {
+	var output bytes.Buffer
+	PrintExecutionSummary(&output, sdk.ExecutionResult{ExitCode: -1, Canceled: true})
+	if text := output.String(); !strings.Contains(text, "canceled") {
+		t.Fatalf("unexpected summary: %q", text)
+	}
+}

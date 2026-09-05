@@ -14,7 +14,7 @@ NextCmd is a fast, deterministic, cross-platform programming command-line assist
 - Color-aware terminal theme with highlighted selection, suggestion and risk badges, plugin source, and execution status. Colors stay out of redirected output and can be disabled with `NO_COLOR`; see the [complete badge and risk reference](docs/help.md#suggestion-kinds).
 - Built-in command palette when `:` is typed, `:?`/`:؟` help, per-plugin command catalogs, and suggestions from incomplete executable prefixes such as `gi` or `dot`.
 - Built-in workspace utilities for listing files, completing paths, trashing/restoring files, viewing redacted history, inspecting plugins and configuration, locating executables, clearing the screen, and checking version information.
-- Direct, structured process execution by default, plus explicit cross-platform shell execution with a leading `!`; stdout, stderr, exit code, and duration are captured in both modes.
+- Direct, structured process execution by default, plus explicit cross-platform shell execution with a leading `!`. Stdout and stderr stream live while remaining captured for contextual follow-ups; Ctrl+C cancels the running process and returns to NextCmd.
 - Capability-based public plugin SDK and explicit compile-time registration.
 - Git, .NET, Cargo, Curl, Go, Docker, npm, and pip context detection, cached local state, dynamic completion, next actions, best practices, and recovery.
 - Deterministic prefix/fuzzy ranking and JSON-lines history with secret redaction.
@@ -67,6 +67,8 @@ Prefix a command with `!` when shell syntax or a shell built-in is required. Nex
 ! echo hello > output.txt
 ! printf '%s\n' hello | grep hello
 ```
+
+Command output is displayed as it arrives. While a command is running, press Ctrl+C to cancel that process and return to the NextCmd prompt. At the prompt, Ctrl+C or Ctrl+D still exits NextCmd.
 
 Useful built-in commands:
 
@@ -155,7 +157,7 @@ NextCmd یک دستیار خط فرمان سریع و چندسکویی است ک
 - نمایش فهرست فرمان‌های داخلی با تایپ `:`، راهنمای داخلی با دستورهای `:?` و `:؟` و امکان مشاهدهٔ همهٔ دستورهای شناخته‌شدهٔ هر افزونه.
 - ابزارهای داخلی برای نمایش فایل‌ها، تکمیل مسیرها، انتقال فایل‌ها به trash و بازگردانی آن‌ها، مشاهدهٔ تاریخچهٔ پاک‌سازی‌شده، بررسی افزونه‌ها و تنظیمات، یافتن فایل اجرایی، پاک‌کردن صفحه و دیدن اطلاعات نسخه.
 - نمایش پیشنهاد پیش از کامل‌شدن نام ابزار؛ برای مثال، با نوشتن `gi` پیشنهادهای Git و با نوشتن `dot` پیشنهادهای .NET ظاهر می‌شوند.
-- اجرای مستقیم دستورهای عادی با نگهداری نام برنامه و آرگومان‌های جداگانه و امکان اجرای صریح shell با پیشوند `!`. خروجی عادی، خروجی خطا، کد خروج و مدت اجرا در هر دو حالت ثبت می‌شود.
+- اجرای مستقیم دستورهای عادی با نگهداری نام برنامه و آرگومان‌های جداگانه و امکان اجرای صریح shell با پیشوند `!`. خروجی عادی و خطا هم‌زمان با اجرا نمایش داده و برای پیشنهادهای بعدی ثبت می‌شوند. هنگام اجرای دستور، Ctrl+C فقط همان process را لغو می‌کند و NextCmd باز می‌ماند.
 - تشخیص وضعیت Git، .NET، Cargo، Go، Docker، npm، pip و فایل‌های محلی موردنیاز Curl، نگهداری کوتاه‌مدت context برای افزایش سرعت، تکمیل مقادیر پویا و ارائهٔ پیشنهاد بعد از موفقیت یا شکست دستور.
 - مرتب‌سازی ثابت و قابل‌پیش‌بینی پیشنهادها و ذخیرهٔ تاریخچه در قالب JSON Lines پس از حذف اطلاعات حساس.
 - پیاده‌سازی فقط با کتابخانهٔ استاندارد Go و کد جداگانه برای رفتارهای وابسته به هر سیستم‌عامل.
@@ -225,6 +227,8 @@ cd "C:\Users\Admin\source\repos\My Project"
 ```
 
 </div>
+
+خروجی دستور هم‌زمان با تولید نمایش داده می‌شود. هنگام اجرای یک دستور، Ctrl+C همان process را لغو می‌کند و برنامه به prompt بعدی برمی‌گردد. در خود prompt، کلیدهای Ctrl+C و Ctrl+D همچنان از NextCmd خارج می‌شوند.
 
 چند دستور داخلی کاربردی:
 

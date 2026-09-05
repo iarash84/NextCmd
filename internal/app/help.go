@@ -58,7 +58,7 @@ func printGeneralHelp(writer io.Writer, engine *completion.Engine) {
 	fmt.Fprintln(writer, "  Enter         Accept a suggestion, then execute on the next press")
 	fmt.Fprintln(writer, "  Backspace     Delete the previous character")
 	fmt.Fprintln(writer, "  Escape        Clear the current command line")
-	fmt.Fprintln(writer, "  Ctrl+C/Ctrl+D Exit and clean the terminal UI")
+	fmt.Fprintln(writer, "  Ctrl+C/Ctrl+D Exit at the prompt; Ctrl+C cancels a running command")
 	fmt.Fprintln(writer, "\nShell execution:")
 	fmt.Fprintln(writer, "  ! <command>   Run through cmd.exe on Windows or /bin/sh elsewhere")
 	fmt.Fprintln(writer, "                Supports shell built-ins, pipes, redirects, and variables")

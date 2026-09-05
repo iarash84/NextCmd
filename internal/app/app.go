@@ -6,6 +6,7 @@ import (
 	"io"
 	"log/slog"
 	"os"
+	"os/signal"
 	"strings"
 	"time"
 
@@ -177,15 +178,11 @@ func (a *App) Run(ctx context.Context) error {
 			fmt.Fprintln(os.Stderr, "parse:", err)
 			continue
 		}
-		result := a.executor.Run(ctx, command)
+		executionContext, stopExecution := signal.NotifyContext(ctx, os.Interrupt)
+		result := a.executor.RunStreaming(executionContext, command, os.Stdout, os.Stderr)
+		stopExecution()
 		a.engine.Invalidate(a.directory)
-		if result.Stdout != "" {
-			fmt.Print(result.Stdout)
-		}
-		if result.Stderr != "" {
-			fmt.Fprint(os.Stderr, result.Stderr)
-		}
-		if result.Err != nil {
+		if result.Err != nil && !result.Canceled {
 			fmt.Fprintln(os.Stderr, "command failed:", result.Err)
 		}
 		terminal.PrintExecutionSummary(os.Stdout, result)
