@@ -28,6 +28,8 @@ const (
 	KeyEscape
 	KeyHome
 	KeyEnd
+	KeyHistoryPrevious
+	KeyHistoryNext
 	KeyClearLine
 	KeyEOF
 	KeyIgnored
@@ -44,6 +46,7 @@ type UI struct {
 	selected, rendered int
 	caret              int
 	color              bool
+	history            []string
 }
 
 // caretForTest exposes the caret position for regression tests.
@@ -53,6 +56,19 @@ func New(directory string) *UI {
 	return &UI{input: os.Stdin, output: os.Stdout, directory: directory, color: supportsColor(os.Stdout)}
 }
 func (u *UI) SetDirectory(directory string) { u.directory = directory }
+func (u *UI) SetHistory(entries []sdk.HistoryEntry) {
+	u.history = u.history[:0]
+	for _, entry := range entries {
+		u.AddHistory(entry.Command.Display())
+	}
+}
+func (u *UI) AddHistory(command string) {
+	command = strings.TrimSpace(command)
+	if command == "" || (len(u.history) > 0 && u.history[len(u.history)-1] == command) {
+		return
+	}
+	u.history = append(u.history, command)
+}
 func (u *UI) Clear() {
 	u.clearSuggestions()
 	fmt.Fprint(u.output, "\x1b[2J\x1b[H")
@@ -63,6 +79,8 @@ func (u *UI) ReadCommand(ctx context.Context, completer Completer, previous *sdk
 		defer restore()
 	}
 	line := ""
+	historyIndex := len(u.history)
+	draft := ""
 	// caret is a byte offset into line. Left/Right move it so an accepted
 	// command can be edited in place; appending at the end (the common
 	// case) behaves exactly like the old line += ... code path.
@@ -82,12 +100,14 @@ func (u *UI) ReadCommand(ctx context.Context, completer Completer, previous *sdk
 			line = line[:caret] + string(event.value) + line[caret:]
 			caret++
 			u.selected = 0
+			historyIndex = len(u.history)
 		case KeyBackspace:
 			if caret > 0 {
 				line = line[:caret-1] + line[caret:]
 				caret--
 			}
 			u.selected = 0
+			historyIndex = len(u.history)
 		case KeyUp:
 			if len(suggestions) > 0 {
 				u.selected = (u.selected - 1 + len(suggestions)) % len(suggestions)
@@ -96,10 +116,34 @@ func (u *UI) ReadCommand(ctx context.Context, completer Completer, previous *sdk
 			if len(suggestions) > 0 {
 				u.selected = (u.selected + 1) % len(suggestions)
 			}
+		case KeyHistoryPrevious:
+			if len(u.history) > 0 {
+				if historyIndex == len(u.history) {
+					draft = line
+				}
+				if historyIndex > 0 {
+					historyIndex--
+					line = u.history[historyIndex]
+					caret = len(line)
+					u.selected = 0
+				}
+			}
+		case KeyHistoryNext:
+			if historyIndex < len(u.history) {
+				historyIndex++
+				if historyIndex == len(u.history) {
+					line = draft
+				} else {
+					line = u.history[historyIndex]
+				}
+				caret = len(line)
+				u.selected = 0
+			}
 		case KeyTab, KeyRight:
 			if len(suggestions) > 0 {
 				line = suggestions[u.selected].Command.Display()
 				caret = len(line)
+				historyIndex = len(u.history)
 			} else if event.kind == KeyRight && caret < len(line) {
 				caret++
 			}
@@ -113,6 +157,7 @@ func (u *UI) ReadCommand(ctx context.Context, completer Completer, previous *sdk
 			line = ""
 			caret = 0
 			u.selected = 0
+			historyIndex = len(u.history)
 		case KeyHome:
 			caret = 0
 		case KeyEnd:
@@ -121,6 +166,7 @@ func (u *UI) ReadCommand(ctx context.Context, completer Completer, previous *sdk
 			line = ""
 			caret = 0
 			u.selected = 0
+			historyIndex = len(u.history)
 		case KeyEnter:
 			if accepted, ok := acceptSelected(line, suggestions, u.selected); ok {
 				line = accepted

@@ -33,6 +33,12 @@ func New(engine *completion.Engine, store *history.Store, ui *terminal.UI, logge
 }
 func (a *App) Run(ctx context.Context) error {
 	terminal.PrintWelcome(os.Stdout)
+	entries, err := a.history.Load(1000)
+	if err != nil {
+		a.logger.Debug("history load failed", "error", err)
+	} else {
+		a.ui.SetHistory(entries)
+	}
 	var previous *sdk.ExecutionResult
 	for {
 		line, err := a.ui.ReadCommand(ctx, a.engine, previous)
@@ -190,6 +196,7 @@ func (a *App) Run(ctx context.Context) error {
 		if err := a.history.Append(sdk.HistoryEntry{Command: command, WorkingDirectory: a.directory, Timestamp: time.Now(), ExitCode: result.ExitCode, Duration: result.Duration, Plugin: plugin}); err != nil {
 			a.logger.Debug("history write failed", "error", err)
 		}
+		a.ui.AddHistory(command.Display())
 		previous = &result
 	}
 }

@@ -86,6 +86,25 @@ func TestReadKeyRecognizesHomeAndEnd(t *testing.T) {
 	}
 }
 
+func TestReadKeyRecognizesHistoryShortcuts(t *testing.T) {
+	tests := []struct {
+		name     string
+		sequence []byte
+		want     Key
+	}{
+		{"CtrlP", []byte{16}, KeyHistoryPrevious},
+		{"CtrlN", []byte{14}, KeyHistoryNext},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			event, err := readKey(bytes.NewReader(test.sequence))
+			if err != nil || event.kind != test.want {
+				t.Fatalf("readKey() = %#v, %v", event, err)
+			}
+		})
+	}
+}
+
 func TestReadKeyRecognizesLeftArrow(t *testing.T) {
 	tests := []struct {
 		name     string
@@ -114,6 +133,45 @@ func runKeystrokes(t *testing.T, keystrokes []byte) (string, int) {
 		t.Fatal(err)
 	}
 	return line, ui.caretForTest()
+}
+
+func runHistoryKeystrokes(t *testing.T, history []string, keystrokes []byte) (string, int) {
+	t.Helper()
+	var output bytes.Buffer
+	completer := &directoryCompleter{}
+	ui := &UI{input: bytes.NewReader(keystrokes), output: &output, directory: "d"}
+	for _, command := range history {
+		ui.AddHistory(command)
+	}
+	line, err := ui.ReadCommand(context.Background(), completer, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return line, ui.caretForTest()
+}
+
+func TestHistoryShortcutsNavigateAndRestoreDraft(t *testing.T) {
+	line, caret := runHistoryKeystrokes(t, []string{"git status", "go test ./..."}, []byte("draft\x10\x10\x0e\x0e\r"))
+	if line != "draft" || caret != len(line) {
+		t.Fatalf("line=%q caret=%d", line, caret)
+	}
+}
+
+func TestHistoryPreviousStopsAtOldestCommand(t *testing.T) {
+	line, caret := runHistoryKeystrokes(t, []string{"git status", "go test ./..."}, []byte("\x10\x10\x10\r"))
+	if line != "git status" || caret != len(line) {
+		t.Fatalf("line=%q caret=%d", line, caret)
+	}
+}
+
+func TestHistorySuppressesConsecutiveDuplicates(t *testing.T) {
+	ui := &UI{}
+	ui.AddHistory("git status")
+	ui.AddHistory(" git status ")
+	ui.AddHistory("go test ./...")
+	if len(ui.history) != 2 {
+		t.Fatalf("history=%#v", ui.history)
+	}
 }
 
 func TestLeftArrowMovesCaretInsteadOfClearingLine(t *testing.T) {

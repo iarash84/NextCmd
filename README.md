@@ -10,7 +10,7 @@ NextCmd is a fast, deterministic, cross-platform programming command-line assist
 
 ## Features
 
-- Interactive editor: Up/Down highlights a suggestion; Tab, Right Arrow, or the first Enter accepts it into the editor; Left/Right moves the caret; Ctrl+A/Ctrl+E jump to the start or end; Escape or Ctrl+U clears the command line; the next Enter executes an accepted command. Use `exit`, `quit`, `:q`, Ctrl+C, or Ctrl+D to exit.
+- Interactive editor: Up/Down highlights a suggestion; Tab, Right Arrow, or the first Enter accepts it into the editor; Left/Right moves the caret; Ctrl+P/Ctrl+N navigate older/newer command history while preserving the current draft; Ctrl+A/Ctrl+E jump to the start or end; Escape or Ctrl+U clears the command line; the next Enter executes an accepted command. Use `exit`, `quit`, `:q`, Ctrl+C, or Ctrl+D to exit.
 - Color-aware terminal theme with highlighted selection, suggestion and risk badges, plugin source, and execution status. Colors stay out of redirected output and can be disabled with `NO_COLOR`; see the [complete badge and risk reference](docs/help.md#suggestion-kinds).
 - Built-in command palette when `:` is typed, `:?`/`:؟` help, per-plugin command catalogs, and suggestions from incomplete executable prefixes such as `gi` or `dot`.
 - Built-in workspace utilities for listing files, completing paths, trashing/restoring files, viewing redacted history, inspecting plugins and configuration, locating executables, clearing the screen, and checking version information.
@@ -150,12 +150,12 @@ NextCmd یک دستیار خط فرمان سریع و چندسکویی است ک
 
 ## قابلیت‌ها
 
-- ویرایشگر تعاملی: کلیدهای بالا و پایین میان پیشنهادها جابه‌جا می‌شوند. کلید Tab، جهت راست یا اولین Enter پیشنهاد را وارد ویرایشگر می‌کند. جهت چپ و راست نشانگر را داخل خط فرمان جابه‌جا می‌کنند. Ctrl+A و Ctrl+E نشانگر را به ابتدا یا انتهای خط می‌برند. Escape یا Ctrl+U خط فرمان فعلی را پاک می‌کند و Enter بعدی دستور را اجرا می‌کند. برای خروج می‌توان از `exit`، `quit`، `:q`، Ctrl+C یا Ctrl+D استفاده کرد.
+- ویرایشگر تعاملی: کلیدهای بالا و پایین میان پیشنهادها جابه‌جا می‌شوند. کلید Tab، جهت راست یا اولین Enter پیشنهاد را وارد ویرایشگر می‌کند. جهت چپ و راست نشانگر را داخل خط فرمان جابه‌جا می‌کنند. Ctrl+P دستور قدیمی‌تر و Ctrl+N دستور جدیدتر را از تاریخچه وارد ویرایشگر می‌کند و پس از جدیدترین مورد، متن اولیهٔ کاربر بازگردانده می‌شود. Ctrl+A و Ctrl+E نشانگر را به ابتدا یا انتهای خط می‌برند. Escape یا Ctrl+U خط فرمان فعلی را پاک می‌کند و Enter بعدی دستور را اجرا می‌کند. برای خروج می‌توان از `exit`، `quit`، `:q`، Ctrl+C یا Ctrl+D استفاده کرد.
 - ظاهر رنگی پایانه: پیشنهاد انتخاب‌شده، نوع پیشنهاد، میزان خطر، افزونهٔ پیشنهاددهنده و نتیجهٔ اجرای دستور با رنگ‌های متفاوت نمایش داده می‌شوند. با تنظیم متغیر `NO_COLOR` می‌توان رنگ‌ها را غیرفعال کرد. معنی کامل برچسب‌ها و سطح‌های خطر در [راهنمای تعاملی](docs/help.md#نوع-پیشنهاد) آمده است.
 - نمایش فهرست فرمان‌های داخلی با تایپ `:`، راهنمای داخلی با دستورهای `:?` و `:؟` و امکان مشاهدهٔ همهٔ دستورهای شناخته‌شدهٔ هر افزونه.
 - ابزارهای داخلی برای نمایش فایل‌ها، تکمیل مسیرها، انتقال فایل‌ها به trash و بازگردانی آن‌ها، مشاهدهٔ تاریخچهٔ پاک‌سازی‌شده، بررسی افزونه‌ها و تنظیمات، یافتن فایل اجرایی، پاک‌کردن صفحه و دیدن اطلاعات نسخه.
 - نمایش پیشنهاد پیش از کامل‌شدن نام ابزار؛ برای مثال، با نوشتن `gi` پیشنهادهای Git و با نوشتن `dot` پیشنهادهای .NET ظاهر می‌شوند.
-- نگهداری دستور به‌صورت نام برنامه و آرگومان‌های جداگانه؛ بنابراین دستورها بدون عبور از پوسته اجرا می‌شوند. خروجی عادی، خروجی خطا، کد خروج و مدت اجرا ثبت می‌شود.
+- اجرای مستقیم دستورهای عادی با نگهداری نام برنامه و آرگومان‌های جداگانه و امکان اجرای صریح shell با پیشوند `!`. خروجی عادی، خروجی خطا، کد خروج و مدت اجرا در هر دو حالت ثبت می‌شود.
 - تشخیص وضعیت Git، .NET، Cargo، Go، Docker، npm، pip و فایل‌های محلی موردنیاز Curl، نگهداری کوتاه‌مدت context برای افزایش سرعت، تکمیل مقادیر پویا و ارائهٔ پیشنهاد بعد از موفقیت یا شکست دستور.
 - مرتب‌سازی ثابت و قابل‌پیش‌بینی پیشنهادها و ذخیرهٔ تاریخچه در قالب JSON Lines پس از حذف اطلاعات حساس.
 - پیاده‌سازی فقط با کتابخانهٔ استاندارد Go و کد جداگانه برای رفتارهای وابسته به هر سیستم‌عامل.
