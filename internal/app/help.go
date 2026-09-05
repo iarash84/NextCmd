@@ -52,6 +52,7 @@ func printGeneralHelp(writer io.Writer, engine *completion.Engine) {
 	fmt.Fprintln(writer, "  Tab/Right     Accept the highlighted suggestion")
 	fmt.Fprintln(writer, "  Left/Right    Move the caret inside the command editor")
 	fmt.Fprintln(writer, "  Ctrl+P/Ctrl+N Recall the previous or next executed command")
+	fmt.Fprintln(writer, "  Ctrl+R        Fuzzy-search history; press again for an older match")
 	fmt.Fprintln(writer, "  Ctrl+A/Ctrl+E Move to the start or end of the line")
 	fmt.Fprintln(writer, "  Ctrl+U        Clear the current command line")
 	fmt.Fprintln(writer, "  Enter         Accept a suggestion, then execute on the next press")

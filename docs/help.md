@@ -27,6 +27,7 @@ Keyboard controls:
 | Tab/Right | Accept the highlighted suggestion. |
 | Left/Right | Move the caret inside the command editor. |
 | Ctrl+P/Ctrl+N | Recall the previous/next executed command. Moving past the newest entry restores the draft that was present before history navigation. |
+| Ctrl+R | Start reverse fuzzy history search. Type to refine, press Ctrl+R again for an older match, Enter/Tab/Right to place the match in the editor, or Escape to restore the draft. |
 | Ctrl+A/Ctrl+E | Move to the start or end of the command line. |
 | Ctrl+U | Clear the current command line. |
 | Enter | Accept a suggestion, then execute on the next press. |
@@ -173,6 +174,8 @@ NextCmd راهنمای داخلی دارد؛ بنابراین برای دیدن 
 برای دیدن فهرست فرمان‌های داخلی، در ویرایشگر دستور فقط `:` را تایپ کنید. با ادامهٔ تایپ، فهرست محدود می‌شود؛ برای نمونه، `:pl` فقط پیشنهاد `:plugins` را باقی می‌گذارد. با کلیدهای بالا و پایین یک مورد را انتخاب کنید و با Tab، جهت راست یا Enter آن را وارد خط فرمان قابل‌ویرایش کنید. فرمان‌هایی که به مقدار نیاز دارند با جای‌نگهدار نمایش داده می‌شوند؛ مانند `:which <command>` و `:cd <path>`. این فهرست کوچک کاملاً داخلی است و برای نمایش آن هیچ افزونه یا عملیات تشخیص پروژه اجرا نمی‌شود.
 
 برای پیمایش تاریخچه، Ctrl+P دستور اجراشدهٔ قبلی و Ctrl+N دستور بعدی را وارد ویرایشگر می‌کند. پس از عبور از جدیدترین مورد، متنی که پیش از شروع پیمایش نوشته بودید بازگردانده می‌شود. دستورهای تکراری متوالی نیز فقط یک بار در این پیمایش نمایش داده می‌شوند.
+
+Ctrl+R جست‌وجوی معکوس fuzzy را آغاز می‌کند. برای محدودکردن نتایج تایپ کنید و برای رفتن به تطبیق قدیمی‌تر دوباره Ctrl+R را بزنید. Enter، Tab یا جهت راست نتیجه را وارد ویرایشگر می‌کند و Escape متن اولیه را برمی‌گرداند.
 
 ## دستورهای مسیر کاری
 

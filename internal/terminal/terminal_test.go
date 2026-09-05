@@ -94,6 +94,7 @@ func TestReadKeyRecognizesHistoryShortcuts(t *testing.T) {
 	}{
 		{"CtrlP", []byte{16}, KeyHistoryPrevious},
 		{"CtrlN", []byte{14}, KeyHistoryNext},
+		{"CtrlR", []byte{18}, KeyHistorySearch},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
@@ -171,6 +172,39 @@ func TestHistorySuppressesConsecutiveDuplicates(t *testing.T) {
 	ui.AddHistory("go test ./...")
 	if len(ui.history) != 2 {
 		t.Fatalf("history=%#v", ui.history)
+	}
+}
+
+func TestReverseHistorySearchUsesFuzzyMatching(t *testing.T) {
+	history := []string{"git status", "go test ./...", "git stash"}
+	match, index := reverseHistorySearch(history, "gist", len(history))
+	if match != "git stash" || index != 2 {
+		t.Fatalf("match=%q index=%d", match, index)
+	}
+	match, index = reverseHistorySearch(history, "gist", index)
+	if match != "git status" || index != 0 {
+		t.Fatalf("cycled match=%q index=%d", match, index)
+	}
+}
+
+func TestHistorySearchAcceptsSelectedMatch(t *testing.T) {
+	line, caret := runHistoryKeystrokes(t, []string{"git status", "go test ./...", "git stash"}, []byte("\x12gist\x12\r\r"))
+	if line != "git status" || caret != len(line) {
+		t.Fatalf("line=%q caret=%d", line, caret)
+	}
+}
+
+func TestHistorySearchEscapeRestoresDraft(t *testing.T) {
+	line, caret := runHistoryKeystrokes(t, []string{"git status"}, []byte("draft\x12x\x1b\r"))
+	if line != "draft" || caret != len(line) {
+		t.Fatalf("line=%q caret=%d", line, caret)
+	}
+}
+
+func TestHistorySearchBackspaceRefreshesMatch(t *testing.T) {
+	line, _ := runHistoryKeystrokes(t, []string{"git status", "go test ./..."}, []byte("\x12gx\x7f\r\r"))
+	if line != "go test ./..." {
+		t.Fatalf("line=%q", line)
 	}
 }
 
