@@ -16,6 +16,12 @@ func (c *directoryCompleter) Complete(_ context.Context, _ string, directory str
 	return nil
 }
 
+type fixedCompleter struct{ suggestions []sdk.Suggestion }
+
+func (c fixedCompleter) Complete(context.Context, string, string, *sdk.ExecutionResult) []sdk.Suggestion {
+	return c.suggestions
+}
+
 func TestSetDirectoryUpdatesCompletionContextAndDisplay(t *testing.T) {
 	var output bytes.Buffer
 	completer := &directoryCompleter{}
@@ -149,6 +155,82 @@ func runHistoryKeystrokes(t *testing.T, history []string, keystrokes []byte) (st
 		t.Fatal(err)
 	}
 	return line, ui.caretForTest()
+}
+
+func runSuggestionKeystrokes(t *testing.T, suggestion sdk.Suggestion, keystrokes []byte) (string, int) {
+	t.Helper()
+	var output bytes.Buffer
+	ui := &UI{input: bytes.NewReader(keystrokes), output: &output, directory: "d"}
+	line, err := ui.ReadCommand(context.Background(), fixedCompleter{suggestions: []sdk.Suggestion{suggestion}}, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return line, ui.caretForTest()
+}
+
+func TestPlaceholderRangesIncludeEmbeddedPlaceholders(t *testing.T) {
+	ranges := findPlaceholderRanges("git switch -c feature/<name> && <value>")
+	if len(ranges) != 2 || ranges[0].start != 22 || ranges[0].end != 28 {
+		t.Fatalf("ranges=%#v", ranges)
+	}
+}
+
+func TestTypingReplacesPlaceholderAndTabMovesToNext(t *testing.T) {
+	suggestion := sdk.Suggestion{
+		Command: sdk.Command{Executable: "docker", Args: []string{"exec", "-it", "<container>", "<command>"}},
+		Placeholders: []sdk.Placeholder{
+			{Name: "container", ArgIndex: 2, Start: 0, End: len("<container>")},
+			{Name: "command", ArgIndex: 3, Start: 0, End: len("<command>")},
+		},
+	}
+	line, caret := runSuggestionKeystrokes(t, suggestion, []byte("\tubuntu\tsh\r"))
+	if line != "docker exec -it ubuntu sh" || caret != len(line) {
+		t.Fatalf("line=%q caret=%d", line, caret)
+	}
+}
+
+func TestEmbeddedPlaceholderReplacementPreservesArgumentPrefix(t *testing.T) {
+	suggestion := sdk.Suggestion{
+		Command:      sdk.Command{Executable: "git", Args: []string{"switch", "-c", "feature/<name>"}},
+		Placeholders: []sdk.Placeholder{{Name: "name", ArgIndex: 2, Start: len("feature/"), End: len("feature/<name>")}},
+	}
+	line, _ := runSuggestionKeystrokes(t, suggestion, []byte("\rlogin\r"))
+	if line != "git switch -c feature/login" {
+		t.Fatalf("line=%q", line)
+	}
+}
+
+func TestTabAfterLastPlaceholderDoesNotRestoreTemplate(t *testing.T) {
+	suggestion := sdk.Suggestion{
+		Command:      sdk.Command{Executable: "tool", Args: []string{"<value>"}},
+		Placeholders: []sdk.Placeholder{{Name: "value", ArgIndex: 0, Start: 0, End: len("<value>")}},
+	}
+	line, caret := runSuggestionKeystrokes(t, suggestion, []byte("\rfinal\t\r"))
+	if line != "tool final" || caret != len(line) {
+		t.Fatalf("line=%q caret=%d", line, caret)
+	}
+}
+
+func TestEnterDoesNotExecuteUnresolvedPlaceholder(t *testing.T) {
+	suggestion := sdk.Suggestion{
+		Command: sdk.Command{Executable: "tool", Args: []string{"<first>", "<second>"}},
+		Placeholders: []sdk.Placeholder{
+			{Name: "first", ArgIndex: 0, Start: 0, End: len("<first>")},
+			{Name: "second", ArgIndex: 1, Start: 0, End: len("<second>")},
+		},
+	}
+	line, _ := runSuggestionKeystrokes(t, suggestion, []byte("\r\rone\ttwo\r"))
+	if line != "tool one two" {
+		t.Fatalf("line=%q", line)
+	}
+}
+
+func TestAngleBracketsWithoutPlaceholderMetadataRemainLiteral(t *testing.T) {
+	suggestion := sdk.Suggestion{Command: sdk.Command{Executable: "tool", Args: []string{"<literal>"}}}
+	line, caret := runSuggestionKeystrokes(t, suggestion, []byte("\r\r"))
+	if line != "tool <literal>" || caret != len(line) {
+		t.Fatalf("line=%q caret=%d", line, caret)
+	}
 }
 
 func TestHistoryShortcutsNavigateAndRestoreDraft(t *testing.T) {

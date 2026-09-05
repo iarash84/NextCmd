@@ -28,7 +28,7 @@ Keyboard controls:
 | Key | Behavior |
 |---|---|
 | Up/Down | Highlight suggestions. |
-| Tab/Right | Accept the highlighted suggestion. |
+| Tab/Right | Accept the highlighted suggestion. After acceptance, Tab moves through unresolved placeholders. |
 | Left/Right | Move the caret inside the command editor. |
 | Ctrl+P/Ctrl+N | Recall the previous/next executed command. Moving past the newest entry restores the draft that was present before history navigation. |
 | Ctrl+R | Start reverse fuzzy history search. Type to refine, press Ctrl+R again for an older match, Enter/Tab/Right to place the match in the editor, or Escape to restore the draft. |
@@ -38,6 +38,8 @@ Keyboard controls:
 | Backspace | Delete the previous character. |
 | Escape | Clear the current command line. |
 | Ctrl+C/Ctrl+D | Exit and clean the terminal UI while at the prompt. During command execution, Ctrl+C cancels only the running process and returns to the prompt. |
+
+When an accepted suggestion contains fields such as `<container>` or `feature/<name>`, the caret starts at the first field. Typing replaces the complete active placeholder while preserving surrounding text. Press Tab to move to the next unresolved field. NextCmd does not execute an accepted command while any tracked placeholder remains unresolved.
 
 ## Working directory commands
 
@@ -184,6 +186,8 @@ NextCmd راهنمای داخلی دارد؛ بنابراین برای دیدن 
 برای پیمایش تاریخچه، Ctrl+P دستور اجراشدهٔ قبلی و Ctrl+N دستور بعدی را وارد ویرایشگر می‌کند. پس از عبور از جدیدترین مورد، متنی که پیش از شروع پیمایش نوشته بودید بازگردانده می‌شود. دستورهای تکراری متوالی نیز فقط یک بار در این پیمایش نمایش داده می‌شوند.
 
 Ctrl+R جست‌وجوی معکوس fuzzy را آغاز می‌کند. برای محدودکردن نتایج تایپ کنید و برای رفتن به تطبیق قدیمی‌تر دوباره Ctrl+R را بزنید. Enter، Tab یا جهت راست نتیجه را وارد ویرایشگر می‌کند و Escape متن اولیه را برمی‌گرداند.
+
+اگر پیشنهاد پذیرفته‌شده جای‌نگهداری مانند `<container>` یا `feature/<name>` داشته باشد، نشانگر روی اولین فیلد قرار می‌گیرد. تایپ‌کردن کل جای‌نگهدار فعال را با مقدار جدید عوض می‌کند و متن اطراف را حفظ می‌کند. Tab به فیلد حل‌نشدهٔ بعدی می‌رود و تا وقتی جای‌نگهداری باقی مانده باشد، NextCmd فرمان را اجرا نمی‌کند.
 
 ## دستورهای مسیر کاری
 

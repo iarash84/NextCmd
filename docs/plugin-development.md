@@ -135,7 +135,7 @@ sdk.Placeholder{
 }
 ```
 
-The command remains editable after acceptance. The contract allows richer placeholder navigation in future UIs.
+After the suggestion is accepted, the terminal places the caret at the first placeholder. Typing replaces that complete placeholder and Tab moves to the next unresolved one. Commands with tracked unresolved placeholders are not executed. Keep every placeholder range within its declared argument and include the angle-bracket marker in `Start` and `End`.
 
 ## Step 5: Add the help catalog
 
@@ -509,7 +509,7 @@ sdk.Suggestion{
 
 مقدار خطر را با دقت انتخاب کنید: `sdk.Safe` برای دستورهای فقط‌خواندنی، `sdk.Mutating` برای تغییرات عادی، `sdk.Destructive` برای حذف یا بازنویسی اطلاعات و `sdk.Dangerous` برای عملیات بسیار پرخطر است. `Priority` فقط اهمیت پیشنهادی افزونه را بیان می‌کند؛ هسته پس از ترکیب همهٔ پیشنهادها ترتیب نهایی را تعیین می‌کند.
 
-برای آرگومان‌های قابل‌ویرایش مانند `<environment>` یک `sdk.Placeholder` اضافه کنید. `ArgIndex` شمارهٔ آرگومان و `Start` و `End` محدودهٔ متن قابل‌جایگزینی را مشخص می‌کنند.
+برای آرگومان‌های قابل‌ویرایش مانند `<environment>` یک `sdk.Placeholder` اضافه کنید. `ArgIndex` شمارهٔ آرگومان و `Start` و `End` محدودهٔ متن قابل‌جایگزینی را مشخص می‌کنند. پس از پذیرش پیشنهاد، terminal نشانگر را روی اولین جای‌نگهدار قرار می‌دهد؛ تایپ کل آن محدوده را جایگزین می‌کند و Tab به جای‌نگهدار حل‌نشدهٔ بعدی می‌رود. فرمان تا پیش از تکمیل همهٔ جای‌نگهدارهای ثبت‌شده اجرا نمی‌شود.
 
 ## مرحلهٔ ۴: پیاده‌سازی تکمیل دستور
 

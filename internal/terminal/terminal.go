@@ -40,6 +40,9 @@ type keyEvent struct {
 	kind  Key
 	value byte
 }
+type placeholderRange struct {
+	start, end int
+}
 type UI struct {
 	input              io.Reader
 	output             io.Writer
@@ -87,6 +90,10 @@ func (u *UI) ReadCommand(ctx context.Context, completer Completer, previous *sdk
 	searchMatch := ""
 	searchIndex := -1
 	searchDraft := ""
+	placeholderMode := false
+	placeholders := []placeholderRange(nil)
+	activePlaceholder := -1
+	editingAccepted := false
 	// caret is a byte offset into line. Left/Right move it so an accepted
 	// command can be edited in place; appending at the end (the common
 	// case) behaves exactly like the old line += ... code path.
@@ -127,6 +134,10 @@ func (u *UI) ReadCommand(ctx context.Context, completer Completer, previous *sdk
 					line = searchMatch
 					caret = len(line)
 					historyIndex = len(u.history)
+					placeholderMode = false
+					placeholders = nil
+					activePlaceholder = -1
+					editingAccepted = false
 					searching = false
 				}
 			case KeyEscape:
@@ -151,24 +162,46 @@ func (u *UI) ReadCommand(ctx context.Context, completer Completer, previous *sdk
 		}
 		switch event.kind {
 		case KeyRune:
-			line = line[:caret] + string(event.value) + line[caret:]
+			if placeholderMode && activePlaceholder >= 0 && activePlaceholder < len(placeholders) {
+				placeholder := placeholders[activePlaceholder]
+				line = line[:placeholder.start] + string(event.value) + line[placeholder.end:]
+				caret = placeholder.start
+				activePlaceholder = -1
+			} else {
+				line = line[:caret] + string(event.value) + line[caret:]
+			}
 			caret++
+			if placeholderMode {
+				placeholders = findPlaceholderRanges(line)
+				placeholderMode = len(placeholders) > 0
+			}
 			u.selected = 0
 			historyIndex = len(u.history)
 		case KeyBackspace:
-			if caret > 0 {
+			if placeholderMode && activePlaceholder >= 0 && activePlaceholder < len(placeholders) {
+				placeholder := placeholders[activePlaceholder]
+				line = line[:placeholder.start] + line[placeholder.end:]
+				caret = placeholder.start
+				activePlaceholder = -1
+			} else if caret > 0 {
 				line = line[:caret-1] + line[caret:]
 				caret--
+			}
+			if placeholderMode {
+				placeholders = findPlaceholderRanges(line)
+				placeholderMode = len(placeholders) > 0
 			}
 			u.selected = 0
 			historyIndex = len(u.history)
 		case KeyUp:
 			if len(suggestions) > 0 {
 				u.selected = (u.selected - 1 + len(suggestions)) % len(suggestions)
+				editingAccepted = false
 			}
 		case KeyDown:
 			if len(suggestions) > 0 {
 				u.selected = (u.selected + 1) % len(suggestions)
+				editingAccepted = false
 			}
 		case KeyHistoryPrevious:
 			if len(u.history) > 0 {
@@ -180,6 +213,8 @@ func (u *UI) ReadCommand(ctx context.Context, completer Completer, previous *sdk
 					line = u.history[historyIndex]
 					caret = len(line)
 					u.selected = 0
+					placeholderMode = false
+					editingAccepted = false
 				}
 			}
 		case KeyHistoryNext:
@@ -192,6 +227,8 @@ func (u *UI) ReadCommand(ctx context.Context, completer Completer, previous *sdk
 				}
 				caret = len(line)
 				u.selected = 0
+				placeholderMode = false
+				editingAccepted = false
 			}
 		case KeyHistorySearch:
 			searching = true
@@ -201,12 +238,43 @@ func (u *UI) ReadCommand(ctx context.Context, completer Completer, previous *sdk
 			u.renderHistorySearch(searchQuery, searchMatch)
 			u.caret = len(searchQuery)
 			continue
-		case KeyTab, KeyRight:
+		case KeyTab:
+			if placeholderMode && len(placeholders) > 0 {
+				activePlaceholder = nextPlaceholder(placeholders, activePlaceholder, caret)
+				caret = placeholders[activePlaceholder].start
+				break
+			}
+			if editingAccepted {
+				caret = len(line)
+				break
+			}
 			if len(suggestions) > 0 {
 				line = suggestions[u.selected].Command.Display()
+				placeholders = placeholderRangesForSuggestion(suggestions[u.selected])
+				placeholderMode = len(placeholders) > 0
+				activePlaceholder = -1
 				caret = len(line)
+				if placeholderMode {
+					activePlaceholder = 0
+					caret = placeholders[0].start
+				}
+				editingAccepted = true
 				historyIndex = len(u.history)
-			} else if event.kind == KeyRight && caret < len(line) {
+			}
+		case KeyRight:
+			if !editingAccepted && len(suggestions) > 0 {
+				line = suggestions[u.selected].Command.Display()
+				placeholders = placeholderRangesForSuggestion(suggestions[u.selected])
+				placeholderMode = len(placeholders) > 0
+				activePlaceholder = -1
+				caret = len(line)
+				if placeholderMode {
+					activePlaceholder = 0
+					caret = placeholders[0].start
+				}
+				editingAccepted = true
+				historyIndex = len(u.history)
+			} else if caret < len(line) {
 				caret++
 			}
 		case KeyLeft:
@@ -220,6 +288,10 @@ func (u *UI) ReadCommand(ctx context.Context, completer Completer, previous *sdk
 			caret = 0
 			u.selected = 0
 			historyIndex = len(u.history)
+			placeholderMode = false
+			placeholders = nil
+			activePlaceholder = -1
+			editingAccepted = false
 		case KeyHome:
 			caret = 0
 		case KeyEnd:
@@ -229,11 +301,30 @@ func (u *UI) ReadCommand(ctx context.Context, completer Completer, previous *sdk
 			caret = 0
 			u.selected = 0
 			historyIndex = len(u.history)
+			placeholderMode = false
+			placeholders = nil
+			activePlaceholder = -1
+			editingAccepted = false
 		case KeyEnter:
-			if accepted, ok := acceptSelected(line, suggestions, u.selected); ok {
+			if accepted, ok := acceptSelected(line, suggestions, u.selected); !editingAccepted && ok {
 				line = accepted
+				placeholders = placeholderRangesForSuggestion(suggestions[u.selected])
+				placeholderMode = len(placeholders) > 0
+				activePlaceholder = -1
 				caret = len(line)
+				if placeholderMode {
+					activePlaceholder = 0
+					caret = placeholders[0].start
+				}
 				u.selected = 0
+				editingAccepted = true
+				break
+			}
+			if placeholderMode && len(placeholders) > 0 {
+				if activePlaceholder < 0 {
+					activePlaceholder = nextPlaceholder(placeholders, -1, caret)
+				}
+				caret = placeholders[activePlaceholder].start
 				break
 			}
 			u.caret = caret
@@ -254,6 +345,49 @@ func (u *UI) ReadCommand(ctx context.Context, completer Completer, previous *sdk
 		u.render(line, suggestions, caret)
 		u.caret = caret
 	}
+}
+
+func findPlaceholderRanges(line string) []placeholderRange {
+	var ranges []placeholderRange
+	for offset := 0; offset < len(line); {
+		start := strings.IndexByte(line[offset:], '<')
+		if start < 0 {
+			break
+		}
+		start += offset
+		end := strings.IndexByte(line[start+1:], '>')
+		if end < 0 {
+			break
+		}
+		end += start + 2
+		if end > start+2 {
+			ranges = append(ranges, placeholderRange{start: start, end: end})
+		}
+		offset = end
+	}
+	return ranges
+}
+
+func placeholderRangesForSuggestion(suggestion sdk.Suggestion) []placeholderRange {
+	if len(suggestion.Placeholders) == 0 {
+		return nil
+	}
+	return findPlaceholderRanges(suggestion.Command.Display())
+}
+
+func nextPlaceholder(placeholders []placeholderRange, active, caret int) int {
+	if len(placeholders) == 0 {
+		return -1
+	}
+	if active >= 0 && active < len(placeholders) {
+		return (active + 1) % len(placeholders)
+	}
+	for index, placeholder := range placeholders {
+		if placeholder.start >= caret {
+			return index
+		}
+	}
+	return 0
 }
 
 func reverseHistorySearch(history []string, query string, before int) (string, int) {
