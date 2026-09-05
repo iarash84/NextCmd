@@ -7,8 +7,10 @@ import (
 	"nextcmd/plugins/dotnet"
 	"nextcmd/plugins/git"
 	"nextcmd/plugins/golang"
+	"nextcmd/plugins/kubernetes"
 	"nextcmd/plugins/npm"
 	"nextcmd/plugins/pip"
+	"nextcmd/plugins/terraform"
 	"nextcmd/sdk"
 )
 
@@ -24,5 +26,7 @@ func All() []sdk.Plugin {
 		docker.New(),
 		npm.New(),
 		pip.New(),
+		kubernetes.New(),
+		terraform.New(),
 	}
 }

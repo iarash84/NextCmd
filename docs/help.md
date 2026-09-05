@@ -106,6 +106,8 @@ Append a plugin ID to print every statically supported command with its descript
 :? docker
 :? npm
 :? pip
+:? kubernetes
+:? terraform
 :؟ git
 :؟ dotnet
 :؟ cargo
@@ -114,6 +116,8 @@ Append a plugin ID to print every statically supported command with its descript
 :؟ docker
 :؟ npm
 :؟ pip
+:؟ kubernetes
+:؟ terraform
 ```
 
 The catalog comes from the plugin through the public `sdk.HelpProvider` capability. Core and Terminal do not contain Git or .NET command lists. Dynamic values such as actual branches, files, remotes, solutions, and projects remain available through normal completion.
@@ -271,6 +275,8 @@ Ctrl+R جست‌وجوی معکوس fuzzy را آغاز می‌کند. برای 
 :? docker
 :? npm
 :? pip
+:? kubernetes
+:? terraform
 :؟ git
 :؟ dotnet
 :؟ cargo
@@ -279,6 +285,8 @@ Ctrl+R جست‌وجوی معکوس fuzzy را آغاز می‌کند. برای 
 :؟ docker
 :؟ npm
 :؟ pip
+:؟ kubernetes
+:؟ terraform
 ```
 
 </div>

@@ -6,7 +6,7 @@ English | [فارسی](#فارسی)
   <img src="assets/nextcmd.png" alt="NextCmd icon" width="220">
 </p>
 
-NextCmd is a fast, deterministic, cross-platform programming command-line assistant written in Go. It suggests editable commands from the current input, project state, and previous execution. It ships with explicitly registered Git, .NET, Cargo, Curl, Go, Docker, npm, and pip plugins and uses no AI, network service, or third-party Go dependency.
+NextCmd is a fast, deterministic, cross-platform programming command-line assistant written in Go. It suggests editable commands from the current input, project state, and previous execution. It ships with explicitly registered Git, .NET, Cargo, Curl, Go, Docker, npm, pip, Kubernetes, and Terraform plugins and uses no AI, network service, or third-party Go dependency.
 
 ## Features
 
@@ -19,7 +19,7 @@ NextCmd is a fast, deterministic, cross-platform programming command-line assist
 - Confirmation guard for recognized high-risk commands such as recursive forced removal, destructive Git operations, force-push, and Docker prune. Confirmation defaults to no; append `--yes` only for deliberate non-interactive execution.
 - Capability-based public plugin SDK and explicit compile-time registration.
 - Injectable `sdk.Runner` and `sdk.StreamingRunner` contracts for deterministic tests without launching real tools.
-- Git, .NET, Cargo, Curl, Go, Docker, npm, and pip context detection, cached local state, dynamic completion, next actions, best practices, and recovery.
+- Git, .NET, Cargo, Curl, Go, Docker, npm, pip, Kubernetes, and Terraform context detection, cached local state, dynamic completion, next actions, best practices, and recovery.
 - Deterministic prefix/fuzzy ranking and JSON-lines history with secret redaction for structured arguments, shell options, environment assignments, authentication headers, and URL credentials.
 - Standard-library-only implementation with platform-specific terminal boundaries.
 
@@ -35,7 +35,7 @@ go build -o nextcmd .
 On Windows run `nextcmd.exe`. Debug logging is enabled with `nextcmd --debug`. Configuration defaults to the OS user configuration directory at `nextcmd/config.json`:
 
 ```json
-{"historyEnabled":true,"maxSuggestions":8,"debug":false,"plugins":{"git":true,"dotnet":true,"cargo":true,"curl":true,"go":true,"docker":true,"npm":true,"pip":true}}
+{"historyEnabled":true,"maxSuggestions":8,"debug":false,"plugins":{"git":true,"dotnet":true,"cargo":true,"curl":true,"go":true,"docker":true,"npm":true,"pip":true,"kubernetes":true,"terraform":true}}
 ```
 
 Every registered plugin is enabled unless its ID is set to `false` in `plugins`. Legacy `gitEnabled`, `dotnetEnabled`, and `cargoEnabled` keys are still read for backward compatibility.
@@ -120,7 +120,7 @@ All artifacts are written to `target/`. `build-root` copies only the current hos
 
 ## Architecture
 
-`sdk` is the only package plugin authors need. Core discovers optional capabilities with type assertions, merges results, and owns ranking. Plugins return structured commands, descriptions, reasons, and risk metadata; only the terminal package decides how those fields look on screen. Built-ins are listed explicitly in `plugins/builtin`. See [architecture](docs/architecture.md), [plugin development](docs/plugin-development.md), and the plugin guides for [Git](docs/git-plugin.md), [.NET](docs/dotnet-plugin.md), [Cargo](docs/cargo-plugin.md), [Curl](docs/curl-plugin.md), [Go](docs/golang-plugin.md), [Docker](docs/docker-plugin.md), [npm](docs/npm-plugin.md), and [pip](docs/pip-plugin.md).
+`sdk` is the only package plugin authors need. Core discovers optional capabilities with type assertions, merges results, and owns ranking. Plugins return structured commands, descriptions, reasons, and risk metadata; only the terminal package decides how those fields look on screen. Built-ins are listed explicitly in `plugins/builtin`. See [architecture](docs/architecture.md), [plugin development](docs/plugin-development.md), and the plugin guides for [Git](docs/git-plugin.md), [.NET](docs/dotnet-plugin.md), [Cargo](docs/cargo-plugin.md), [Curl](docs/curl-plugin.md), [Go](docs/golang-plugin.md), [Docker](docs/docker-plugin.md), [npm](docs/npm-plugin.md), [pip](docs/pip-plugin.md), [Kubernetes](docs/kubernetes-plugin.md), and [Terraform](docs/terraform-plugin.md).
 
 Code that executes commands can depend on `sdk.Runner`; interactive hosts can use `sdk.StreamingRunner`. Production constructors select the system executor, while tests and embedding applications can inject deterministic implementations through `app.NewWithRunner` and `git.NewWithRunner`.
 
@@ -141,7 +141,7 @@ GitHub Actions runs formatting, vet, tests, race detection, and all six cross-bu
 
 ## Roadmap
 
-Future compile-time plugins may support Kubernetes, Terraform, pnpm, and GitHub CLI. Dynamic plugins, AI, telemetry, marketplaces, and cloud sync are intentionally outside this MVP.
+Future compile-time plugins may support pnpm and GitHub CLI. Dynamic plugins, AI, telemetry, marketplaces, and cloud sync are intentionally outside this MVP.
 
 ## License
 
@@ -157,7 +157,7 @@ MIT. See [LICENSE](LICENSE).
   <img src="assets/nextcmd.png" alt="آیکون NextCmd" width="220">
 </p>
 
-NextCmd یک دستیار خط فرمان سریع و چندسکویی است که با زبان Go نوشته شده است. برنامه هنگام تایپ، متن فعلی، وضعیت پروژه و نتیجهٔ آخرین دستور را بررسی می‌کند و چند دستور قابل‌ویرایش پیشنهاد می‌دهد. افزونه‌های Git، .NET، Cargo، Curl، Go، Docker، npm و pip به‌صورت صریح در زمان ساخت برنامه ثبت می‌شوند. برنامه از هوش مصنوعی، سرویس شبکه یا کتابخانهٔ جانبی Go استفاده نمی‌کند.
+NextCmd یک دستیار خط فرمان سریع و چندسکویی است که با زبان Go نوشته شده است. برنامه هنگام تایپ، متن فعلی، وضعیت پروژه و نتیجهٔ آخرین دستور را بررسی می‌کند و چند دستور قابل‌ویرایش پیشنهاد می‌دهد. افزونه‌های Git، .NET، Cargo، Curl، Go، Docker، npm، pip، Kubernetes و Terraform به‌صورت صریح در زمان ساخت برنامه ثبت می‌شوند. برنامه از هوش مصنوعی، سرویس شبکه یا کتابخانهٔ جانبی Go استفاده نمی‌کند.
 
 ## قابلیت‌ها
 
@@ -170,7 +170,7 @@ NextCmd یک دستیار خط فرمان سریع و چندسکویی است ک
 - اجرای مستقیم دستورهای عادی با نگهداری نام برنامه و آرگومان‌های جداگانه و امکان اجرای صریح shell با پیشوند `!`. خروجی عادی و خطا هم‌زمان با اجرا نمایش داده و برای پیشنهادهای بعدی ثبت می‌شوند. هنگام اجرای دستور، Ctrl+C فقط همان process را لغو می‌کند و NextCmd باز می‌ماند.
 - درخواست تأیید برای فرمان‌های پرخطر شناخته‌شده مانند حذف بازگشتی اجباری، عملیات مخرب Git، force-push و Docker prune. پاسخ پیش‌فرض منفی است و `--yes` فقط برای اجرای غیرتعاملی آگاهانه استفاده می‌شود.
 - قراردادهای قابل‌تزریق `sdk.Runner` و `sdk.StreamingRunner` برای تست قطعی بدون اجرای ابزارهای واقعی.
-- تشخیص وضعیت Git، .NET، Cargo، Go، Docker، npm، pip و فایل‌های محلی موردنیاز Curl، نگهداری کوتاه‌مدت context برای افزایش سرعت، تکمیل مقادیر پویا و ارائهٔ پیشنهاد بعد از موفقیت یا شکست دستور.
+- تشخیص وضعیت Git، .NET، Cargo، Go، Docker، npm، pip، Kubernetes، Terraform و فایل‌های محلی موردنیاز Curl، نگهداری کوتاه‌مدت context برای افزایش سرعت، تکمیل مقادیر پویا و ارائهٔ پیشنهاد بعد از موفقیت یا شکست دستور.
 - مرتب‌سازی ثابت و قابل‌پیش‌بینی پیشنهادها و ذخیرهٔ تاریخچه در قالب JSON Lines پس از پاک‌سازی آرگومان‌ها، optionهای shell، مقداردهی متغیرهای محیطی، headerهای احراز هویت و اطلاعات ورود URL.
 - پیاده‌سازی فقط با کتابخانهٔ استاندارد Go و کد جداگانه برای رفتارهای وابسته به هر سیستم‌عامل.
 
@@ -194,7 +194,7 @@ go build -o nextcmd .
 <div dir="ltr" align="left">
 
 ```json
-{"historyEnabled":true,"maxSuggestions":8,"debug":false,"plugins":{"git":true,"dotnet":true,"cargo":true,"curl":true,"go":true,"docker":true,"npm":true,"pip":true}}
+{"historyEnabled":true,"maxSuggestions":8,"debug":false,"plugins":{"git":true,"dotnet":true,"cargo":true,"curl":true,"go":true,"docker":true,"npm":true,"pip":true,"kubernetes":true,"terraform":true}}
 ```
 
 </div>
@@ -292,7 +292,7 @@ make build-all
 
 کدی که فرمان اجرا می‌کند می‌تواند به `sdk.Runner` وابسته باشد و میزبان تعاملی از `sdk.StreamingRunner` استفاده کند. سازنده‌های عادی اجراکنندهٔ واقعی سیستم را انتخاب می‌کنند، اما تست‌ها و برنامه‌های میزبان می‌توانند با `app.NewWithRunner` و `git.NewWithRunner` پیاده‌سازی قطعی خود را تزریق کنند.
 
-برای جزئیات بیشتر، [معماری](docs/architecture.md)، [راهنمای توسعهٔ افزونه](docs/plugin-development.md) و راهنماهای [Git](docs/git-plugin.md)، [.NET](docs/dotnet-plugin.md)، [Cargo](docs/cargo-plugin.md)، [Curl](docs/curl-plugin.md)، [Go](docs/golang-plugin.md)، [Docker](docs/docker-plugin.md)، [npm](docs/npm-plugin.md) و [pip](docs/pip-plugin.md) را بخوانید.
+برای جزئیات بیشتر، [معماری](docs/architecture.md)، [راهنمای توسعهٔ افزونه](docs/plugin-development.md) و راهنماهای [Git](docs/git-plugin.md)، [.NET](docs/dotnet-plugin.md)، [Cargo](docs/cargo-plugin.md)، [Curl](docs/curl-plugin.md)، [Go](docs/golang-plugin.md)، [Docker](docs/docker-plugin.md)، [npm](docs/npm-plugin.md)، [pip](docs/pip-plugin.md)، [Kubernetes](docs/kubernetes-plugin.md) و [Terraform](docs/terraform-plugin.md) را بخوانید.
 
 ## توسعه و تست
 
@@ -313,7 +313,7 @@ GitHub Actions قالب‌بندی کد، بررسی `go vet`، تست‌ها، 
 
 ## مسیر آینده
 
-در آینده می‌توان افزونه‌های Kubernetes، Terraform، pnpm و GitHub CLI را در زمان ساخت به برنامه اضافه کرد. افزونهٔ پویا، هوش مصنوعی، ارسال داده‌های آماری، بازار افزونه و همگام‌سازی ابری عمداً در محدودهٔ نسخهٔ اولیه نیستند.
+در آینده می‌توان افزونه‌های pnpm و GitHub CLI را در زمان ساخت به برنامه اضافه کرد. افزونهٔ پویا، هوش مصنوعی، ارسال داده‌های آماری، بازار افزونه و همگام‌سازی ابری عمداً در محدودهٔ نسخهٔ اولیه نیستند.
 
 ## مجوز
 

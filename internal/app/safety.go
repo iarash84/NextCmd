@@ -60,6 +60,14 @@ func assessCommandTokens(executable string, args []string) commandSafety {
 		if containsArg(lowerArgs, "prune") {
 			return commandSafety{true, "docker prune permanently removes unused resources"}
 		}
+	case "kubectl":
+		if len(lowerArgs) > 0 && lowerArgs[0] == "delete" {
+			return commandSafety{true, "kubectl delete removes resources from the selected cluster"}
+		}
+	case "terraform":
+		if len(lowerArgs) > 0 && (lowerArgs[0] == "apply" || lowerArgs[0] == "destroy") {
+			return commandSafety{true, "Terraform can materially change or destroy managed infrastructure"}
+		}
 	case "remove-item":
 		if (containsArg(lowerArgs, "-recurse") || containsArg(lowerArgs, "-r")) && (containsArg(lowerArgs, "-force") || containsArg(lowerArgs, "-fo")) {
 			return commandSafety{true, "recursive forced removal can permanently delete files"}
