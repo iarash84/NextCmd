@@ -338,6 +338,8 @@ func TestCompletion(t *testing.T) {
 
 Use `t.TempDir()` for filesystem tests and fake runners for process tests. Tests must not require GitHub, NuGet, cloud credentials, or another network service.
 
+If the plugin inspects an external CLI, depend on `sdk.Runner` instead of spreading `os/exec` calls through detection or completion code. Accept it through a constructor and send an `sdk.Command` with its working directory. A fake can then return controlled `sdk.ExecutionResult` values for success, failure, and cancellation without requiring the CLI to be installed. The Git plugin demonstrates this with `git.NewWithRunner`. Reserve `sdk.StreamingRunner` for interactive hosts that need live stdout and stderr.
+
 ## Step 12: Document and verify
 
 Add `docs/acme-plugin.md` with English first and Persian inside `<div dir="rtl" align="right">`. Keep code blocks left-to-right. Update README features, configuration, plugin links, and roadmap. If command behavior depends on a current external CLI version, cite its official documentation.
@@ -602,6 +604,8 @@ return []sdk.Plugin{
 - مدیریت خطا و لغو درخواست.
 
 برای تست فایل‌ها از `t.TempDir()` و برای اجرای برنامه از Runner ساختگی استفاده کنید. تست نباید به GitHub، NuGet، اطلاعات ورود یا سرویس شبکه نیاز داشته باشد.
+
+اگر افزونه برای تشخیص وضعیت یک CLI خارجی را اجرا می‌کند، به‌جای پراکنده‌کردن فراخوانی‌های `os/exec` در کد، به `sdk.Runner` وابسته شوید و آن را از طریق سازنده دریافت کنید. فرمان را با `sdk.Command` و مسیر کاری صریح ارسال کنید تا fake آزمایشی بتواند نتیجه‌های موفق، ناموفق و لغوشده را بدون نصب ابزار واقعی برگرداند. افزونهٔ Git این الگو را با `git.NewWithRunner` نشان می‌دهد. `sdk.StreamingRunner` مخصوص میزبان تعاملی است که نمایش زندهٔ خروجی را نیاز دارد.
 
 ## مرحلهٔ ۱۲: مستندسازی و بررسی نهایی
 

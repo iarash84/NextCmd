@@ -13,6 +13,8 @@ import (
 
 type Executor struct{}
 
+var _ sdk.StreamingRunner = Executor{}
+
 func (Executor) Run(ctx context.Context, command sdk.Command) sdk.ExecutionResult {
 	return (Executor{}).RunStreaming(ctx, command, nil, nil)
 }

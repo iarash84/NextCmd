@@ -18,6 +18,7 @@ NextCmd is a fast, deterministic, cross-platform programming command-line assist
 - Direct, structured process execution by default, plus explicit cross-platform shell execution with a leading `!`. Stdout and stderr stream live while remaining captured for contextual follow-ups; Ctrl+C cancels the running process and returns to NextCmd.
 - Confirmation guard for recognized high-risk commands such as recursive forced removal, destructive Git operations, force-push, and Docker prune. Confirmation defaults to no; append `--yes` only for deliberate non-interactive execution.
 - Capability-based public plugin SDK and explicit compile-time registration.
+- Injectable `sdk.Runner` and `sdk.StreamingRunner` contracts for deterministic tests without launching real tools.
 - Git, .NET, Cargo, Curl, Go, Docker, npm, and pip context detection, cached local state, dynamic completion, next actions, best practices, and recovery.
 - Deterministic prefix/fuzzy ranking and JSON-lines history with secret redaction for structured arguments, shell options, environment assignments, authentication headers, and URL credentials.
 - Standard-library-only implementation with platform-specific terminal boundaries.
@@ -121,6 +122,8 @@ All artifacts are written to `target/`. `build-root` copies only the current hos
 
 `sdk` is the only package plugin authors need. Core discovers optional capabilities with type assertions, merges results, and owns ranking. Plugins return structured commands, descriptions, reasons, and risk metadata; only the terminal package decides how those fields look on screen. Built-ins are listed explicitly in `plugins/builtin`. See [architecture](docs/architecture.md), [plugin development](docs/plugin-development.md), and the plugin guides for [Git](docs/git-plugin.md), [.NET](docs/dotnet-plugin.md), [Cargo](docs/cargo-plugin.md), [Curl](docs/curl-plugin.md), [Go](docs/golang-plugin.md), [Docker](docs/docker-plugin.md), [npm](docs/npm-plugin.md), and [pip](docs/pip-plugin.md).
 
+Code that executes commands can depend on `sdk.Runner`; interactive hosts can use `sdk.StreamingRunner`. Production constructors select the system executor, while tests and embedding applications can inject deterministic implementations through `app.NewWithRunner` and `git.NewWithRunner`.
+
 For keyboard controls and plugin command catalogs, see the bilingual [interactive help guide](docs/help.md) or type `:?` inside NextCmd.
 
 ## Development and testing
@@ -166,6 +169,7 @@ NextCmd یک دستیار خط فرمان سریع و چندسکویی است ک
 - نمایش پیشنهاد پیش از کامل‌شدن نام ابزار؛ برای مثال، با نوشتن `gi` پیشنهادهای Git و با نوشتن `dot` پیشنهادهای .NET ظاهر می‌شوند.
 - اجرای مستقیم دستورهای عادی با نگهداری نام برنامه و آرگومان‌های جداگانه و امکان اجرای صریح shell با پیشوند `!`. خروجی عادی و خطا هم‌زمان با اجرا نمایش داده و برای پیشنهادهای بعدی ثبت می‌شوند. هنگام اجرای دستور، Ctrl+C فقط همان process را لغو می‌کند و NextCmd باز می‌ماند.
 - درخواست تأیید برای فرمان‌های پرخطر شناخته‌شده مانند حذف بازگشتی اجباری، عملیات مخرب Git، force-push و Docker prune. پاسخ پیش‌فرض منفی است و `--yes` فقط برای اجرای غیرتعاملی آگاهانه استفاده می‌شود.
+- قراردادهای قابل‌تزریق `sdk.Runner` و `sdk.StreamingRunner` برای تست قطعی بدون اجرای ابزارهای واقعی.
 - تشخیص وضعیت Git، .NET، Cargo، Go، Docker، npm، pip و فایل‌های محلی موردنیاز Curl، نگهداری کوتاه‌مدت context برای افزایش سرعت، تکمیل مقادیر پویا و ارائهٔ پیشنهاد بعد از موفقیت یا شکست دستور.
 - مرتب‌سازی ثابت و قابل‌پیش‌بینی پیشنهادها و ذخیرهٔ تاریخچه در قالب JSON Lines پس از پاک‌سازی آرگومان‌ها، optionهای shell، مقداردهی متغیرهای محیطی، headerهای احراز هویت و اطلاعات ورود URL.
 - پیاده‌سازی فقط با کتابخانهٔ استاندارد Go و کد جداگانه برای رفتارهای وابسته به هر سیستم‌عامل.
@@ -285,6 +289,8 @@ make build-all
 ## معماری
 
 توسعه‌دهندهٔ افزونه فقط به بستهٔ عمومی `sdk` نیاز دارد. هسته تشخیص می‌دهد هر افزونه چه قابلیت‌هایی دارد، پیشنهادهای همهٔ افزونه‌ها را با هم ترکیب می‌کند و ترتیب نهایی نمایش را تعیین می‌کند. افزونه فقط اطلاعاتی مانند دستور، عنوان، دلیل پیشنهاد و میزان خطر را برمی‌گرداند؛ نحوهٔ نمایش این اطلاعات بر عهدهٔ رابط پایانه است. افزونه‌های داخلی به‌صورت صریح در `plugins/builtin` ثبت می‌شوند.
+
+کدی که فرمان اجرا می‌کند می‌تواند به `sdk.Runner` وابسته باشد و میزبان تعاملی از `sdk.StreamingRunner` استفاده کند. سازنده‌های عادی اجراکنندهٔ واقعی سیستم را انتخاب می‌کنند، اما تست‌ها و برنامه‌های میزبان می‌توانند با `app.NewWithRunner` و `git.NewWithRunner` پیاده‌سازی قطعی خود را تزریق کنند.
 
 برای جزئیات بیشتر، [معماری](docs/architecture.md)، [راهنمای توسعهٔ افزونه](docs/plugin-development.md) و راهنماهای [Git](docs/git-plugin.md)، [.NET](docs/dotnet-plugin.md)، [Cargo](docs/cargo-plugin.md)، [Curl](docs/curl-plugin.md)، [Go](docs/golang-plugin.md)، [Docker](docs/docker-plugin.md)، [npm](docs/npm-plugin.md) و [pip](docs/pip-plugin.md) را بخوانید.
 

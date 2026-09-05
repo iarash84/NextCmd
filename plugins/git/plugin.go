@@ -1,28 +1,19 @@
 package git
 
 import (
-	"bytes"
-	"context"
-	"os/exec"
-
+	"nextcmd/internal/execution"
 	"nextcmd/sdk"
 )
 
-type commandRunner struct{}
+type Plugin struct{ runner sdk.Runner }
 
-func (commandRunner) Run(ctx context.Context, directory string, args ...string) (string, error) {
-	command := exec.CommandContext(ctx, "git", args...)
-	command.Dir = directory
-	var output bytes.Buffer
-	command.Stdout, command.Stderr = &output, &output
-	err := command.Run()
-	return output.String(), err
+func New() *Plugin { return NewWithRunner(execution.Executor{}) }
+func NewWithRunner(runner sdk.Runner) *Plugin {
+	if runner == nil {
+		runner = execution.Executor{}
+	}
+	return &Plugin{runner: runner}
 }
-
-type Plugin struct{ runner Runner }
-
-func New() *Plugin                        { return &Plugin{runner: commandRunner{}} }
-func NewWithRunner(runner Runner) *Plugin { return &Plugin{runner: runner} }
 func (*Plugin) Info() sdk.PluginInfo {
 	return sdk.PluginInfo{ID: "git", Name: "Git", Version: "1.0.0", Description: "Context-aware Git commands"}
 }

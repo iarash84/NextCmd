@@ -12,6 +12,8 @@ The `sdk` contains stable data contracts and small optional capability interface
 
 Commands remain `Executable + Args`; rendering and execution are separate. Normal execution calls `exec.CommandContext` directly. A command explicitly prefixed with `!` is instead passed to `cmd.exe /D /S /C` on Windows or `/bin/sh -c` on Linux and macOS. Git-specific process calls and parsing live exclusively in `plugins/git`.
 
+Execution dependencies use the public `sdk.Runner` contract. Interactive execution depends on its `sdk.StreamingRunner` extension so output can still be mirrored live. Default constructors install the system executor; `app.NewWithRunner` and `git.NewWithRunner` accept deterministic test doubles or host-provided implementations.
+
 The executor streams stdout and stderr to the terminal while simultaneously retaining both streams in `ExecutionResult` for recovery and next-action providers. During execution, the application derives a signal-aware context from its session context; Ctrl+C cancels the child command without canceling the application session.
 
 Before execution, the application assesses the final direct or shell command syntax against a focused set of high-risk forms. Recognized commands require explicit confirmation with a default answer of no. A trailing `--yes` is treated as deliberate non-interactive approval and removed before an external or shell command is launched. Plugin risk metadata remains presentation and ranking input; this Core guard is independent so manually typed commands receive the same protection.
@@ -47,6 +49,8 @@ plugins --> sdk <-- internal core <-- cmd/assistant
 موتور تکمیل با بررسی رابط‌های پیاده‌سازی‌شده می‌فهمد هر افزونه چه قابلیت‌هایی دارد. خطای یک افزونه فقط در حالت اشکال‌زدایی ثبت می‌شود و باعث بسته‌شدن برنامه نمی‌شود. نتیجهٔ تشخیص پروژه برای مدت کوتاهی نگهداری می‌شود تا با هر کلید فشرده‌شده دوباره محاسبه نشود. در پایان، هسته پیشنهادها را ترکیب و با الگوریتمی ثابت مرتب می‌کند.
 
 هر دستور عادی به‌صورت دو بخش جدا نگهداری می‌شود: نام فایل اجرایی در `Executable` و آرگومان‌ها در `Args`. متن قابل‌نمایش دستور جداگانه ساخته می‌شود و برنامه آن را مستقیماً با `exec.CommandContext` اجرا می‌کند. فقط دستورهایی که صریحاً با `!` شروع شوند در Windows از طریق `cmd.exe` و در Linux و macOS از طریق `/bin/sh` اجرا می‌شوند. تمام منطق اجرای Git و تفسیر خروجی آن فقط در `plugins/git` قرار دارد.
+
+وابستگی‌های اجرای فرمان از قرارداد عمومی `sdk.Runner` استفاده می‌کنند. اجرای تعاملی به رابط توسعه‌یافتهٔ `sdk.StreamingRunner` وابسته است تا خروجی همچنان زنده نمایش داده شود. سازنده‌های پیش‌فرض اجراکنندهٔ سیستم را قرار می‌دهند و `app.NewWithRunner` و `git.NewWithRunner` امکان تزریق fake قطعی یا پیاده‌سازی میزبان را فراهم می‌کنند.
 
 اجراکننده خروجی عادی و خطا را هم‌زمان به terminal می‌فرستد و هر دو را در `ExecutionResult` نیز نگه می‌دارد تا افزونه‌های recovery و پیشنهاد گام بعدی همچنان به نتیجه دسترسی داشته باشند. هنگام اجرا، context حساس به signal از context نشست ساخته می‌شود؛ بنابراین Ctrl+C فرمان فرزند را لغو می‌کند، اما نشست برنامه باز می‌ماند.
 

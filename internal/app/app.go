@@ -20,7 +20,7 @@ import (
 
 type App struct {
 	engine     *completion.Engine
-	executor   execution.Executor
+	executor   sdk.StreamingRunner
 	history    *history.Store
 	ui         *terminal.UI
 	logger     *slog.Logger
@@ -30,7 +30,16 @@ type App struct {
 }
 
 func New(engine *completion.Engine, store *history.Store, ui *terminal.UI, logger *slog.Logger, directory string, settings RuntimeSettings) *App {
-	return &App{engine: engine, history: store, ui: ui, logger: logger, directory: directory, settings: settings}
+	return NewWithRunner(engine, store, ui, logger, directory, settings, execution.Executor{})
+}
+
+// NewWithRunner creates an application with an injectable command runner.
+// New remains the production constructor and supplies the system executor.
+func NewWithRunner(engine *completion.Engine, store *history.Store, ui *terminal.UI, logger *slog.Logger, directory string, settings RuntimeSettings, runner sdk.StreamingRunner) *App {
+	if runner == nil {
+		runner = execution.Executor{}
+	}
+	return &App{engine: engine, executor: runner, history: store, ui: ui, logger: logger, directory: directory, settings: settings}
 }
 func (a *App) Run(ctx context.Context) error {
 	terminal.PrintWelcome(os.Stdout)
