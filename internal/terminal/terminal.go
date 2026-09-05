@@ -26,6 +26,9 @@ const (
 	KeyLeft
 	KeyBackspace
 	KeyEscape
+	KeyHome
+	KeyEnd
+	KeyClearLine
 	KeyEOF
 	KeyIgnored
 )
@@ -110,6 +113,14 @@ func (u *UI) ReadCommand(ctx context.Context, completer Completer, previous *sdk
 			line = ""
 			caret = 0
 			u.selected = 0
+		case KeyHome:
+			caret = 0
+		case KeyEnd:
+			caret = len(line)
+		case KeyClearLine:
+			line = ""
+			caret = 0
+			u.selected = 0
 		case KeyEnter:
 			if accepted, ok := acceptSelected(line, suggestions, u.selected); ok {
 				line = accepted
@@ -155,7 +166,7 @@ func acceptSelected(line string, suggestions []sdk.Suggestion, selected int) (st
 
 func isInternalCommand(line string) bool {
 	trimmed := strings.ToLower(strings.TrimSpace(line))
-	if trimmed == "cd" || trimmed == ":cd" || strings.HasPrefix(trimmed, "cd ") || strings.HasPrefix(trimmed, ":cd ") || trimmed == "pwd" || trimmed == ":pwd" || trimmed == ":ls" || strings.HasPrefix(trimmed, ":ls ") || trimmed == ":mkdir" || strings.HasPrefix(trimmed, ":mkdir ") || trimmed == ":del" || strings.HasPrefix(trimmed, ":del ") {
+	if trimmed == "cd" || trimmed == ":cd" || strings.HasPrefix(trimmed, "cd ") || strings.HasPrefix(trimmed, ":cd ") || trimmed == "pwd" || trimmed == ":pwd" || trimmed == ":ls" || strings.HasPrefix(trimmed, ":ls ") || trimmed == ":mkdir" || strings.HasPrefix(trimmed, ":mkdir ") || trimmed == ":del" || strings.HasPrefix(trimmed, ":del ") || trimmed == ":trash" || strings.HasPrefix(trimmed, ":trash ") || trimmed == ":undo" {
 		return true
 	}
 	for _, name := range []string{":history", ":plugins", ":clear", ":config", ":which", ":version"} {

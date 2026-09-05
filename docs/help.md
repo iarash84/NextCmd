@@ -15,7 +15,7 @@ Type either form and press Enter:
 
 The output explains keyboard controls, built-in commands, exit commands, and all loaded plugins.
 
-Type `:` in the command editor to open the built-in command palette. Continue typing to filter it—for example, `:pl` leaves `:plugins`. Use Up/Down to highlight an item and Tab, Right Arrow, or Enter to place it in the editable command line. Commands that require a value are shown with an editable placeholder, such as `:del <path>`, `:which <command>`, and `:cd <path>`. Because the catalog is small and local, all matching built-ins are shown without running plugins or project detection.
+Type `:` in the command editor to open the built-in command palette. Continue typing to filter it—for example, `:pl` leaves `:plugins`. Use Up/Down to highlight an item and Tab, Right Arrow, or Enter to place it in the editable command line. Commands that require a value are shown with an editable placeholder, such as `:del <path>`, `:which <command>`, and `:cd <path>`. Built-in path arguments for `cd`, `:cd`, `:ls`, `:mkdir`, `:del`, and `:trash` complete from the active working directory.
 
 Keyboard controls:
 
@@ -24,6 +24,8 @@ Keyboard controls:
 | Up/Down | Highlight suggestions. |
 | Tab/Right | Accept the highlighted suggestion. |
 | Left/Right | Move the caret inside the command editor. |
+| Ctrl+A/Ctrl+E | Move to the start or end of the command line. |
+| Ctrl+U | Clear the current command line. |
 | Enter | Accept a suggestion, then execute on the next press. |
 | Backspace | Delete the previous character. |
 | Escape | Clear the current command line. |
@@ -40,6 +42,9 @@ Use `:ls` to list the active directory, or `:ls <path>` to inspect another direc
 :ls ..
 :ls "project with spaces"
 :del old.txt
+:del --dry-run old-build
+:trash old.txt
+:undo
 :del "old directory"
 ```
 
@@ -52,7 +57,9 @@ These commands are handled inside NextCmd. They are not passed to a shell, are n
 | `:history [count]` | Show recent commands executed through NextCmd. | Defaults to 20 entries and accepts 1 through 1000. It displays time, exit code, duration, plugin, working directory, and the redacted structured command. If history is disabled, it says so explicitly. |
 | `:plugins` | Show every currently enabled plugin. | Plugins are sorted by ID and displayed with version, name, and description. Disabled plugins are not listed. |
 | `:clear` | Clear the terminal screen and return the cursor to the top-left corner. | It only changes the current display and does not remove history or project state. |
-| `:del <path>` | Delete a file or directory. | Resolves relative, absolute, quoted, and `~` paths against the active working directory. It detects whether the target is a file or directory, recursively removes directories, and asks which target to remove if both a matching file and directory are found. |
+| `:del <path>` | Move a file or directory to trash. | Resolves relative, absolute, quoted, and `~` paths against the active working directory. It detects whether the target is a file or directory, asks for confirmation, recursively counts directories before removal, and asks which target to use if both a matching file and directory are found. Use `--dry-run` to preview and `--permanent` to delete without undo support. |
+| `:trash <path>` | Move a file or directory to trash. | Alias for the safe delete path. The item is moved into `.nextcmd-trash` and can be restored with `:undo` during the same session. |
+| `:undo` | Restore the last trashed item. | Restores the most recent file or directory moved to trash in this NextCmd session unless the original path already exists. |
 | `:config` | Show the effective runtime configuration. | Displays the configuration and history paths, history status, suggestion limit, debug status, and sorted plugin overrides. It does not print environment variables or secrets. |
 | `:which <command>` | Locate the executable that NextCmd would find through the operating-system `PATH`. | Uses Go's cross-platform executable lookup, including Windows `PATHEXT`, and prints an absolute path when it can resolve one. |
 | `:version` | Show build and platform information. | Displays the NextCmd version, Go version, OS, architecture, and the source revision when build metadata is available. Official release builds receive their version from the release tag. |
@@ -65,6 +72,8 @@ Examples:
 :plugins
 :clear
 :del old.txt
+:trash old.txt
+:undo
 :config
 :which dotnet
 :version
@@ -171,6 +180,9 @@ NextCmd راهنمای داخلی دارد؛ بنابراین برای دیدن 
 :ls ..
 :ls "project with spaces"
 :del old.txt
+:del --dry-run old-build
+:trash old.txt
+:undo
 :del "old directory"
 ```
 
@@ -205,6 +217,8 @@ NextCmd راهنمای داخلی دارد؛ بنابراین برای دیدن 
 :plugins
 :clear
 :del old.txt
+:trash old.txt
+:undo
 :config
 :which dotnet
 :version

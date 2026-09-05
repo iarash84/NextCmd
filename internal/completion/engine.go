@@ -85,6 +85,9 @@ func (e *Engine) project(ctx context.Context, directory string) map[string]any {
 	return values
 }
 func (e *Engine) Complete(ctx context.Context, input, directory string, previous *sdk.ExecutionResult) []sdk.Suggestion {
+	if suggestions, handled := completeBuiltinPath(input, directory); handled {
+		return suggestions
+	}
 	if isBuiltinCommandInput(input) {
 		return nil
 	}
@@ -121,7 +124,7 @@ func (e *Engine) Complete(ctx context.Context, input, directory string, previous
 
 func isBuiltinCommandInput(input string) bool {
 	trimmed := strings.ToLower(strings.TrimSpace(input))
-	return trimmed == "cd" || trimmed == ":cd" || strings.HasPrefix(trimmed, "cd ") || strings.HasPrefix(trimmed, ":cd ") || trimmed == "pwd" || trimmed == ":pwd" || trimmed == ":ls" || strings.HasPrefix(trimmed, ":ls ") || trimmed == ":mkdir" || strings.HasPrefix(trimmed, ":mkdir ") || trimmed == ":del" || strings.HasPrefix(trimmed, ":del ") || isUtilityCommandInput(trimmed)
+	return trimmed == "cd" || trimmed == ":cd" || strings.HasPrefix(trimmed, "cd ") || strings.HasPrefix(trimmed, ":cd ") || trimmed == "pwd" || trimmed == ":pwd" || trimmed == ":ls" || strings.HasPrefix(trimmed, ":ls ") || trimmed == ":mkdir" || strings.HasPrefix(trimmed, ":mkdir ") || trimmed == ":del" || strings.HasPrefix(trimmed, ":del ") || trimmed == ":trash" || strings.HasPrefix(trimmed, ":trash ") || trimmed == ":undo" || isUtilityCommandInput(trimmed)
 }
 
 func isUtilityCommandInput(trimmed string) bool {

@@ -60,3 +60,13 @@ func TestPrintPluginHelp(t *testing.T) {
 		t.Fatalf("unexpected help: %s", text)
 	}
 }
+
+func TestPrintBuiltinHelp(t *testing.T) {
+	engine := completion.New(nil, 8, slog.New(slog.NewTextHandler(io.Discard, nil)))
+	var output bytes.Buffer
+	printHelp(&output, engine, "del")
+	text := output.String()
+	if !strings.Contains(text, ":del [--dry-run] [--permanent] <path>") || !strings.Contains(text, "--permanent") {
+		t.Fatalf("unexpected built-in help: %s", text)
+	}
+}
