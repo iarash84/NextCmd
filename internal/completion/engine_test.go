@@ -3,6 +3,8 @@ package completion
 import (
 	"io"
 	"log/slog"
+	"os"
+	"path/filepath"
 	"testing"
 
 	"nextcmd/sdk"
@@ -27,7 +29,7 @@ func TestPluginForExecutableUsesPublicCatalog(t *testing.T) {
 
 func TestDirectoryCommandsDoNotReceivePluginSuggestions(t *testing.T) {
 	engine := New([]sdk.Plugin{catalogPlugin{}}, 8, slog.New(slog.NewTextHandler(io.Discard, nil)))
-	for _, input := range []string{"cd", "cd ..", ":cd project", "pwd", ":pwd", ":ls", ":ls ..", ":mkdir old", ":del old", ":history", ":history 5", ":plugins", ":clear", ":config", ":which go", ":version"} {
+	for _, input := range []string{"cd", "cd ..", ":cd project", "pwd", ":pwd", ":ls", ":ls ..", ":mkdir old", ":del old", ":trash old", ":undo", ":history", ":history 5", ":plugins", ":clear", ":config", ":which go", ":version"} {
 		if suggestions := engine.Complete(t.Context(), input, ".", nil); len(suggestions) != 0 {
 			t.Errorf("%q received plugin suggestions: %#v", input, suggestions)
 		}
@@ -37,7 +39,7 @@ func TestDirectoryCommandsDoNotReceivePluginSuggestions(t *testing.T) {
 func TestColonSuggestsBuiltinCommands(t *testing.T) {
 	engine := New([]sdk.Plugin{catalogPlugin{}}, 20, slog.New(slog.NewTextHandler(io.Discard, nil)))
 	suggestions := engine.Complete(t.Context(), ":", ".", nil)
-	wanted := map[string]bool{":q": false, ":ls": false, ":mkdir <path>": false, ":del <path>": false, ":plugins": false, ":history": false, ":clear": false, ":config": false, ":which <command>": false, ":version": false, ":?": false}
+	wanted := map[string]bool{":q": false, ":ls": false, ":mkdir <path>": false, ":del <path>": false, ":trash <path>": false, ":undo": false, ":plugins": false, ":history": false, ":clear": false, ":config": false, ":which <command>": false, ":version": false, ":?": false}
 	for _, suggestion := range suggestions {
 		if _, ok := wanted[suggestion.Command.Display()]; ok {
 			wanted[suggestion.Command.Display()] = true
@@ -50,6 +52,18 @@ func TestColonSuggestsBuiltinCommands(t *testing.T) {
 		if !found {
 			t.Errorf("%s was not suggested for colon input", command)
 		}
+	}
+}
+
+func TestBuiltinPathCompletionSuggestsMatchingPaths(t *testing.T) {
+	dir := t.TempDir()
+	if err := os.WriteFile(filepath.Join(dir, "old file.txt"), []byte("old"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	engine := New(nil, 8, slog.New(slog.NewTextHandler(io.Discard, nil)))
+	suggestions := engine.Complete(t.Context(), ":del old", dir, nil)
+	if len(suggestions) != 1 || suggestions[0].Command.Display() != `:del "old file.txt"` {
+		t.Fatalf("Complete(:del old) = %#v", suggestions)
 	}
 }
 

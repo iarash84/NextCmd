@@ -18,13 +18,14 @@ import (
 )
 
 type App struct {
-	engine    *completion.Engine
-	executor  execution.Executor
-	history   *history.Store
-	ui        *terminal.UI
-	logger    *slog.Logger
-	directory string
-	settings  RuntimeSettings
+	engine     *completion.Engine
+	executor   execution.Executor
+	history    *history.Store
+	ui         *terminal.UI
+	logger     *slog.Logger
+	directory  string
+	settings   RuntimeSettings
+	lastDelete *undoDelete
 }
 
 func New(engine *completion.Engine, store *history.Store, ui *terminal.UI, logger *slog.Logger, directory string, settings RuntimeSettings) *App {
@@ -92,19 +93,36 @@ func (a *App) Run(ctx context.Context) error {
 			fmt.Fprintf(os.Stdout, "Created directory: %s\n", created)
 			continue
 		}
-		if requested, handled, parseErr := parseDeletePath(line); handled {
+		if strings.EqualFold(strings.TrimSpace(line), ":undo") {
+			if a.lastDelete == nil {
+				fmt.Fprintln(os.Stderr, ":undo: nothing to restore")
+				continue
+			}
+			if undoErr := restoreDeleted(*a.lastDelete); undoErr != nil {
+				fmt.Fprintln(os.Stderr, ":undo:", undoErr)
+				continue
+			}
+			fmt.Fprintf(os.Stdout, "Restored %s: %s\n", a.lastDelete.kind, a.lastDelete.original)
+			a.engine.Invalidate(a.directory)
+			a.lastDelete = nil
+			continue
+		}
+		if options, handled, parseErr := parseDeletePath(line); handled {
 			if parseErr != nil {
 				fmt.Fprintln(os.Stderr, ":del:", parseErr)
 				continue
 			}
-			deleted, deleteErr := deletePath(a.directory, requested, func(candidates []deleteCandidate) (deleteKind, error) {
+			deleted, deleteErr := deletePath(a.directory, options, func(candidates []deleteCandidate) (deleteKind, error) {
 				return promptDeleteKind(os.Stdin, os.Stdout, candidates)
+			}, func(target deleteCandidate, options deleteOptions, counts deleteCounts) (bool, error) {
+				return confirmDelete(os.Stdin, os.Stdout, target, options, counts)
 			})
 			if deleteErr != nil {
 				fmt.Fprintln(os.Stderr, ":del:", deleteErr)
 				continue
 			}
-			fmt.Fprintf(os.Stdout, "Deleted %s: %s\n", deleted.kind, deleted.path)
+			fmt.Fprintln(os.Stdout, formatDeleteResult(deleted))
+			a.lastDelete = trashRecord(deleted)
 			a.engine.Invalidate(a.directory)
 			continue
 		}

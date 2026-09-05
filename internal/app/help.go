@@ -25,6 +25,9 @@ func printHelp(writer io.Writer, engine *completion.Engine, pluginName string) {
 		printGeneralHelp(writer, engine)
 		return
 	}
+	if printBuiltinHelp(writer, pluginName) {
+		return
+	}
 	info, commands, found := engine.Help(pluginName)
 	if !found {
 		fmt.Fprintf(writer, "Unknown plugin %q. Use :? to list loaded plugins.\n", pluginName)
@@ -48,6 +51,8 @@ func printGeneralHelp(writer io.Writer, engine *completion.Engine) {
 	fmt.Fprintln(writer, "  Up/Down       Highlight suggestions")
 	fmt.Fprintln(writer, "  Tab/Right     Accept the highlighted suggestion")
 	fmt.Fprintln(writer, "  Left/Right    Move the caret inside the command editor")
+	fmt.Fprintln(writer, "  Ctrl+A/Ctrl+E Move to the start or end of the line")
+	fmt.Fprintln(writer, "  Ctrl+U        Clear the current command line")
 	fmt.Fprintln(writer, "  Enter         Accept a suggestion, then execute on the next press")
 	fmt.Fprintln(writer, "  Backspace     Delete the previous character")
 	fmt.Fprintln(writer, "  Escape        Clear the current command line")
@@ -59,7 +64,9 @@ func printGeneralHelp(writer io.Writer, engine *completion.Engine) {
 	fmt.Fprintln(writer, "  pwd/:pwd              Print the current working directory")
 	fmt.Fprintln(writer, "  :ls [path]            List files and directories")
 	fmt.Fprintln(writer, "  :mkdir <path>         Create a directory (parents included)")
-	fmt.Fprintln(writer, "  :del <path>           Delete a file or directory")
+	fmt.Fprintln(writer, "  :del <path>           Move a file or directory to trash")
+	fmt.Fprintln(writer, "  :trash <path>         Move a file or directory to trash")
+	fmt.Fprintln(writer, "  :undo                 Restore the last trashed item")
 	fmt.Fprintln(writer, "  :history [count]      Show recent redacted command history")
 	fmt.Fprintln(writer, "  :plugins              Show enabled plugins")
 	fmt.Fprintln(writer, "  :clear                Clear the terminal screen")

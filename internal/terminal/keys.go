@@ -20,8 +20,14 @@ func readKey(reader io.Reader) (keyEvent, error) {
 		return keyEvent{}, err
 	}
 	switch first {
+	case 1:
+		return keyEvent{kind: KeyHome}, nil
 	case 3, 4:
 		return keyEvent{kind: KeyEOF}, nil
+	case 5:
+		return keyEvent{kind: KeyEnd}, nil
+	case 21:
+		return keyEvent{kind: KeyClearLine}, nil
 	case 13, 10:
 		return keyEvent{kind: KeyEnter}, nil
 	case 9:
@@ -44,6 +50,12 @@ func readKey(reader io.Reader) (keyEvent, error) {
 		}
 		if next == 75 {
 			return keyEvent{kind: KeyLeft}, nil
+		}
+		if next == 71 {
+			return keyEvent{kind: KeyHome}, nil
+		}
+		if next == 79 {
+			return keyEvent{kind: KeyEnd}, nil
 		}
 		return keyEvent{kind: KeyIgnored}, nil
 	case 27:
@@ -70,6 +82,12 @@ func readKey(reader io.Reader) (keyEvent, error) {
 		}
 		if final == 'D' {
 			return keyEvent{kind: KeyLeft}, nil
+		}
+		if final == 'H' {
+			return keyEvent{kind: KeyHome}, nil
+		}
+		if final == 'F' {
+			return keyEvent{kind: KeyEnd}, nil
 		}
 		return keyEvent{kind: KeyIgnored}, nil
 	default:
