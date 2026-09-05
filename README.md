@@ -2,7 +2,11 @@
 
 English | [فارسی](#فارسی)
 
-NextCmd is a fast, deterministic, cross-platform programming command-line assistant written in Go. It suggests editable commands from the current input, project state, and previous execution. It ships with explicitly registered Git, .NET, Cargo, Curl, Go, Docker, npm, and pip plugins and uses no AI, network service, shell execution, or third-party Go dependency.
+<p align="center">
+  <img src="assets/nextcmd.png" alt="NextCmd icon" width="220">
+</p>
+
+NextCmd is a fast, deterministic, cross-platform programming command-line assistant written in Go. It suggests editable commands from the current input, project state, and previous execution. It ships with explicitly registered Git, .NET, Cargo, Curl, Go, Docker, npm, and pip plugins and uses no AI, network service, or third-party Go dependency.
 
 ## Features
 
@@ -10,7 +14,7 @@ NextCmd is a fast, deterministic, cross-platform programming command-line assist
 - Color-aware terminal theme with highlighted selection, suggestion and risk badges, plugin source, and execution status. Colors stay out of redirected output and can be disabled with `NO_COLOR`; see the [complete badge and risk reference](docs/help.md#suggestion-kinds).
 - Built-in command palette when `:` is typed, `:?`/`:؟` help, per-plugin command catalogs, and suggestions from incomplete executable prefixes such as `gi` or `dot`.
 - Built-in workspace utilities for listing files, completing paths, trashing/restoring files, viewing redacted history, inspecting plugins and configuration, locating executables, clearing the screen, and checking version information.
-- Structured, shell-independent commands and captured stdout, stderr, exit code, and duration.
+- Direct, structured process execution by default, plus explicit cross-platform shell execution with a leading `!`; stdout, stderr, exit code, and duration are captured in both modes.
 - Capability-based public plugin SDK and explicit compile-time registration.
 - Git, .NET, Cargo, Curl, Go, Docker, npm, and pip context detection, cached local state, dynamic completion, next actions, best practices, and recovery.
 - Deterministic prefix/fuzzy ranking and JSON-lines history with secret redaction.
@@ -55,6 +59,14 @@ cd "C:\Users\Admin\source\repos\My Project"
 `:del <path>` moves a file or directory from the active working directory to `.nextcmd-trash` after confirmation. It resolves relative, absolute, quoted, and `~` paths, detects whether the target is a file or directory, and asks which one to remove if both a matching file and directory are found. Use `:del --dry-run <path>` to preview, `:del --permanent <path>` to delete without undo support, and `:undo` to restore the last trashed item in this session.
 
 `cd` and `:cd` update completion, project detection, command execution, and history together. Running `cd` without a path selects the user home directory. NextCmd keeps this state internally and does not change the parent shell directory.
+
+Prefix a command with `!` when shell syntax or a shell built-in is required. NextCmd uses `cmd.exe` on Windows and `/bin/sh` on Linux and macOS. Because shell commands can expand variables, redirect files, and chain processes, use `!` only with text you trust:
+
+```text
+! dir
+! echo hello > output.txt
+! printf '%s\n' hello | grep hello
+```
 
 Useful built-in commands:
 
@@ -130,7 +142,11 @@ MIT. See [LICENSE](LICENSE).
 
 # فارسی
 
-NextCmd یک دستیار خط فرمان سریع و چندسکویی است که با زبان Go نوشته شده است. برنامه هنگام تایپ، متن فعلی، وضعیت پروژه و نتیجهٔ آخرین دستور را بررسی می‌کند و چند دستور قابل‌ویرایش پیشنهاد می‌دهد. افزونه‌های Git، .NET، Cargo، Curl، Go، Docker، npm و pip به‌صورت صریح در زمان ساخت برنامه ثبت می‌شوند. برنامه از هوش مصنوعی، سرویس شبکه، اجرای دستور از طریق پوسته و کتابخانهٔ جانبی Go استفاده نمی‌کند.
+<p align="center">
+  <img src="assets/nextcmd.png" alt="آیکون NextCmd" width="220">
+</p>
+
+NextCmd یک دستیار خط فرمان سریع و چندسکویی است که با زبان Go نوشته شده است. برنامه هنگام تایپ، متن فعلی، وضعیت پروژه و نتیجهٔ آخرین دستور را بررسی می‌کند و چند دستور قابل‌ویرایش پیشنهاد می‌دهد. افزونه‌های Git، .NET، Cargo، Curl، Go، Docker، npm و pip به‌صورت صریح در زمان ساخت برنامه ثبت می‌شوند. برنامه از هوش مصنوعی، سرویس شبکه یا کتابخانهٔ جانبی Go استفاده نمی‌کند.
 
 ## قابلیت‌ها
 
@@ -197,6 +213,18 @@ cd "C:\Users\Admin\source\repos\My Project"
 دستور `:del <path>` فایل یا پوشه را پس از تأیید از مسیر کاری فعال به `.nextcmd-trash` منتقل می‌کند. مسیرهای نسبی، کامل، نقل‌قول‌شده و `~` پشتیبانی می‌شوند. برنامه تشخیص می‌دهد هدف فایل است یا پوشه و اگر هم فایل و هم پوشهٔ مطابق پیدا شود، از کاربر می‌پرسد کدام مورد حذف شود. برای پیش‌نمایش از `:del --dry-run <path>`، برای حذف دائمی بدون امکان undo از `:del --permanent <path>`، و برای بازگردانی آخرین مورد منتقل‌شده به trash از `:undo` استفاده کنید.
 
 دستورهای `cd` و `:cd` مسیر مورد استفاده برای پیشنهادها، تشخیص پروژه، اجرای دستور و تاریخچه را هم‌زمان تغییر می‌دهند. اجرای `cd` بدون مسیر، پوشهٔ خانگی کاربر را انتخاب می‌کند. این تغییر فقط داخل NextCmd است و مسیر shell والد را تغییر نمی‌دهد.
+
+برای اجرای قابلیت‌های داخلی shell یا استفاده از pipe و redirect، ابتدای دستور `!` قرار دهید. NextCmd در Windows از `cmd.exe` و در Linux و macOS از `/bin/sh` استفاده می‌کند. چون shell می‌تواند متغیرها را گسترش دهد، فایل‌ها را بازنویسی کند و چند process را پشت‌سرهم اجرا کند، فقط متن مورداعتماد را پس از `!` اجرا کنید:
+
+<div dir="ltr" align="left">
+
+```text
+! dir
+! echo hello > output.txt
+! printf '%s\n' hello | grep hello
+```
+
+</div>
 
 چند دستور داخلی کاربردی:
 

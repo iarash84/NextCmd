@@ -4,6 +4,8 @@ English | [فارسی](#راهنمای-تعاملی)
 
 NextCmd provides built-in help without opening a browser or invoking an external command.
 
+Normal commands are executed directly. Prefix a command with `!` to opt into the operating-system shell (`cmd.exe` on Windows, `/bin/sh` on Linux and macOS), for example `! dir` or `! printf '%s\n' hello | grep hello`. Shell syntax can redirect files and run multiple processes, so only execute trusted input.
+
 ## General help
 
 Type either form and press Enter:
@@ -147,6 +149,8 @@ The final `· git`, `· cargo`, `· curl`, or similar suffix identifies the plug
 <div dir="rtl" align="right">
 
 # راهنمای تعاملی
+
+دستورهای عادی مستقیماً اجرا می‌شوند. برای اجرای صریح از طریق shell سیستم‌عامل، ابتدای دستور `!` قرار دهید؛ در Windows از `cmd.exe` و در Linux و macOS از `/bin/sh` استفاده می‌شود. قابلیت‌های shell می‌توانند فایل‌ها را بازنویسی یا چند process را اجرا کنند، پس فقط دستور مورداعتماد را به این روش اجرا کنید.
 
 NextCmd راهنمای داخلی دارد؛ بنابراین برای دیدن کلیدها و دستورهای پشتیبانی‌شده لازم نیست مرورگر باز کنید یا برنامهٔ دیگری اجرا کنید.
 

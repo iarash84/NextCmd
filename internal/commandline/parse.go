@@ -8,8 +8,18 @@ import (
 	"nextcmd/sdk"
 )
 
-// Parse converts an editable command line to a structured command without invoking a shell.
+// Parse converts an editable command line to a structured command. A leading !
+// explicitly opts into the platform shell; every other command remains a direct
+// process invocation.
 func Parse(input, directory string) (sdk.Command, error) {
+	trimmed := strings.TrimSpace(input)
+	if strings.HasPrefix(trimmed, "!") {
+		shellCommand := strings.TrimSpace(strings.TrimPrefix(trimmed, "!"))
+		if shellCommand == "" {
+			return sdk.Command{}, fmt.Errorf("empty shell command")
+		}
+		return sdk.Command{ShellCommand: shellCommand, WorkingDirectory: directory}, nil
+	}
 	var args []string
 	var current strings.Builder
 	var quote rune

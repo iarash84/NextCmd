@@ -15,7 +15,13 @@ type Executor struct{}
 func (Executor) Run(ctx context.Context, command sdk.Command) sdk.ExecutionResult {
 	started := time.Now()
 	result := sdk.ExecutionResult{Command: command, ExitCode: -1}
-	cmd := exec.CommandContext(ctx, command.Executable, command.Args...)
+	var cmd *exec.Cmd
+	if command.ShellCommand != "" {
+		name, args := platformShell(command.ShellCommand)
+		cmd = exec.CommandContext(ctx, name, args...)
+	} else {
+		cmd = exec.CommandContext(ctx, command.Executable, command.Args...)
+	}
 	cmd.Dir = command.WorkingDirectory
 	cmd.Env = os.Environ()
 	for key, value := range command.Environment {

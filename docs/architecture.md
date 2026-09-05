@@ -10,7 +10,7 @@ plugins ──> sdk <── internal core <── cmd/assistant
 
 The `sdk` contains stable data contracts and small optional capability interfaces. It imports only the Go standard library. A plugin must implement `Plugin.Info`; it may independently implement completion, detection, next-action, best-practice, recovery, or help-catalog capabilities. The completion engine uses type assertions, isolates provider errors, caches detection briefly, merges suggestions, and delegates final order to Core ranking.
 
-Commands remain `Executable + Args`; rendering and execution are separate. Execution calls `exec.CommandContext` directly and never invokes a shell. Git-specific process calls and parsing live exclusively in `plugins/git`.
+Commands remain `Executable + Args`; rendering and execution are separate. Normal execution calls `exec.CommandContext` directly. A command explicitly prefixed with `!` is instead passed to `cmd.exe /D /S /C` on Windows or `/bin/sh -c` on Linux and macOS. Git-specific process calls and parsing live exclusively in `plugins/git`.
 
 `internal/terminal` owns presentation and keyboard behavior. Its raw-mode boundary has separate Windows, Linux, and macOS files. No UI type appears in the SDK. `internal/history` writes portable JSON Lines and redacts common secret arguments and URL user-info before persistence.
 
@@ -40,7 +40,7 @@ plugins --> sdk <-- internal core <-- cmd/assistant
 
 موتور تکمیل با بررسی رابط‌های پیاده‌سازی‌شده می‌فهمد هر افزونه چه قابلیت‌هایی دارد. خطای یک افزونه فقط در حالت اشکال‌زدایی ثبت می‌شود و باعث بسته‌شدن برنامه نمی‌شود. نتیجهٔ تشخیص پروژه برای مدت کوتاهی نگهداری می‌شود تا با هر کلید فشرده‌شده دوباره محاسبه نشود. در پایان، هسته پیشنهادها را ترکیب و با الگوریتمی ثابت مرتب می‌کند.
 
-هر دستور به‌صورت دو بخش جدا نگهداری می‌شود: نام فایل اجرایی در `Executable` و آرگومان‌ها در `Args`. متن قابل‌نمایش دستور جداگانه ساخته می‌شود و همان متن برای اجرا به پوسته فرستاده نمی‌شود. برنامه دستور را مستقیماً با `exec.CommandContext` اجرا می‌کند. تمام منطق اجرای Git و تفسیر خروجی آن فقط در `plugins/git` قرار دارد.
+هر دستور عادی به‌صورت دو بخش جدا نگهداری می‌شود: نام فایل اجرایی در `Executable` و آرگومان‌ها در `Args`. متن قابل‌نمایش دستور جداگانه ساخته می‌شود و برنامه آن را مستقیماً با `exec.CommandContext` اجرا می‌کند. فقط دستورهایی که صریحاً با `!` شروع شوند در Windows از طریق `cmd.exe` و در Linux و macOS از طریق `/bin/sh` اجرا می‌شوند. تمام منطق اجرای Git و تفسیر خروجی آن فقط در `plugins/git` قرار دارد.
 
 بستهٔ `internal/terminal` مسئول نمایش، رنگ‌ها و واکنش به صفحه‌کلید است. کد ورود به حالت تعاملی پایانه برای ویندوز، لینوکس و macOS جدا شده است. SDK هیچ وابستگی‌ای به رابط کاربری ندارد. بستهٔ `internal/history` تاریخچه را در قالب JSON Lines ذخیره می‌کند و پیش از ذخیره، رمزها، tokenها و اطلاعات ورود موجود در URL را می‌پوشاند.
 
