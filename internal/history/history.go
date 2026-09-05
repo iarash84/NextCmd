@@ -6,7 +6,6 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
-	"strings"
 	"sync"
 
 	"nextcmd/sdk"
@@ -72,28 +71,4 @@ func (s *Store) Load(limit int) ([]sdk.HistoryEntry, error) {
 		entries = entries[len(entries)-limit:]
 	}
 	return entries, nil
-}
-func Redact(command sdk.Command) sdk.Command {
-	out := command
-	out.Args = append([]string(nil), command.Args...)
-	for i := range out.Args {
-		lower := strings.ToLower(out.Args[i])
-		for _, name := range []string{"--password", "--token", "--secret"} {
-			if lower == name && i+1 < len(out.Args) {
-				out.Args[i+1] = "<redacted>"
-			}
-			if strings.HasPrefix(lower, name+"=") {
-				out.Args[i] = name + "=<redacted>"
-			}
-		}
-		if strings.Contains(lower, "://") {
-			if scheme := strings.Index(out.Args[i], "://"); scheme >= 0 {
-				rest := out.Args[i][scheme+3:]
-				if at := strings.Index(rest, "@"); at >= 0 {
-					out.Args[i] = out.Args[i][:scheme+3] + "<redacted>@" + rest[at+1:]
-				}
-			}
-		}
-	}
-	return out
 }

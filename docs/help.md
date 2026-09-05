@@ -10,6 +10,8 @@ Recognized high-risk commands require confirmation with a default answer of no. 
 
 Stdout and stderr are displayed as the process produces them, rather than after it exits. Pressing Ctrl+C during execution cancels the child process and returns to the NextCmd prompt; pressing Ctrl+C or Ctrl+D while editing a command exits NextCmd.
 
+History redaction covers common sensitive options such as token and password flags, credential options, environment assignments, authentication headers, and URL user information in direct and shell commands. It is best-effort and does not replace the safer secret-input features provided by individual tools.
+
 ## General help
 
 Type either form and press Enter:
@@ -165,6 +167,8 @@ The final `· git`, `· cargo`, `· curl`, or similar suffix identifies the plug
 فرمان‌های پرخطر شناخته‌شده با پاسخ پیش‌فرض منفی به تأیید نیاز دارند. حذف بازگشتی اجباری، `git reset --hard`، پاک‌سازی یا push اجباری Git، Docker prune و معادل‌های Windows پوشش داده می‌شوند. برای تأیید آگاهانهٔ غیرتعاملی، `--yes` را در انتهای فرمان قرار دهید؛ NextCmd آن را پیش از اجرای فرمان خارجی یا shell حذف می‌کند. برای حذف دائمی داخلی از `:del --permanent --yes <path>` استفاده کنید.
 
 خروجی عادی و خطا هم‌زمان با تولید توسط process نمایش داده می‌شوند. هنگام اجرا، Ctrl+C فقط process فرزند را لغو می‌کند و برنامه به prompt بازمی‌گردد؛ Ctrl+C یا Ctrl+D هنگام ویرایش دستور از NextCmd خارج می‌شود.
+
+پاک‌سازی تاریخچه، optionهای رایج token و password، گزینه‌های credential، مقداردهی متغیرهای حساس، headerهای احراز هویت و اطلاعات کاربری URL را در فرمان‌های مستقیم و shell پوشش می‌دهد. این محافظ best-effort است و جای روش‌های امن دریافت secret در هر ابزار را نمی‌گیرد.
 
 NextCmd راهنمای داخلی دارد؛ بنابراین برای دیدن کلیدها و دستورهای پشتیبانی‌شده لازم نیست مرورگر باز کنید یا برنامهٔ دیگری اجرا کنید.
 

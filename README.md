@@ -19,7 +19,7 @@ NextCmd is a fast, deterministic, cross-platform programming command-line assist
 - Confirmation guard for recognized high-risk commands such as recursive forced removal, destructive Git operations, force-push, and Docker prune. Confirmation defaults to no; append `--yes` only for deliberate non-interactive execution.
 - Capability-based public plugin SDK and explicit compile-time registration.
 - Git, .NET, Cargo, Curl, Go, Docker, npm, and pip context detection, cached local state, dynamic completion, next actions, best practices, and recovery.
-- Deterministic prefix/fuzzy ranking and JSON-lines history with secret redaction.
+- Deterministic prefix/fuzzy ranking and JSON-lines history with secret redaction for structured arguments, shell options, environment assignments, authentication headers, and URL credentials.
 - Standard-library-only implementation with platform-specific terminal boundaries.
 
 ## Build and run
@@ -71,6 +71,8 @@ Prefix a command with `!` when shell syntax or a shell built-in is required. Nex
 ```
 
 Command output is displayed as it arrives. While a command is running, press Ctrl+C to cancel that process and return to the NextCmd prompt. At the prompt, Ctrl+C or Ctrl+D still exits NextCmd.
+
+Before writing history, NextCmd redacts common credential-bearing options, sensitive environment assignments, authentication headers, and URL user information in both direct and shell commands. Redaction is a best-effort safeguard; avoid placing secrets directly on command lines when a tool supports a safer input mechanism.
 
 NextCmd asks for confirmation before recognized high-risk commands such as `rm -rf`, `git reset --hard`, `git clean -f`, force-push, Docker prune, and equivalent recursive forced deletion on Windows. The default answer is no. For automation, append `--yes`; NextCmd removes this approval flag before launching the command. The guard is an additional safety net, not a substitute for reviewing commands.
 
@@ -165,7 +167,7 @@ NextCmd یک دستیار خط فرمان سریع و چندسکویی است ک
 - اجرای مستقیم دستورهای عادی با نگهداری نام برنامه و آرگومان‌های جداگانه و امکان اجرای صریح shell با پیشوند `!`. خروجی عادی و خطا هم‌زمان با اجرا نمایش داده و برای پیشنهادهای بعدی ثبت می‌شوند. هنگام اجرای دستور، Ctrl+C فقط همان process را لغو می‌کند و NextCmd باز می‌ماند.
 - درخواست تأیید برای فرمان‌های پرخطر شناخته‌شده مانند حذف بازگشتی اجباری، عملیات مخرب Git، force-push و Docker prune. پاسخ پیش‌فرض منفی است و `--yes` فقط برای اجرای غیرتعاملی آگاهانه استفاده می‌شود.
 - تشخیص وضعیت Git، .NET، Cargo، Go، Docker، npm، pip و فایل‌های محلی موردنیاز Curl، نگهداری کوتاه‌مدت context برای افزایش سرعت، تکمیل مقادیر پویا و ارائهٔ پیشنهاد بعد از موفقیت یا شکست دستور.
-- مرتب‌سازی ثابت و قابل‌پیش‌بینی پیشنهادها و ذخیرهٔ تاریخچه در قالب JSON Lines پس از حذف اطلاعات حساس.
+- مرتب‌سازی ثابت و قابل‌پیش‌بینی پیشنهادها و ذخیرهٔ تاریخچه در قالب JSON Lines پس از پاک‌سازی آرگومان‌ها، optionهای shell، مقداردهی متغیرهای محیطی، headerهای احراز هویت و اطلاعات ورود URL.
 - پیاده‌سازی فقط با کتابخانهٔ استاندارد Go و کد جداگانه برای رفتارهای وابسته به هر سیستم‌عامل.
 
 ## ساخت و اجرا
@@ -235,6 +237,8 @@ cd "C:\Users\Admin\source\repos\My Project"
 </div>
 
 خروجی دستور هم‌زمان با تولید نمایش داده می‌شود. هنگام اجرای یک دستور، Ctrl+C همان process را لغو می‌کند و برنامه به prompt بعدی برمی‌گردد. در خود prompt، کلیدهای Ctrl+C و Ctrl+D همچنان از NextCmd خارج می‌شوند.
+
+NextCmd پیش از ذخیرهٔ تاریخچه، optionهای رایج حاوی credential، مقداردهی متغیرهای حساس، headerهای احراز هویت و اطلاعات کاربری URL را در فرمان‌های مستقیم و shell پاک‌سازی می‌کند. این قابلیت یک محافظ best-effort است؛ هرگاه ابزار روش امن‌تری برای دریافت secret دارد، از قراردادن مستقیم آن در خط فرمان خودداری کنید.
 
 NextCmd پیش از فرمان‌های پرخطر شناخته‌شده مانند `rm -rf`، `git reset --hard`، `git clean -f`، force-push، Docker prune و حذف بازگشتی اجباری معادل در Windows تأیید می‌گیرد. پاسخ پیش‌فرض منفی است. برای automation می‌توان `--yes` را در انتهای فرمان قرار داد؛ NextCmd این flag تأیید را پیش از اجرای ابزار حذف می‌کند. این محافظ جای بررسی خود فرمان را نمی‌گیرد.
 
