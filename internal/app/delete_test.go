@@ -9,18 +9,21 @@ import (
 
 func TestParseDeletePath(t *testing.T) {
 	tests := []struct {
-		input   string
-		want    string
-		handled bool
-		wantErr bool
-		dryRun  bool
-		perm    bool
+		input    string
+		want     string
+		handled  bool
+		wantErr  bool
+		dryRun   bool
+		perm     bool
+		approved bool
 	}{
 		{input: ":del", wantErr: true, handled: true},
 		{input: ":del ", wantErr: true, handled: true},
 		{input: ":del old.txt", want: "old.txt", handled: true},
 		{input: ":del --dry-run old.txt", want: "old.txt", handled: true, dryRun: true},
 		{input: ":del --permanent old.txt", want: "old.txt", handled: true, perm: true},
+		{input: ":del --permanent --yes old.txt", want: "old.txt", handled: true, perm: true, approved: true},
+		{input: ":del --yes old.txt", wantErr: true, handled: true},
 		{input: ":trash old.txt", want: "old.txt", handled: true},
 		{input: ":del \"old dir\"", want: "old dir", handled: true},
 		{input: ":del 'old dir", wantErr: true, handled: true},
@@ -35,8 +38,8 @@ func TestParseDeletePath(t *testing.T) {
 		if test.wantErr && err == nil {
 			t.Errorf("parseDeletePath(%q) expected error", test.input)
 		}
-		if !test.wantErr && err == nil && (got.requested != test.want || got.dryRun != test.dryRun || got.permanent != test.perm) {
-			t.Errorf("parseDeletePath(%q) = %#v, want path=%q dryRun=%v permanent=%v", test.input, got, test.want, test.dryRun, test.perm)
+		if !test.wantErr && err == nil && (got.requested != test.want || got.dryRun != test.dryRun || got.permanent != test.perm || got.approved != test.approved) {
+			t.Errorf("parseDeletePath(%q) = %#v, want path=%q dryRun=%v permanent=%v approved=%v", test.input, got, test.want, test.dryRun, test.perm, test.approved)
 		}
 	}
 }
@@ -80,6 +83,28 @@ func TestDeletePathPermanentlyRemovesDirectory(t *testing.T) {
 	}
 	if _, err := os.Stat(filepath.Join(base, "old")); !os.IsNotExist(err) {
 		t.Fatalf("directory still exists or unexpected error: %v", err)
+	}
+}
+
+func TestApprovedPermanentDeleteSkipsConfirmation(t *testing.T) {
+	base := t.TempDir()
+	target := filepath.Join(base, "old.txt")
+	if err := os.WriteFile(target, []byte("old"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	confirmationCalled := false
+	_, err := deletePath(base, deleteOptions{requested: "old.txt", permanent: true, approved: true}, nil, func(deleteCandidate, deleteOptions, deleteCounts) (bool, error) {
+		confirmationCalled = true
+		return false, nil
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if confirmationCalled {
+		t.Fatal("approved permanent delete requested confirmation")
+	}
+	if _, err := os.Stat(target); !os.IsNotExist(err) {
+		t.Fatalf("approved delete did not remove target: %v", err)
 	}
 }
 

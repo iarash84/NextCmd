@@ -178,6 +178,20 @@ func (a *App) Run(ctx context.Context) error {
 			fmt.Fprintln(os.Stderr, "parse:", err)
 			continue
 		}
+		if safety := assessCommandSafety(command); safety.requiresConfirmation {
+			var approved bool
+			command, approved = stripSafetyApproval(command)
+			if !approved {
+				confirmed, confirmErr := confirmUnsafeCommand(os.Stdin, os.Stdout, command, safety)
+				if confirmErr != nil && confirmErr != io.EOF {
+					fmt.Fprintln(os.Stderr, "safety confirmation:", confirmErr)
+				}
+				if !confirmed {
+					fmt.Fprintln(os.Stdout, "Command canceled.")
+					continue
+				}
+			}
+		}
 		executionContext, stopExecution := signal.NotifyContext(ctx, os.Interrupt)
 		result := a.executor.RunStreaming(executionContext, command, os.Stdout, os.Stderr)
 		stopExecution()

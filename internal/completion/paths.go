@@ -158,6 +158,9 @@ func completeBuiltinPath(input, directory string) ([]sdk.Suggestion, bool) {
 			case strings.HasPrefix(remainder, "--permanent "):
 				flags = append(flags, "--permanent")
 				remainder = strings.TrimSpace(strings.TrimPrefix(remainder, "--permanent"))
+			case strings.HasPrefix(remainder, "--yes "):
+				flags = append(flags, "--yes")
+				remainder = strings.TrimSpace(strings.TrimPrefix(remainder, "--yes"))
 			default:
 				goto flagsDone
 			}

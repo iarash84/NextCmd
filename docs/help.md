@@ -6,6 +6,8 @@ NextCmd provides built-in help without opening a browser or invoking an external
 
 Normal commands are executed directly. Prefix a command with `!` to opt into the operating-system shell (`cmd.exe` on Windows, `/bin/sh` on Linux and macOS), for example `! dir` or `! printf '%s\n' hello | grep hello`. Shell syntax can redirect files and run multiple processes, so only execute trusted input.
 
+Recognized high-risk commands require confirmation with a default answer of no. This includes recursive forced removal, `git reset --hard`, forced Git cleanup or push, Docker prune, and Windows equivalents. Append `--yes` for deliberate non-interactive approval; NextCmd removes that final flag before launching an external or shell command. For permanent built-in deletion use `:del --permanent --yes <path>`.
+
 Stdout and stderr are displayed as the process produces them, rather than after it exits. Pressing Ctrl+C during execution cancels the child process and returns to the NextCmd prompt; pressing Ctrl+C or Ctrl+D while editing a command exits NextCmd.
 
 ## General help
@@ -67,7 +69,7 @@ These commands are handled inside NextCmd. They are not passed to a shell, are n
 | `:history [count]` | Show recent commands executed through NextCmd. | Defaults to 20 entries and accepts 1 through 1000. It displays time, exit code, duration, plugin, working directory, and the redacted structured command. If history is disabled, it says so explicitly. |
 | `:plugins` | Show every currently enabled plugin. | Plugins are sorted by ID and displayed with version, name, and description. Disabled plugins are not listed. |
 | `:clear` | Clear the terminal screen and return the cursor to the top-left corner. | It only changes the current display and does not remove history or project state. |
-| `:del <path>` | Move a file or directory to trash. | Resolves relative, absolute, quoted, and `~` paths against the active working directory. It detects whether the target is a file or directory, asks for confirmation, recursively counts directories before removal, and asks which target to use if both a matching file and directory are found. Use `--dry-run` to preview and `--permanent` to delete without undo support. |
+| `:del <path>` | Move a file or directory to trash. | Resolves relative, absolute, quoted, and `~` paths against the active working directory. It detects whether the target is a file or directory, asks for confirmation, recursively counts directories before removal, and asks which target to use if both a matching file and directory are found. Use `--dry-run` to preview, `--permanent` to delete without undo support, and combine `--permanent --yes` only for deliberate non-interactive deletion. |
 | `:trash <path>` | Move a file or directory to trash. | Alias for the safe delete path. The item is moved into `.nextcmd-trash` and can be restored with `:undo` during the same session. |
 | `:undo` | Restore the last trashed item. | Restores the most recent file or directory moved to trash in this NextCmd session unless the original path already exists. |
 | `:config` | Show the effective runtime configuration. | Displays the configuration and history paths, history status, suggestion limit, debug status, and sorted plugin overrides. It does not print environment variables or secrets. |
@@ -150,7 +152,7 @@ git add .  COMP MUTATING · git
 | `DESTRUCTIVE` | Red | Can delete, overwrite, or discard data and may be difficult to undo. | Branch deletion, cleanup, reset variants, or an HTTP DELETE request. |
 | `DANGEROUS` | Magenta | Has an unusually high security or data-loss risk and requires careful review. | Disabling TLS verification or publishing sensitive/external changes. |
 
-The final `· git`, `· cargo`, `· curl`, or similar suffix identifies the plugin that produced the suggestion. Kind and risk badges are informational metadata supplied by plugins. The badges affect presentation; ranking uses separate priority and relevance metadata. They do not block execution, request confirmation, or replace reviewing the command yourself. With `NO_COLOR`, all labels remain visible as plain text.
+The final `· git`, `· cargo`, `· curl`, or similar suffix identifies the plugin that produced the suggestion. Kind and risk badges are informational metadata supplied by plugins. The badges affect presentation and ranking uses separate priority and relevance metadata. Independently, Core recognizes a focused set of high-risk command forms and asks for confirmation based on their final syntax. Neither mechanism replaces reviewing the command yourself. With `NO_COLOR`, all labels remain visible as plain text.
 
 ---
 
@@ -159,6 +161,8 @@ The final `· git`, `· cargo`, `· curl`, or similar suffix identifies the plug
 # راهنمای تعاملی
 
 دستورهای عادی مستقیماً اجرا می‌شوند. برای اجرای صریح از طریق shell سیستم‌عامل، ابتدای دستور `!` قرار دهید؛ در Windows از `cmd.exe` و در Linux و macOS از `/bin/sh` استفاده می‌شود. قابلیت‌های shell می‌توانند فایل‌ها را بازنویسی یا چند process را اجرا کنند، پس فقط دستور مورداعتماد را به این روش اجرا کنید.
+
+فرمان‌های پرخطر شناخته‌شده با پاسخ پیش‌فرض منفی به تأیید نیاز دارند. حذف بازگشتی اجباری، `git reset --hard`، پاک‌سازی یا push اجباری Git، Docker prune و معادل‌های Windows پوشش داده می‌شوند. برای تأیید آگاهانهٔ غیرتعاملی، `--yes` را در انتهای فرمان قرار دهید؛ NextCmd آن را پیش از اجرای فرمان خارجی یا shell حذف می‌کند. برای حذف دائمی داخلی از `:del --permanent --yes <path>` استفاده کنید.
 
 خروجی عادی و خطا هم‌زمان با تولید توسط process نمایش داده می‌شوند. هنگام اجرا، Ctrl+C فقط process فرزند را لغو می‌کند و برنامه به prompt بازمی‌گردد؛ Ctrl+C یا Ctrl+D هنگام ویرایش دستور از NextCmd خارج می‌شود.
 
@@ -327,6 +331,6 @@ git add .  COMP MUTATING · git
 </tbody>
 </table>
 
-بخش پایانی مانند `· git`، `· cargo` یا `· curl` شناسهٔ افزونه‌ای است که پیشنهاد را ساخته است. نوع پیشنهاد و سطح خطر فقط اطلاعات کمکی هستند که افزونه ارائه می‌دهد. خود این برچسب‌ها روی ظاهر اثر دارند؛ مرتب‌سازی با metadata جداگانهٔ priority و relevance انجام می‌شود. این اطلاعات اجرای دستور را مسدود نمی‌کنند، تأیید جداگانه نمی‌گیرند و جای بررسی خود دستور توسط کاربر را نمی‌گیرند. با فعال‌کردن `NO_COLOR` رنگ‌ها حذف می‌شوند، ولی متن همهٔ برچسب‌ها همچنان نمایش داده می‌شود.
+بخش پایانی مانند `· git`، `· cargo` یا `· curl` شناسهٔ افزونه‌ای است که پیشنهاد را ساخته است. نوع پیشنهاد و سطح خطر اطلاعات کمکی افزونه هستند و مرتب‌سازی با metadata جداگانهٔ priority و relevance انجام می‌شود. مستقل از این برچسب‌ها، هسته شکل نهایی مجموعه‌ای محدود از فرمان‌های پرخطر را تشخیص می‌دهد و تأیید می‌گیرد. هیچ‌یک جای بررسی خود فرمان توسط کاربر را نمی‌گیرد. با فعال‌کردن `NO_COLOR` رنگ‌ها حذف می‌شوند، ولی متن همهٔ برچسب‌ها همچنان نمایش داده می‌شود.
 
 </div>

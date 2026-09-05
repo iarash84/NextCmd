@@ -16,6 +16,7 @@ NextCmd is a fast, deterministic, cross-platform programming command-line assist
 - Built-in workspace utilities for listing files, completing paths, trashing/restoring files, viewing redacted history, inspecting plugins and configuration, locating executables, clearing the screen, and checking version information.
 - Filesystem path completion for ordinary command arguments, including nested and quoted paths, without invoking the command or a shell.
 - Direct, structured process execution by default, plus explicit cross-platform shell execution with a leading `!`. Stdout and stderr stream live while remaining captured for contextual follow-ups; Ctrl+C cancels the running process and returns to NextCmd.
+- Confirmation guard for recognized high-risk commands such as recursive forced removal, destructive Git operations, force-push, and Docker prune. Confirmation defaults to no; append `--yes` only for deliberate non-interactive execution.
 - Capability-based public plugin SDK and explicit compile-time registration.
 - Git, .NET, Cargo, Curl, Go, Docker, npm, and pip context detection, cached local state, dynamic completion, next actions, best practices, and recovery.
 - Deterministic prefix/fuzzy ranking and JSON-lines history with secret redaction.
@@ -57,7 +58,7 @@ cd "C:\Users\Admin\source\repos\My Project"
 
 `:ls` lists the files and directories in the active working directory. Pass a relative, absolute, or quoted path to inspect another directory without changing the active one. Directories are shown first, followed by files, with type and size columns.
 
-`:del <path>` moves a file or directory from the active working directory to `.nextcmd-trash` after confirmation. It resolves relative, absolute, quoted, and `~` paths, detects whether the target is a file or directory, and asks which one to remove if both a matching file and directory are found. Use `:del --dry-run <path>` to preview, `:del --permanent <path>` to delete without undo support, and `:undo` to restore the last trashed item in this session.
+`:del <path>` moves a file or directory from the active working directory to `.nextcmd-trash` after confirmation. It resolves relative, absolute, quoted, and `~` paths, detects whether the target is a file or directory, and asks which one to remove if both a matching file and directory are found. Use `:del --dry-run <path>` to preview, `:del --permanent <path>` to delete without undo support, `:del --permanent --yes <path>` for deliberate non-interactive deletion, and `:undo` to restore the last trashed item in this session.
 
 `cd` and `:cd` update completion, project detection, command execution, and history together. Running `cd` without a path selects the user home directory. NextCmd keeps this state internally and does not change the parent shell directory.
 
@@ -70,6 +71,8 @@ Prefix a command with `!` when shell syntax or a shell built-in is required. Nex
 ```
 
 Command output is displayed as it arrives. While a command is running, press Ctrl+C to cancel that process and return to the NextCmd prompt. At the prompt, Ctrl+C or Ctrl+D still exits NextCmd.
+
+NextCmd asks for confirmation before recognized high-risk commands such as `rm -rf`, `git reset --hard`, `git clean -f`, force-push, Docker prune, and equivalent recursive forced deletion on Windows. The default answer is no. For automation, append `--yes`; NextCmd removes this approval flag before launching the command. The guard is an additional safety net, not a substitute for reviewing commands.
 
 Useful built-in commands:
 
@@ -160,6 +163,7 @@ NextCmd یک دستیار خط فرمان سریع و چندسکویی است ک
 - تکمیل مسیر فایل و پوشه برای آرگومان دستورهای عادی، شامل مسیرهای تو‌در‌تو و نقل‌قول‌شده، بدون اجرای دستور یا shell.
 - نمایش پیشنهاد پیش از کامل‌شدن نام ابزار؛ برای مثال، با نوشتن `gi` پیشنهادهای Git و با نوشتن `dot` پیشنهادهای .NET ظاهر می‌شوند.
 - اجرای مستقیم دستورهای عادی با نگهداری نام برنامه و آرگومان‌های جداگانه و امکان اجرای صریح shell با پیشوند `!`. خروجی عادی و خطا هم‌زمان با اجرا نمایش داده و برای پیشنهادهای بعدی ثبت می‌شوند. هنگام اجرای دستور، Ctrl+C فقط همان process را لغو می‌کند و NextCmd باز می‌ماند.
+- درخواست تأیید برای فرمان‌های پرخطر شناخته‌شده مانند حذف بازگشتی اجباری، عملیات مخرب Git، force-push و Docker prune. پاسخ پیش‌فرض منفی است و `--yes` فقط برای اجرای غیرتعاملی آگاهانه استفاده می‌شود.
 - تشخیص وضعیت Git، .NET، Cargo، Go، Docker، npm، pip و فایل‌های محلی موردنیاز Curl، نگهداری کوتاه‌مدت context برای افزایش سرعت، تکمیل مقادیر پویا و ارائهٔ پیشنهاد بعد از موفقیت یا شکست دستور.
 - مرتب‌سازی ثابت و قابل‌پیش‌بینی پیشنهادها و ذخیرهٔ تاریخچه در قالب JSON Lines پس از حذف اطلاعات حساس.
 - پیاده‌سازی فقط با کتابخانهٔ استاندارد Go و کد جداگانه برای رفتارهای وابسته به هر سیستم‌عامل.
@@ -214,7 +218,7 @@ cd "C:\Users\Admin\source\repos\My Project"
 
 دستور `:ls` فایل‌ها و پوشه‌های مسیر کاری فعلی را نمایش می‌دهد. برای دیدن محتوای مسیری دیگر، همان مسیر را پس از دستور بنویسید؛ برای مثال `:ls ..` یا `:ls "My Project"`. این کار مسیر کاری فعلی را تغییر نمی‌دهد. در خروجی، ابتدا پوشه‌ها و سپس فایل‌ها همراه با نوع و اندازه نمایش داده می‌شوند.
 
-دستور `:del <path>` فایل یا پوشه را پس از تأیید از مسیر کاری فعال به `.nextcmd-trash` منتقل می‌کند. مسیرهای نسبی، کامل، نقل‌قول‌شده و `~` پشتیبانی می‌شوند. برنامه تشخیص می‌دهد هدف فایل است یا پوشه و اگر هم فایل و هم پوشهٔ مطابق پیدا شود، از کاربر می‌پرسد کدام مورد حذف شود. برای پیش‌نمایش از `:del --dry-run <path>`، برای حذف دائمی بدون امکان undo از `:del --permanent <path>`، و برای بازگردانی آخرین مورد منتقل‌شده به trash از `:undo` استفاده کنید.
+دستور `:del <path>` فایل یا پوشه را پس از تأیید از مسیر کاری فعال به `.nextcmd-trash` منتقل می‌کند. مسیرهای نسبی، کامل، نقل‌قول‌شده و `~` پشتیبانی می‌شوند. برنامه تشخیص می‌دهد هدف فایل است یا پوشه و اگر هم فایل و هم پوشهٔ مطابق پیدا شود، از کاربر می‌پرسد کدام مورد حذف شود. برای پیش‌نمایش از `:del --dry-run <path>`، برای حذف دائمی بدون امکان undo از `:del --permanent <path>`، برای حذف غیرتعاملی آگاهانه از `:del --permanent --yes <path>` و برای بازگردانی آخرین مورد منتقل‌شده به trash از `:undo` استفاده کنید.
 
 دستورهای `cd` و `:cd` مسیر مورد استفاده برای پیشنهادها، تشخیص پروژه، اجرای دستور و تاریخچه را هم‌زمان تغییر می‌دهند. اجرای `cd` بدون مسیر، پوشهٔ خانگی کاربر را انتخاب می‌کند. این تغییر فقط داخل NextCmd است و مسیر shell والد را تغییر نمی‌دهد.
 
@@ -231,6 +235,8 @@ cd "C:\Users\Admin\source\repos\My Project"
 </div>
 
 خروجی دستور هم‌زمان با تولید نمایش داده می‌شود. هنگام اجرای یک دستور، Ctrl+C همان process را لغو می‌کند و برنامه به prompt بعدی برمی‌گردد. در خود prompt، کلیدهای Ctrl+C و Ctrl+D همچنان از NextCmd خارج می‌شوند.
+
+NextCmd پیش از فرمان‌های پرخطر شناخته‌شده مانند `rm -rf`، `git reset --hard`، `git clean -f`، force-push، Docker prune و حذف بازگشتی اجباری معادل در Windows تأیید می‌گیرد. پاسخ پیش‌فرض منفی است. برای automation می‌توان `--yes` را در انتهای فرمان قرار داد؛ NextCmd این flag تأیید را پیش از اجرای ابزار حذف می‌کند. این محافظ جای بررسی خود فرمان را نمی‌گیرد.
 
 چند دستور داخلی کاربردی:
 

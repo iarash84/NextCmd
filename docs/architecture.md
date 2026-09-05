@@ -14,6 +14,8 @@ Commands remain `Executable + Args`; rendering and execution are separate. Norma
 
 The executor streams stdout and stderr to the terminal while simultaneously retaining both streams in `ExecutionResult` for recovery and next-action providers. During execution, the application derives a signal-aware context from its session context; Ctrl+C cancels the child command without canceling the application session.
 
+Before execution, the application assesses the final direct or shell command syntax against a focused set of high-risk forms. Recognized commands require explicit confirmation with a default answer of no. A trailing `--yes` is treated as deliberate non-interactive approval and removed before an external or shell command is launched. Plugin risk metadata remains presentation and ranking input; this Core guard is independent so manually typed commands receive the same protection.
+
 `internal/terminal` owns presentation and keyboard behavior. Its raw-mode boundary has separate Windows, Linux, and macOS files. No UI type appears in the SDK. `internal/history` writes portable JSON Lines and redacts common secret arguments and URL user-info before persistence.
 
 Git, .NET, Cargo, Curl, Go, Docker, npm, and pip built-ins are composed explicitly by the parameterless `plugins/builtin.All`. Configuration enables or disables them through a generic map keyed by `Plugin.Info().ID`. Adding another built-in changes only the plugin package and this explicit composition list; it adds no config field, `main` argument, or Core branch. Removing any or all plugins leaves Core buildable. There is no `init` registration, reflection, mutable global registry, dynamic library, network access, or third-party dependency.
@@ -47,6 +49,8 @@ plugins --> sdk <-- internal core <-- cmd/assistant
 هر دستور عادی به‌صورت دو بخش جدا نگهداری می‌شود: نام فایل اجرایی در `Executable` و آرگومان‌ها در `Args`. متن قابل‌نمایش دستور جداگانه ساخته می‌شود و برنامه آن را مستقیماً با `exec.CommandContext` اجرا می‌کند. فقط دستورهایی که صریحاً با `!` شروع شوند در Windows از طریق `cmd.exe` و در Linux و macOS از طریق `/bin/sh` اجرا می‌شوند. تمام منطق اجرای Git و تفسیر خروجی آن فقط در `plugins/git` قرار دارد.
 
 اجراکننده خروجی عادی و خطا را هم‌زمان به terminal می‌فرستد و هر دو را در `ExecutionResult` نیز نگه می‌دارد تا افزونه‌های recovery و پیشنهاد گام بعدی همچنان به نتیجه دسترسی داشته باشند. هنگام اجرا، context حساس به signal از context نشست ساخته می‌شود؛ بنابراین Ctrl+C فرمان فرزند را لغو می‌کند، اما نشست برنامه باز می‌ماند.
+
+پیش از اجرا، برنامه نحو نهایی فرمان مستقیم یا shell را با مجموعه‌ای محدود از الگوهای پرخطر بررسی می‌کند. فرمان شناخته‌شده به تأیید صریح با پاسخ پیش‌فرض منفی نیاز دارد. `--yes` در انتهای فرمان به‌عنوان تأیید آگاهانهٔ غیرتعاملی در نظر گرفته می‌شود و پیش از اجرای فرمان خارجی یا shell حذف می‌گردد. اطلاعات ریسک افزونه همچنان برای نمایش و مرتب‌سازی است؛ این محافظ هسته مستقل عمل می‌کند تا فرمان‌های تایپ‌شدهٔ دستی نیز همان حفاظت را داشته باشند.
 
 بستهٔ `internal/terminal` مسئول نمایش، رنگ‌ها و واکنش به صفحه‌کلید است. کد ورود به حالت تعاملی پایانه برای ویندوز، لینوکس و macOS جدا شده است. SDK هیچ وابستگی‌ای به رابط کاربری ندارد. بستهٔ `internal/history` تاریخچه را در قالب JSON Lines ذخیره می‌کند و پیش از ذخیره، رمزها، tokenها و اطلاعات ورود موجود در URL را می‌پوشاند.
 
