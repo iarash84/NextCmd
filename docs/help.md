@@ -21,6 +21,8 @@ The output explains keyboard controls, built-in commands, exit commands, and all
 
 Type `:` in the command editor to open the built-in command palette. Continue typing to filter it—for example, `:pl` leaves `:plugins`. Use Up/Down to highlight an item and Tab, Right Arrow, or Enter to place it in the editable command line. Commands that require a value are shown with an editable placeholder, such as `:del <path>`, `:which <command>`, and `:cd <path>`. Built-in path arguments for `cd`, `:cd`, `:ls`, `:mkdir`, `:del`, and `:trash` complete from the active working directory.
 
+Path completion also applies to ordinary command arguments. Type a file or directory prefix such as `git add src/ma` or `docker compose -f compose.` and accept the matching suggestion. Earlier arguments, relative prefixes, nested directories, and paths containing spaces are preserved. Arguments beginning with `-` and commands beginning with `!` are intentionally excluded; neither the target command nor a shell is invoked to discover paths.
+
 Keyboard controls:
 
 | Key | Behavior |
@@ -176,6 +178,8 @@ NextCmd راهنمای داخلی دارد؛ بنابراین برای دیدن 
 برنامه کاربرد کلیدهای صفحه‌کلید، دستورهای داخلی، روش‌های خروج و نام افزونه‌های فعال را نمایش می‌دهد.
 
 برای دیدن فهرست فرمان‌های داخلی، در ویرایشگر دستور فقط `:` را تایپ کنید. با ادامهٔ تایپ، فهرست محدود می‌شود؛ برای نمونه، `:pl` فقط پیشنهاد `:plugins` را باقی می‌گذارد. با کلیدهای بالا و پایین یک مورد را انتخاب کنید و با Tab، جهت راست یا Enter آن را وارد خط فرمان قابل‌ویرایش کنید. فرمان‌هایی که به مقدار نیاز دارند با جای‌نگهدار نمایش داده می‌شوند؛ مانند `:which <command>` و `:cd <path>`. این فهرست کوچک کاملاً داخلی است و برای نمایش آن هیچ افزونه یا عملیات تشخیص پروژه اجرا نمی‌شود.
+
+تکمیل مسیر برای آرگومان دستورهای عادی نیز فعال است. برای نمونه با تایپ `git add src/ma` یا `docker compose -f compose.` می‌توان مسیر منطبق را انتخاب کرد. آرگومان‌های قبلی، پیشوندهای نسبی، پوشه‌های تو‌در‌تو و مسیرهای دارای فاصله حفظ می‌شوند. آرگومان‌های شروع‌شده با `-` و دستورهای شروع‌شده با `!` عمداً در این تکمیل وارد نمی‌شوند و برای کشف مسیر نیز هیچ دستور یا shell اجرا نمی‌شود.
 
 برای پیمایش تاریخچه، Ctrl+P دستور اجراشدهٔ قبلی و Ctrl+N دستور بعدی را وارد ویرایشگر می‌کند. پس از عبور از جدیدترین مورد، متنی که پیش از شروع پیمایش نوشته بودید بازگردانده می‌شود. دستورهای تکراری متوالی نیز فقط یک بار در این پیمایش نمایش داده می‌شوند.
 

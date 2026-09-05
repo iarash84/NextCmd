@@ -14,6 +14,7 @@ NextCmd is a fast, deterministic, cross-platform programming command-line assist
 - Color-aware terminal theme with highlighted selection, suggestion and risk badges, plugin source, and execution status. Colors stay out of redirected output and can be disabled with `NO_COLOR`; see the [complete badge and risk reference](docs/help.md#suggestion-kinds).
 - Built-in command palette when `:` is typed, `:?`/`:؟` help, per-plugin command catalogs, and suggestions from incomplete executable prefixes such as `gi` or `dot`.
 - Built-in workspace utilities for listing files, completing paths, trashing/restoring files, viewing redacted history, inspecting plugins and configuration, locating executables, clearing the screen, and checking version information.
+- Filesystem path completion for ordinary command arguments, including nested and quoted paths, without invoking the command or a shell.
 - Direct, structured process execution by default, plus explicit cross-platform shell execution with a leading `!`. Stdout and stderr stream live while remaining captured for contextual follow-ups; Ctrl+C cancels the running process and returns to NextCmd.
 - Capability-based public plugin SDK and explicit compile-time registration.
 - Git, .NET, Cargo, Curl, Go, Docker, npm, and pip context detection, cached local state, dynamic completion, next actions, best practices, and recovery.
@@ -156,6 +157,7 @@ NextCmd یک دستیار خط فرمان سریع و چندسکویی است ک
 - ظاهر رنگی پایانه: پیشنهاد انتخاب‌شده، نوع پیشنهاد، میزان خطر، افزونهٔ پیشنهاددهنده و نتیجهٔ اجرای دستور با رنگ‌های متفاوت نمایش داده می‌شوند. با تنظیم متغیر `NO_COLOR` می‌توان رنگ‌ها را غیرفعال کرد. معنی کامل برچسب‌ها و سطح‌های خطر در [راهنمای تعاملی](docs/help.md#نوع-پیشنهاد) آمده است.
 - نمایش فهرست فرمان‌های داخلی با تایپ `:`، راهنمای داخلی با دستورهای `:?` و `:؟` و امکان مشاهدهٔ همهٔ دستورهای شناخته‌شدهٔ هر افزونه.
 - ابزارهای داخلی برای نمایش فایل‌ها، تکمیل مسیرها، انتقال فایل‌ها به trash و بازگردانی آن‌ها، مشاهدهٔ تاریخچهٔ پاک‌سازی‌شده، بررسی افزونه‌ها و تنظیمات، یافتن فایل اجرایی، پاک‌کردن صفحه و دیدن اطلاعات نسخه.
+- تکمیل مسیر فایل و پوشه برای آرگومان دستورهای عادی، شامل مسیرهای تو‌در‌تو و نقل‌قول‌شده، بدون اجرای دستور یا shell.
 - نمایش پیشنهاد پیش از کامل‌شدن نام ابزار؛ برای مثال، با نوشتن `gi` پیشنهادهای Git و با نوشتن `dot` پیشنهادهای .NET ظاهر می‌شوند.
 - اجرای مستقیم دستورهای عادی با نگهداری نام برنامه و آرگومان‌های جداگانه و امکان اجرای صریح shell با پیشوند `!`. خروجی عادی و خطا هم‌زمان با اجرا نمایش داده و برای پیشنهادهای بعدی ثبت می‌شوند. هنگام اجرای دستور، Ctrl+C فقط همان process را لغو می‌کند و NextCmd باز می‌ماند.
 - تشخیص وضعیت Git، .NET، Cargo، Go، Docker، npm، pip و فایل‌های محلی موردنیاز Curl، نگهداری کوتاه‌مدت context برای افزایش سرعت، تکمیل مقادیر پویا و ارائهٔ پیشنهاد بعد از موفقیت یا شکست دستور.

@@ -20,6 +20,8 @@ Git, .NET, Cargo, Curl, Go, Docker, npm, and pip built-ins are composed explicit
 
 The application owns a mutable working-directory value without calling process-wide `os.Chdir`. The same value is passed to completion, detection, execution, and history, while the terminal only displays and updates its local editor context. This keeps directory changes explicit and race-free.
 
+Core provides low-priority filesystem completion for the current argument of ordinary commands. It reads only the active local directory through Go's cross-platform filesystem APIs and merges those candidates with higher-priority plugin suggestions; it never invokes the command or a shell for generic path discovery.
+
 ---
 
 <div dir="rtl" align="right">
@@ -51,5 +53,7 @@ plugins --> sdk <-- internal core <-- cmd/assistant
 افزونه‌های Git، .NET، Cargo، Curl، Go، Docker، npm و pip در تابع بدون آرگومان `plugins/builtin.All` به‌صورت صریح ساخته می‌شوند. تنظیمات با یک نقشهٔ عمومی و براساس `Plugin.Info().ID` آن‌ها را فعال یا غیرفعال می‌کند. برای افزودن افزونهٔ داخلی جدید فقط package افزونه و همین فهرست صریح تغییر می‌کنند؛ افزودن فیلد تنظیمات، آرگومان `main` یا شرط مخصوص در هسته لازم نیست. با حذف هر تعداد افزونه، هسته همچنان ساخته می‌شود. پروژه از ثبت مخفی با `init`، reflection، فهرست سراسری قابل‌تغییر، کتابخانهٔ پویا، دسترسی شبکه یا کتابخانهٔ جانبی استفاده نمی‌کند.
 
 برنامه مسیر کاری را در یک مقدار داخلی نگه می‌دارد و `os.Chdir` سراسری را فراخوانی نمی‌کند. همان مسیر به تکمیل دستور، تشخیص پروژه، اجرای process و تاریخچه داده می‌شود. رابط پایانه فقط مسیر را نمایش می‌دهد و context ویرایشگر خود را به‌روزرسانی می‌کند. به این ترتیب تغییر مسیر صریح و بدون race condition باقی می‌ماند.
+
+هسته برای آرگومان فعلی دستورهای عادی، تکمیل مسیر filesystem را با اولویت پایین ارائه می‌کند. مسیرها فقط با API چندسکویی Go از پوشهٔ کاری فعال خوانده و با پیشنهادهای دارای اولویت بیشتر افزونه‌ها ادغام می‌شوند؛ برای کشف عمومی مسیر هیچ دستور یا shell اجرا نمی‌شود.
 
 </div>
