@@ -111,6 +111,46 @@ func TestExpandedCommandCatalog(t *testing.T) {
 		}
 	}
 }
+
+func TestPostMergeMainWorkflowCommands(t *testing.T) {
+	p := New()
+	got, err := p.Complete(context.Background(), sdk.CompletionContext{Input: "git", Project: State{InRepository: true}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := map[string]bool{
+		"git switch main":                false,
+		"git pull --ff-only origin main": false,
+	}
+	for _, suggestion := range got {
+		if _, ok := want[suggestion.Command.Display()]; ok {
+			want[suggestion.Command.Display()] = true
+		}
+	}
+	for command, found := range want {
+		if !found {
+			t.Errorf("post-merge workflow command missing: %s", command)
+		}
+	}
+}
+
+func TestSwitchMainSuggestsFastForwardPull(t *testing.T) {
+	p := New()
+	next, err := p.NextActions(context.Background(), sdk.ExecutionContext{
+		Project: State{InRepository: true, Branch: "main", HasUpstream: true, Remotes: []string{"origin"}},
+		Result:  sdk.ExecutionResult{Command: sdk.Command{Executable: "git", Args: []string{"switch", "main"}}},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, suggestion := range next {
+		if suggestion.Command.Display() == "git pull --ff-only origin main" && suggestion.Kind == sdk.NextAction {
+			return
+		}
+	}
+	t.Fatal("fast-forward pull is not suggested after switching to main")
+}
+
 func TestNextActionAndBestPractice(t *testing.T) {
 	p := New()
 	state := State{InRepository: true, Staged: true, HasUpstream: true}

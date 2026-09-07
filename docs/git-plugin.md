@@ -10,6 +10,8 @@ Priority metadata reflects actual state: modified files raise diff/add relevance
 
 Successful branch switches can recommend publishing a new branch with upstream tracking. Stash, merge, rebase, cherry-pick, revert, and fetch operations also provide contextual next actions.
 
+The common post-merge refresh workflow is available explicitly: `git switch main` followed by `git pull --ff-only origin main`. After a successful switch to `main`, the fast-forward-only pull is suggested as the next action.
+
 Limitations: porcelain rename paths receive only minimal parsing; commit hash, tag-name, and remote-branch completion are not yet dynamic; the short cache can briefly show stale state; recovery intentionally recognizes only common failure text.
 
 ---
