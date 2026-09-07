@@ -32,6 +32,7 @@ const (
 	KeyHistoryNext
 	KeyHistorySearch
 	KeyClearLine
+	KeyPaste
 	KeyEOF
 	KeyIgnored
 )
@@ -39,6 +40,7 @@ const (
 type keyEvent struct {
 	kind  Key
 	value byte
+	text  string
 }
 type placeholderRange struct {
 	start, end int
@@ -51,6 +53,8 @@ type UI struct {
 	caret              int
 	color              bool
 	history            []string
+	keyInput           *bufio.Reader
+	pending            []string
 }
 
 // caretForTest exposes the caret position for regression tests.
@@ -78,6 +82,13 @@ func (u *UI) Clear() {
 	fmt.Fprint(u.output, "\x1b[2J\x1b[H")
 }
 func (u *UI) ReadCommand(ctx context.Context, completer Completer, previous *sdk.ExecutionResult) (string, error) {
+	if len(u.pending) > 0 {
+		line := u.pending[0]
+		u.pending = u.pending[1:]
+		fmt.Fprintf(u.output, "%s %s\n", paint(u.color, ansiDim, "cwd"), paint(u.color, ansiCyan, u.directory))
+		fmt.Fprint(u.output, paint(u.color, ansiBold+ansiCyan, "❯ "), line, "\n")
+		return line, nil
+	}
 	restore, raw := makeRaw()
 	if raw {
 		defer restore()
@@ -102,9 +113,11 @@ func (u *UI) ReadCommand(ctx context.Context, completer Completer, previous *sdk
 	fmt.Fprintf(u.output, "%s %s\n", paint(u.color, ansiDim, "cwd"), paint(u.color, ansiCyan, u.directory))
 	suggestions := completer.Complete(ctx, line, u.directory, previous)
 	u.render(line, suggestions, caret)
-	keyInput := bufio.NewReader(u.input)
+	if u.keyInput == nil {
+		u.keyInput = bufio.NewReader(u.input)
+	}
 	for {
-		event, err := readKey(keyInput)
+		event, err := readKey(u.keyInput)
 		if err != nil {
 			return "", err
 		}
@@ -175,6 +188,21 @@ func (u *UI) ReadCommand(ctx context.Context, completer Completer, previous *sdk
 				placeholders = findPlaceholderRanges(line)
 				placeholderMode = len(placeholders) > 0
 			}
+			u.selected = 0
+			historyIndex = len(u.history)
+		case KeyPaste:
+			if placeholderMode && activePlaceholder >= 0 && activePlaceholder < len(placeholders) {
+				placeholder := placeholders[activePlaceholder]
+				line = line[:placeholder.start] + event.text + line[placeholder.end:]
+				caret = placeholder.start + len(event.text)
+			} else {
+				line = line[:caret] + event.text + line[caret:]
+				caret += len(event.text)
+			}
+			placeholderMode = false
+			placeholders = nil
+			activePlaceholder = -1
+			editingAccepted = true
 			u.selected = 0
 			historyIndex = len(u.history)
 		case KeyBackspace:
@@ -327,7 +355,19 @@ func (u *UI) ReadCommand(ctx context.Context, completer Completer, previous *sdk
 				caret = placeholders[activePlaceholder].start
 				break
 			}
-			u.caret = caret
+			commands := splitCommandLines(line)
+			if len(commands) == 0 {
+				line = ""
+				caret = 0
+				break
+			}
+			line = commands[0]
+			u.pending = append(u.pending, commands[1:]...)
+			if len(commands) > 1 {
+				u.caret = len(line)
+			} else {
+				u.caret = caret
+			}
 			u.clearSuggestions()
 			fmt.Fprint(u.output, "\r\x1b[2K", paint(u.color, ansiBold+ansiCyan, "❯ "), line, "\n")
 			return strings.TrimSpace(line), nil
@@ -450,7 +490,9 @@ func isInternalCommand(line string) bool {
 
 func (u *UI) render(line string, suggestions []sdk.Suggestion, caret int) {
 	u.clearSuggestions()
-	fmt.Fprint(u.output, "\r\x1b[2K", paint(u.color, ansiBold+ansiCyan, "❯ "), line)
+	renderedLine := strings.ReplaceAll(line, "\n", " ↵ ")
+	renderedCaret := len(strings.ReplaceAll(line[:caret], "\n", " ↵ "))
+	fmt.Fprint(u.output, "\r\x1b[2K", paint(u.color, ansiBold+ansiCyan, "❯ "), renderedLine)
 	for i, suggestion := range suggestions {
 		marker := "  "
 		if i == u.selected {
@@ -471,8 +513,21 @@ func (u *UI) render(line string, suggestions []sdk.Suggestion, caret int) {
 		fmt.Fprintf(u.output, "\x1b[%dA", len(suggestions))
 	}
 	// Park the terminal cursor on the editing caret, not the line end.
-	fmt.Fprintf(u.output, "\r\x1b[%dC", caret+2)
+	fmt.Fprintf(u.output, "\r\x1b[%dC", renderedCaret+2)
 	u.rendered = len(suggestions)
+}
+
+func splitCommandLines(input string) []string {
+	input = strings.ReplaceAll(input, "\r\n", "\n")
+	input = strings.ReplaceAll(input, "\r", "\n")
+	lines := strings.Split(input, "\n")
+	commands := make([]string, 0, len(lines))
+	for _, line := range lines {
+		if line = strings.TrimSpace(line); line != "" {
+			commands = append(commands, line)
+		}
+	}
+	return commands
 }
 func (u *UI) renderHistorySearch(query, match string) {
 	u.clearSuggestions()

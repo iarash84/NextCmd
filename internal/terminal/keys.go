@@ -2,6 +2,7 @@ package terminal
 
 import (
 	"bufio"
+	"bytes"
 	"io"
 )
 
@@ -95,8 +96,43 @@ func readKey(reader io.Reader) (keyEvent, error) {
 		if final == 'F' {
 			return keyEvent{kind: KeyEnd}, nil
 		}
+		if final == '2' {
+			sequence := []byte{final}
+			for len(sequence) < 4 && sequence[len(sequence)-1] != '~' {
+				next, readErr := scanner.ReadByte()
+				if readErr != nil {
+					return keyEvent{kind: KeyEscape}, nil
+				}
+				sequence = append(sequence, next)
+			}
+			if string(sequence) == "200~" {
+				text, readErr := readBracketedPaste(scanner)
+				if readErr != nil {
+					return keyEvent{}, readErr
+				}
+				return keyEvent{kind: KeyPaste, text: text}, nil
+			}
+		}
 		return keyEvent{kind: KeyIgnored}, nil
 	default:
 		return keyEvent{kind: KeyRune, value: first}, nil
+	}
+}
+
+func readBracketedPaste(reader io.ByteReader) (string, error) {
+	const end = "\x1b[201~"
+	var content []byte
+	for {
+		value, err := reader.ReadByte()
+		if err != nil {
+			return "", err
+		}
+		content = append(content, value)
+		if bytes.HasSuffix(content, []byte(end)) {
+			content = content[:len(content)-len(end)]
+			content = bytes.ReplaceAll(content, []byte("\r\n"), []byte("\n"))
+			content = bytes.ReplaceAll(content, []byte("\r"), []byte("\n"))
+			return string(content), nil
+		}
 	}
 }
