@@ -8,6 +8,8 @@ English | [فارسی](#فارسی)
 
 NextCmd is a fast, deterministic, cross-platform programming command-line assistant written in Go. It suggests editable commands from the current input, project state, and previous execution. It ships with explicitly registered Git, .NET, Cargo, Curl, Go, Docker, npm, pip, Kubernetes, and Terraform plugins and uses no AI, network service, or third-party Go dependency.
 
+On Windows, NextCmd applies its embedded application icon to the console window and taskbar group at startup. The source artwork has real transparent corners, and the ICO generator produces multiple sizes with alpha-aware downsampling. Terminals that own their window chrome, such as Windows Terminal, may still use the icon configured in their terminal profile.
+
 ## Features
 
 - Interactive editor: Up/Down highlights a suggestion; Tab, Right Arrow, or the first Enter accepts it into the editor; placeholders such as `<container>` become editable fields, typing replaces the active field, and Tab moves to the next unresolved field. Left/Right moves the caret; Ctrl+P/Ctrl+N navigate older/newer command history; Ctrl+R performs interactive fuzzy history search; Ctrl+A/Ctrl+E jump to the start or end; Escape or Ctrl+U clears the command line. History navigation and search preserve the current draft. Use `exit`, `quit`, `:q`, Ctrl+C, or Ctrl+D to exit.
@@ -159,6 +161,8 @@ MIT. See [LICENSE](LICENSE).
 </p>
 
 NextCmd یک دستیار خط فرمان سریع و چندسکویی است که با زبان Go نوشته شده است. برنامه هنگام تایپ، متن فعلی، وضعیت پروژه و نتیجهٔ آخرین دستور را بررسی می‌کند و چند دستور قابل‌ویرایش پیشنهاد می‌دهد. افزونه‌های Git، .NET، Cargo، Curl، Go، Docker، npm، pip، Kubernetes و Terraform به‌صورت صریح در زمان ساخت برنامه ثبت می‌شوند. برنامه از هوش مصنوعی، سرویس شبکه یا کتابخانهٔ جانبی Go استفاده نمی‌کند.
+
+در Windows، برنامه هنگام شروع آیکون داخلی خود را برای پنجرهٔ کنسول و گروه Taskbar تنظیم می‌کند. فایل منبع آیکون گوشه‌های واقعاً شفاف دارد و ابزار ساخت ICO اندازه‌های مختلف را با downsampling سازگار با alpha تولید می‌کند. پایانه‌هایی مانند Windows Terminal که ظاهر پنجره را خودشان مدیریت می‌کنند، ممکن است همچنان از آیکون تنظیم‌شده در profile پایانه استفاده کنند.
 
 ## قابلیت‌ها
 

@@ -1,5 +1,11 @@
 package main
 
-import "nextcmd/cmd/assistant"
+import (
+	"nextcmd/cmd/assistant"
+	"nextcmd/internal/windowicon"
+)
 
-func main() { assistant.Main() }
+func main() {
+	windowicon.Apply()
+	assistant.Main()
+}
