@@ -130,6 +130,13 @@ func TestReadKeyRecognizesLeftArrow(t *testing.T) {
 	}
 }
 
+func TestReadKeyRecognizesBracketedPaste(t *testing.T) {
+	event, err := readKey(bytes.NewReader([]byte("\x1b[200~git status\r\ngit log -1\x1b[201~")))
+	if err != nil || event.kind != KeyPaste || event.text != "git status\ngit log -1" {
+		t.Fatalf("readKey() = %#v, %v", event, err)
+	}
+}
+
 func runKeystrokes(t *testing.T, keystrokes []byte) (string, int) {
 	t.Helper()
 	var output bytes.Buffer
@@ -337,6 +344,44 @@ func TestEscapeClearsLine(t *testing.T) {
 	}
 	if caret != 2 {
 		t.Fatalf("caret after escape and typing: %d", caret)
+	}
+}
+
+func TestMultilinePasteQueuesCommandsLineByLine(t *testing.T) {
+	var output bytes.Buffer
+	ui := &UI{
+		input:     bytes.NewReader([]byte("\x1b[200~git switch main\r\n\r\ngit pull --ff-only origin main\x1b[201~\r")),
+		output:    &output,
+		directory: "d",
+	}
+	completer := &directoryCompleter{}
+	first, err := ui.ReadCommand(context.Background(), completer, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	second, err := ui.ReadCommand(context.Background(), completer, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if first != "git switch main" || second != "git pull --ff-only origin main" {
+		t.Fatalf("commands = %q, %q", first, second)
+	}
+}
+
+func TestReaderPreservesPipedCommandsAcrossPrompts(t *testing.T) {
+	var output bytes.Buffer
+	ui := &UI{input: bytes.NewReader([]byte("git status\ngit log -1\n")), output: &output, directory: "d"}
+	completer := &directoryCompleter{}
+	first, err := ui.ReadCommand(context.Background(), completer, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	second, err := ui.ReadCommand(context.Background(), completer, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if first != "git status" || second != "git log -1" {
+		t.Fatalf("commands = %q, %q", first, second)
 	}
 }
 

@@ -8,9 +8,12 @@ English | [فارسی](#فارسی)
 
 NextCmd is a fast, deterministic, cross-platform programming command-line assistant written in Go. It suggests editable commands from the current input, project state, and previous execution. It ships with explicitly registered Git, .NET, Cargo, Curl, Go, Docker, npm, pip, Kubernetes, and Terraform plugins and uses no AI, network service, or third-party Go dependency.
 
+On Windows, NextCmd applies its embedded application icon to the console window and taskbar group at startup. The source artwork has real transparent corners, and the ICO generator produces multiple sizes with alpha-aware downsampling. Terminals that own their window chrome, such as Windows Terminal, may still use the icon configured in their terminal profile.
+
 ## Features
 
 - Interactive editor: Up/Down highlights a suggestion; Tab, Right Arrow, or the first Enter accepts it into the editor; placeholders such as `<container>` become editable fields, typing replaces the active field, and Tab moves to the next unresolved field. Left/Right moves the caret; Ctrl+P/Ctrl+N navigate older/newer command history; Ctrl+R performs interactive fuzzy history search; Ctrl+A/Ctrl+E jump to the start or end; Escape or Ctrl+U clears the command line. History navigation and search preserve the current draft. Use `exit`, `quit`, `:q`, Ctrl+C, or Ctrl+D to exit.
+- Multi-line input: paste a block of commands and press Enter once to execute its non-empty lines sequentially. Each command keeps its own streamed output and execution summary; piped input is handled the same way.
 - Color-aware terminal theme with highlighted selection, suggestion and risk badges, plugin source, and execution status. Colors stay out of redirected output and can be disabled with `NO_COLOR`; see the [complete badge and risk reference](docs/help.md#suggestion-kinds).
 - Built-in command palette when `:` is typed, `:?`/`:؟` help, per-plugin command catalogs, and suggestions from incomplete executable prefixes such as `gi` or `dot`.
 - Built-in workspace utilities for listing files, completing paths, trashing/restoring files, viewing redacted history, inspecting plugins and configuration, locating executables, clearing the screen, and checking version information.
@@ -159,9 +162,12 @@ MIT. See [LICENSE](LICENSE).
 
 NextCmd یک دستیار خط فرمان سریع و چندسکویی است که با زبان Go نوشته شده است. برنامه هنگام تایپ، متن فعلی، وضعیت پروژه و نتیجهٔ آخرین دستور را بررسی می‌کند و چند دستور قابل‌ویرایش پیشنهاد می‌دهد. افزونه‌های Git، .NET، Cargo، Curl، Go، Docker، npm، pip، Kubernetes و Terraform به‌صورت صریح در زمان ساخت برنامه ثبت می‌شوند. برنامه از هوش مصنوعی، سرویس شبکه یا کتابخانهٔ جانبی Go استفاده نمی‌کند.
 
+در Windows، برنامه هنگام شروع آیکون داخلی خود را برای پنجرهٔ کنسول و گروه Taskbar تنظیم می‌کند. فایل منبع آیکون گوشه‌های واقعاً شفاف دارد و ابزار ساخت ICO اندازه‌های مختلف را با downsampling سازگار با alpha تولید می‌کند. پایانه‌هایی مانند Windows Terminal که ظاهر پنجره را خودشان مدیریت می‌کنند، ممکن است همچنان از آیکون تنظیم‌شده در profile پایانه استفاده کنند.
+
 ## قابلیت‌ها
 
 - ویرایشگر تعاملی: کلیدهای بالا و پایین میان پیشنهادها جابه‌جا می‌شوند. کلید Tab، جهت راست یا اولین Enter پیشنهاد را وارد ویرایشگر می‌کند. جای‌نگهدارهایی مانند `<container>` به فیلد قابل‌ویرایش تبدیل می‌شوند؛ تایپ، فیلد فعال را جایگزین می‌کند و Tab به فیلد حل‌نشدهٔ بعدی می‌رود. جهت چپ و راست نشانگر را داخل خط فرمان جابه‌جا می‌کنند. Ctrl+P دستور قدیمی‌تر و Ctrl+N دستور جدیدتر را از تاریخچه وارد ویرایشگر می‌کند. Ctrl+R جست‌وجوی fuzzy تعاملی را در تاریخچه آغاز می‌کند. پیمایش و جست‌وجو متن اولیهٔ کاربر را حفظ می‌کنند. Ctrl+A و Ctrl+E نشانگر را به ابتدا یا انتهای خط می‌برند. Escape یا Ctrl+U خط فرمان فعلی را پاک می‌کند. برای خروج می‌توان از `exit`، `quit`، `:q`، Ctrl+C یا Ctrl+D استفاده کرد.
+- ورودی چندخطی: می‌توان چند دستور را با هم paste کرد و با یک‌بار فشردن Enter، خط‌های غیرخالی را به‌ترتیب اجرا کرد. خروجی زنده و خلاصهٔ اجرای هر دستور جداگانه نمایش داده می‌شود؛ ورودی pipe‌شده نیز همین رفتار را دارد.
 - ظاهر رنگی پایانه: پیشنهاد انتخاب‌شده، نوع پیشنهاد، میزان خطر، افزونهٔ پیشنهاددهنده و نتیجهٔ اجرای دستور با رنگ‌های متفاوت نمایش داده می‌شوند. با تنظیم متغیر `NO_COLOR` می‌توان رنگ‌ها را غیرفعال کرد. معنی کامل برچسب‌ها و سطح‌های خطر در [راهنمای تعاملی](docs/help.md#نوع-پیشنهاد) آمده است.
 - نمایش فهرست فرمان‌های داخلی با تایپ `:`، راهنمای داخلی با دستورهای `:?` و `:؟` و امکان مشاهدهٔ همهٔ دستورهای شناخته‌شدهٔ هر افزونه.
 - ابزارهای داخلی برای نمایش فایل‌ها، تکمیل مسیرها، انتقال فایل‌ها به trash و بازگردانی آن‌ها، مشاهدهٔ تاریخچهٔ پاک‌سازی‌شده، بررسی افزونه‌ها و تنظیمات، یافتن فایل اجرایی، پاک‌کردن صفحه و دیدن اطلاعات نسخه.

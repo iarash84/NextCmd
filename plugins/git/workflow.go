@@ -37,6 +37,9 @@ func (p *Plugin) NextActions(_ context.Context, input sdk.ExecutionContext) ([]s
 		}
 	case "switch", "checkout":
 		out = append(out, makeSuggestion([]string{"status", "--short", "--branch"}, "Check the new branch", sdk.NextAction, sdk.Safe, 82, "Confirm the active branch and working tree"))
+		if input.Result.Command.Args[0] == "switch" && len(input.Result.Command.Args) == 2 && input.Result.Command.Args[1] == "main" {
+			out = append(out, makeSuggestion([]string{"pull", "--ff-only", "origin", "main"}, "Update main from origin", sdk.NextAction, sdk.Mutating, 96, "Fast-forward local main after switching branches"))
+		}
 		if !state.HasUpstream && state.Branch != "" && len(state.Remotes) > 0 {
 			out = append(out, makeSuggestion([]string{"push", "-u", state.Remotes[0], state.Branch}, "Publish the new branch", sdk.NextAction, sdk.Mutating, 88, "The current branch has no upstream"))
 		}
