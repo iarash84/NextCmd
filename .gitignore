@@ -4,6 +4,7 @@
 /NextCmd
 /NextCmd.exe
 *.test
+*.test.exe
 *.out
 coverage.*
 
@@ -11,7 +12,7 @@ coverage.*
 /target/
 
 # Local verification caches
-/.verify-gocache/
+/.verify-gocache*/
 /.codex-gocache/
 
 # Editor and operating-system files

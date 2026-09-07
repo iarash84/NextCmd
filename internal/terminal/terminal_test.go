@@ -39,18 +39,6 @@ func TestSetDirectoryUpdatesCompletionContextAndDisplay(t *testing.T) {
 	}
 }
 
-func TestAcceptSelected(t *testing.T) {
-	suggestions := []sdk.Suggestion{{Command: sdk.Command{Executable: "git", Args: []string{"status"}}}}
-	accepted, ok := acceptSelected("git sta", suggestions, 0)
-	if !ok || accepted != "git status" {
-		t.Fatalf("acceptSelected() = %q, %v", accepted, ok)
-	}
-	accepted, ok = acceptSelected("git status", suggestions, 0)
-	if ok || accepted != "git status" {
-		t.Fatalf("an already accepted command must be ready to execute: %q, %v", accepted, ok)
-	}
-}
-
 func TestReadKeyRecognizesRightArrow(t *testing.T) {
 	tests := []struct {
 		name     string
@@ -137,6 +125,26 @@ func TestReadKeyRecognizesBracketedPaste(t *testing.T) {
 	}
 }
 
+func TestReadKeyRecognizesShiftEnter(t *testing.T) {
+	for _, sequence := range [][]byte{[]byte("\x1b[13;2u"), []byte("\x1b[27;2;13~")} {
+		event, err := readKey(bytes.NewReader(sequence))
+		if err != nil || event.kind != KeyNewline {
+			t.Fatalf("readKey(%q) = %#v, %v", sequence, event, err)
+		}
+	}
+}
+
+func TestInteractiveLFIsShiftEnterButPipedLFIsEnter(t *testing.T) {
+	interactive, err := readKeyMode(bytes.NewReader([]byte{'\n'}), true)
+	if err != nil || interactive.kind != KeyNewline {
+		t.Fatalf("interactive LF = %#v, %v", interactive, err)
+	}
+	piped, err := readKeyMode(bytes.NewReader([]byte{'\n'}), false)
+	if err != nil || piped.kind != KeyEnter {
+		t.Fatalf("piped LF = %#v, %v", piped, err)
+	}
+}
+
 func runKeystrokes(t *testing.T, keystrokes []byte) (string, int) {
 	t.Helper()
 	var output bytes.Buffer
@@ -201,7 +209,7 @@ func TestEmbeddedPlaceholderReplacementPreservesArgumentPrefix(t *testing.T) {
 		Command:      sdk.Command{Executable: "git", Args: []string{"switch", "-c", "feature/<name>"}},
 		Placeholders: []sdk.Placeholder{{Name: "name", ArgIndex: 2, Start: len("feature/"), End: len("feature/<name>")}},
 	}
-	line, _ := runSuggestionKeystrokes(t, suggestion, []byte("\rlogin\r"))
+	line, _ := runSuggestionKeystrokes(t, suggestion, []byte("\tlogin\r"))
 	if line != "git switch -c feature/login" {
 		t.Fatalf("line=%q", line)
 	}
@@ -212,7 +220,7 @@ func TestTabAfterLastPlaceholderDoesNotRestoreTemplate(t *testing.T) {
 		Command:      sdk.Command{Executable: "tool", Args: []string{"<value>"}},
 		Placeholders: []sdk.Placeholder{{Name: "value", ArgIndex: 0, Start: 0, End: len("<value>")}},
 	}
-	line, caret := runSuggestionKeystrokes(t, suggestion, []byte("\rfinal\t\r"))
+	line, caret := runSuggestionKeystrokes(t, suggestion, []byte("\tfinal\t\r"))
 	if line != "tool final" || caret != len(line) {
 		t.Fatalf("line=%q caret=%d", line, caret)
 	}
@@ -226,7 +234,7 @@ func TestEnterDoesNotExecuteUnresolvedPlaceholder(t *testing.T) {
 			{Name: "second", ArgIndex: 1, Start: 0, End: len("<second>")},
 		},
 	}
-	line, _ := runSuggestionKeystrokes(t, suggestion, []byte("\r\rone\ttwo\r"))
+	line, _ := runSuggestionKeystrokes(t, suggestion, []byte("\t\rone\ttwo\r"))
 	if line != "tool one two" {
 		t.Fatalf("line=%q", line)
 	}
@@ -234,7 +242,7 @@ func TestEnterDoesNotExecuteUnresolvedPlaceholder(t *testing.T) {
 
 func TestAngleBracketsWithoutPlaceholderMetadataRemainLiteral(t *testing.T) {
 	suggestion := sdk.Suggestion{Command: sdk.Command{Executable: "tool", Args: []string{"<literal>"}}}
-	line, caret := runSuggestionKeystrokes(t, suggestion, []byte("\r\r"))
+	line, caret := runSuggestionKeystrokes(t, suggestion, []byte("\t\r"))
 	if line != "tool <literal>" || caret != len(line) {
 		t.Fatalf("line=%q caret=%d", line, caret)
 	}
@@ -368,9 +376,9 @@ func TestMultilinePasteQueuesCommandsLineByLine(t *testing.T) {
 	}
 }
 
-func TestReaderPreservesPipedCommandsAcrossPrompts(t *testing.T) {
+func TestShiftEnterCreatesMultilineCommand(t *testing.T) {
 	var output bytes.Buffer
-	ui := &UI{input: bytes.NewReader([]byte("git status\ngit log -1\n")), output: &output, directory: "d"}
+	ui := &UI{input: bytes.NewReader([]byte("git status\x1b[13;2ugit log -1\r")), output: &output, directory: "d"}
 	completer := &directoryCompleter{}
 	first, err := ui.ReadCommand(context.Background(), completer, nil)
 	if err != nil {
@@ -385,30 +393,51 @@ func TestReaderPreservesPipedCommandsAcrossPrompts(t *testing.T) {
 	}
 }
 
-func TestAcceptSelectedRejectsInvalidIndex(t *testing.T) {
-	line, ok := acceptSelected("git", nil, 0)
-	if ok || line != "git" {
-		t.Fatalf("invalid selection changed the line: %q, %v", line, ok)
+func TestRenderMultilineUsesPhysicalRows(t *testing.T) {
+	var output bytes.Buffer
+	ui := &UI{output: &output}
+	line := "git switch main\ngit pull"
+	ui.render(line, nil, len(line))
+	if !bytes.Contains(output.Bytes(), []byte("\n\r\x1b[2K│ git pull")) {
+		t.Fatalf("multiline editor was not rendered on physical rows: %q", output.String())
+	}
+	if bytes.Contains(output.Bytes(), []byte("↵")) {
+		t.Fatalf("multiline editor still renders a newline glyph: %q", output.String())
+	}
+	if ui.rendered != 2 || ui.renderedCursorRow != 1 {
+		t.Fatalf("rendered rows=%d cursor row=%d", ui.rendered, ui.renderedCursorRow)
 	}
 }
 
-func TestAcceptSelectedAcceptsBuiltinFromColonPrefix(t *testing.T) {
-	suggestions := []sdk.Suggestion{{Command: sdk.Command{Executable: ":plugins"}, Source: "nextcmd"}}
-	line, ok := acceptSelected(":pl", suggestions, 0)
-	if !ok || line != ":plugins" {
-		t.Fatalf("acceptSelected() = %q, %v", line, ok)
-	}
-	if line, ok = acceptSelected(line, suggestions, 0); ok || line != ":plugins" {
-		t.Fatalf("accepted command must be ready to execute: %q, %v", line, ok)
+func TestMultilineEditorHidesUnsafeWholeBufferSuggestions(t *testing.T) {
+	completer := fixedCompleter{suggestions: []sdk.Suggestion{{Command: sdk.Command{Executable: "git", Args: []string{"status"}}}}}
+	if suggestions := completeEditorLine(context.Background(), completer, "git switch main\ngit pu", "d", nil); len(suggestions) != 0 {
+		t.Fatalf("multiline suggestions could replace the whole buffer: %#v", suggestions)
 	}
 }
 
-func TestDirectoryCommandsExecuteWithoutAcceptingPluginSuggestion(t *testing.T) {
-	suggestions := []sdk.Suggestion{{Command: sdk.Command{Executable: "cargo", Args: []string{"add", "<crate>"}}}}
-	for _, line := range []string{"cd ..", `cd "project with spaces"`, ":cd ..", "pwd", ":pwd", ":ls", ":ls ..", ":mkdir old", ":del old", ":trash old", ":undo", ":history", ":history 5", ":plugins", ":clear", ":config", ":which go", ":version"} {
-		if accepted, ok := acceptSelected(line, suggestions, 0); ok || accepted != line {
-			t.Errorf("directory command %q accepted suggestion: %q, %v", line, accepted, ok)
-		}
+func TestEnterExecutesTypedCommandEvenWhenSuggestionExists(t *testing.T) {
+	suggestion := sdk.Suggestion{Command: sdk.Command{Executable: "git", Args: []string{"status"}}}
+	line, _ := runSuggestionKeystrokes(t, suggestion, []byte("git sta\r"))
+	if line != "git sta" {
+		t.Fatalf("Enter accepted suggestion instead of executing typed command: %q", line)
+	}
+}
+
+func TestReaderPreservesPipedCommandsAcrossPrompts(t *testing.T) {
+	var output bytes.Buffer
+	ui := &UI{input: bytes.NewReader([]byte("git status\ngit log -1\n")), output: &output, directory: "d"}
+	completer := &directoryCompleter{}
+	first, err := ui.ReadCommand(context.Background(), completer, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	second, err := ui.ReadCommand(context.Background(), completer, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if first != "git status" || second != "git log -1" {
+		t.Fatalf("commands = %q, %q", first, second)
 	}
 }
 

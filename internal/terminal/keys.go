@@ -12,6 +12,10 @@ type byteScanner interface {
 }
 
 func readKey(reader io.Reader) (keyEvent, error) {
+	return readKeyMode(reader, false)
+}
+
+func readKeyMode(reader io.Reader, interactive bool) (keyEvent, error) {
 	scanner, ok := reader.(byteScanner)
 	if !ok {
 		scanner = bufio.NewReader(reader)
@@ -35,7 +39,14 @@ func readKey(reader io.Reader) (keyEvent, error) {
 		return keyEvent{kind: KeyHistorySearch}, nil
 	case 21:
 		return keyEvent{kind: KeyClearLine}, nil
-	case 13, 10:
+	case 13:
+		return keyEvent{kind: KeyEnter}, nil
+	case 10:
+		// Several terminals encode Shift+Enter as LF while ordinary Enter is CR.
+		// Preserve LF as Enter for redirected input, where it is a line ending.
+		if interactive {
+			return keyEvent{kind: KeyNewline}, nil
+		}
 		return keyEvent{kind: KeyEnter}, nil
 	case 9:
 		return keyEvent{kind: KeyTab}, nil
@@ -96,14 +107,21 @@ func readKey(reader io.Reader) (keyEvent, error) {
 		if final == 'F' {
 			return keyEvent{kind: KeyEnd}, nil
 		}
-		if final == '2' {
+		if final == '1' || final == '2' {
 			sequence := []byte{final}
-			for len(sequence) < 4 && sequence[len(sequence)-1] != '~' {
+			for len(sequence) < 12 {
 				next, readErr := scanner.ReadByte()
 				if readErr != nil {
 					return keyEvent{kind: KeyEscape}, nil
 				}
 				sequence = append(sequence, next)
+				if next == 'u' || next == '~' {
+					break
+				}
+			}
+			switch string(sequence) {
+			case "13;2u", "27;2;13~":
+				return keyEvent{kind: KeyNewline}, nil
 			}
 			if string(sequence) == "200~" {
 				text, readErr := readBracketedPaste(scanner)
@@ -112,6 +130,7 @@ func readKey(reader io.Reader) (keyEvent, error) {
 				}
 				return keyEvent{kind: KeyPaste, text: text}, nil
 			}
+			return keyEvent{kind: KeyIgnored}, nil
 		}
 		return keyEvent{kind: KeyIgnored}, nil
 	default:

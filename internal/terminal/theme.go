@@ -84,7 +84,7 @@ func PrintWelcome(writer io.Writer) {
 	color := supportsColor(writer)
 	fmt.Fprintf(writer, "%s %s\n", paint(color, ansiBold+ansiCyan, "❯ NextCmd"), paint(color, ansiDim, "programming command assistant"))
 	fmt.Fprintf(writer, "  %s  %s  %s\n\n",
-		paint(color, ansiDim, "↑/↓ select · Tab/→ accept · Enter run"),
+		paint(color, ansiDim, "↑/↓ select · Tab/→ accept · Enter run · Shift+Enter newline"),
 		paint(color, ansiCyan, ":? help"),
 		paint(color, ansiDim, ":q exit"))
 }
