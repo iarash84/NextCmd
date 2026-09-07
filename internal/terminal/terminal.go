@@ -7,6 +7,7 @@ import (
 	"io"
 	"os"
 	"strings"
+	"unicode/utf8"
 
 	"nextcmd/sdk"
 )
@@ -19,6 +20,7 @@ type Key byte
 const (
 	KeyRune Key = iota
 	KeyEnter
+	KeyNewline
 	KeyTab
 	KeyUp
 	KeyDown
@@ -50,6 +52,7 @@ type UI struct {
 	output             io.Writer
 	directory          string
 	selected, rendered int
+	renderedCursorRow  int
 	caret              int
 	color              bool
 	history            []string
@@ -111,20 +114,23 @@ func (u *UI) ReadCommand(ctx context.Context, completer Completer, previous *sdk
 	caret := 0
 	u.caret = 0
 	fmt.Fprintf(u.output, "%s %s\n", paint(u.color, ansiDim, "cwd"), paint(u.color, ansiCyan, u.directory))
-	suggestions := completer.Complete(ctx, line, u.directory, previous)
+	suggestions := completeEditorLine(ctx, completer, line, u.directory, previous)
 	u.render(line, suggestions, caret)
 	if u.keyInput == nil {
 		u.keyInput = bufio.NewReader(u.input)
 	}
 	for {
-		event, err := readKey(u.keyInput)
+		event, handled, err := readConsoleKey(raw && u.input == os.Stdin)
+		if err == nil && !handled {
+			event, err = readKeyMode(u.keyInput, raw)
+		}
 		if err != nil {
 			return "", err
 		}
 		if searching {
 			switch event.kind {
 			case KeyRune:
-				searchQuery += string(event.value)
+				searchQuery += keyText(event)
 				searchMatch, searchIndex = reverseHistorySearch(u.history, searchQuery, len(u.history))
 			case KeyBackspace:
 				if len(searchQuery) > 0 {
@@ -168,22 +174,23 @@ func (u *UI) ReadCommand(ctx context.Context, completer Completer, previous *sdk
 				u.caret = len(searchQuery)
 				continue
 			}
-			suggestions = completer.Complete(ctx, line, u.directory, previous)
+			suggestions = completeEditorLine(ctx, completer, line, u.directory, previous)
 			u.render(line, suggestions, caret)
 			u.caret = caret
 			continue
 		}
 		switch event.kind {
 		case KeyRune:
+			inserted := keyText(event)
 			if placeholderMode && activePlaceholder >= 0 && activePlaceholder < len(placeholders) {
 				placeholder := placeholders[activePlaceholder]
-				line = line[:placeholder.start] + string(event.value) + line[placeholder.end:]
+				line = line[:placeholder.start] + inserted + line[placeholder.end:]
 				caret = placeholder.start
 				activePlaceholder = -1
 			} else {
-				line = line[:caret] + string(event.value) + line[caret:]
+				line = line[:caret] + inserted + line[caret:]
 			}
-			caret++
+			caret += len(inserted)
 			if placeholderMode {
 				placeholders = findPlaceholderRanges(line)
 				placeholderMode = len(placeholders) > 0
@@ -199,6 +206,15 @@ func (u *UI) ReadCommand(ctx context.Context, completer Completer, previous *sdk
 				line = line[:caret] + event.text + line[caret:]
 				caret += len(event.text)
 			}
+			placeholderMode = false
+			placeholders = nil
+			activePlaceholder = -1
+			editingAccepted = true
+			u.selected = 0
+			historyIndex = len(u.history)
+		case KeyNewline:
+			line = line[:caret] + "\n" + line[caret:]
+			caret++
 			placeholderMode = false
 			placeholders = nil
 			activePlaceholder = -1
@@ -334,20 +350,6 @@ func (u *UI) ReadCommand(ctx context.Context, completer Completer, previous *sdk
 			activePlaceholder = -1
 			editingAccepted = false
 		case KeyEnter:
-			if accepted, ok := acceptSelected(line, suggestions, u.selected); !editingAccepted && ok {
-				line = accepted
-				placeholders = placeholderRangesForSuggestion(suggestions[u.selected])
-				placeholderMode = len(placeholders) > 0
-				activePlaceholder = -1
-				caret = len(line)
-				if placeholderMode {
-					activePlaceholder = 0
-					caret = placeholders[0].start
-				}
-				u.selected = 0
-				editingAccepted = true
-				break
-			}
 			if placeholderMode && len(placeholders) > 0 {
 				if activePlaceholder < 0 {
 					activePlaceholder = nextPlaceholder(placeholders, -1, caret)
@@ -378,13 +380,29 @@ func (u *UI) ReadCommand(ctx context.Context, completer Completer, previous *sdk
 		case KeyIgnored:
 			// Unsupported terminal sequences must not terminate the session.
 		}
-		suggestions = completer.Complete(ctx, line, u.directory, previous)
+		suggestions = completeEditorLine(ctx, completer, line, u.directory, previous)
 		if u.selected >= len(suggestions) {
 			u.selected = 0
 		}
 		u.render(line, suggestions, caret)
 		u.caret = caret
 	}
+}
+
+func keyText(event keyEvent) string {
+	if event.text != "" {
+		return event.text
+	}
+	return string(event.value)
+}
+
+func completeEditorLine(ctx context.Context, completer Completer, line, directory string, previous *sdk.ExecutionResult) []sdk.Suggestion {
+	// Suggestion acceptance currently replaces the complete editor value. Hide
+	// suggestions in multi-line mode so Tab/Right cannot discard earlier lines.
+	if strings.ContainsRune(line, '\n') {
+		return nil
+	}
+	return completer.Complete(ctx, line, directory, previous)
 }
 
 func findPlaceholderRanges(line string) []placeholderRange {
@@ -459,40 +477,23 @@ func fuzzyHistoryMatch(command, query string) bool {
 	return false
 }
 
-// acceptSelected keeps suggestion acceptance separate from command execution.
-// Enter accepts a highlighted suggestion first; a subsequent Enter executes it.
-func acceptSelected(line string, suggestions []sdk.Suggestion, selected int) (string, bool) {
-	if isInternalCommand(line) {
-		return line, false
-	}
-	if selected < 0 || selected >= len(suggestions) {
-		return line, false
-	}
-	command := suggestions[selected].Command.Display()
-	if strings.TrimSpace(line) == command {
-		return line, false
-	}
-	return command, true
-}
-
-func isInternalCommand(line string) bool {
-	trimmed := strings.ToLower(strings.TrimSpace(line))
-	if trimmed == "cd" || trimmed == ":cd" || strings.HasPrefix(trimmed, "cd ") || strings.HasPrefix(trimmed, ":cd ") || trimmed == "pwd" || trimmed == ":pwd" || trimmed == ":ls" || strings.HasPrefix(trimmed, ":ls ") || trimmed == ":mkdir" || strings.HasPrefix(trimmed, ":mkdir ") || trimmed == ":del" || strings.HasPrefix(trimmed, ":del ") || trimmed == ":trash" || strings.HasPrefix(trimmed, ":trash ") || trimmed == ":undo" {
-		return true
-	}
-	for _, name := range []string{":history", ":plugins", ":clear", ":config", ":which", ":version"} {
-		if trimmed == name || strings.HasPrefix(trimmed, name+" ") {
-			return true
-		}
-	}
-	return false
-}
-
 func (u *UI) render(line string, suggestions []sdk.Suggestion, caret int) {
 	u.clearSuggestions()
-	renderedLine := strings.ReplaceAll(line, "\n", " ↵ ")
-	renderedCaret := len(strings.ReplaceAll(line[:caret], "\n", " ↵ "))
-	fmt.Fprint(u.output, "\r\x1b[2K", paint(u.color, ansiBold+ansiCyan, "❯ "), renderedLine)
+	lines := strings.Split(line, "\n")
+	beforeCaret := strings.Split(line[:caret], "\n")
+	caretRow := len(beforeCaret) - 1
+	caretColumn := utf8.RuneCountInString(beforeCaret[len(beforeCaret)-1])
+
+	for index, editorLine := range lines {
+		if index > 0 {
+			fmt.Fprint(u.output, "\n")
+		}
+		prompt := paint(u.color, ansiBold+ansiCyan, "❯ ")
+		if index > 0 {
+			prompt = paint(u.color, ansiDim+ansiCyan, "│ ")
+		}
+		fmt.Fprint(u.output, "\r\x1b[2K", prompt, editorLine)
+	}
 	for i, suggestion := range suggestions {
 		marker := "  "
 		if i == u.selected {
@@ -502,19 +503,21 @@ func (u *UI) render(line string, suggestions []sdk.Suggestion, caret int) {
 		if i == u.selected {
 			commandColor = ansiBold + ansiWhite
 		}
-		fmt.Fprintf(u.output, "\n\x1b[2K%s%s  %s %s %s",
+		fmt.Fprintf(u.output, "\n\r\x1b[2K%s%s  %s %s %s",
 			marker,
 			paint(u.color, commandColor, suggestion.Command.Display()),
 			paint(u.color, kindColor(suggestion.Kind), suggestionBadge(suggestion.Kind)),
 			paint(u.color, riskColor(suggestion.Risk), strings.ToUpper(string(suggestion.Risk))),
 			paint(u.color, ansiDim, "· "+suggestion.Source))
 	}
-	if len(suggestions) > 0 {
-		fmt.Fprintf(u.output, "\x1b[%dA", len(suggestions))
+	totalRows := len(lines) + len(suggestions)
+	lastRow := totalRows - 1
+	if rowsUp := lastRow - caretRow; rowsUp > 0 {
+		fmt.Fprintf(u.output, "\x1b[%dA", rowsUp)
 	}
-	// Park the terminal cursor on the editing caret, not the line end.
-	fmt.Fprintf(u.output, "\r\x1b[%dC", renderedCaret+2)
-	u.rendered = len(suggestions)
+	fmt.Fprintf(u.output, "\r\x1b[%dC", caretColumn+2)
+	u.rendered = totalRows
+	u.renderedCursorRow = caretRow
 }
 
 func splitCommandLines(input string) []string {
@@ -535,14 +538,27 @@ func (u *UI) renderHistorySearch(query, match string) {
 		match = "no match"
 	}
 	fmt.Fprintf(u.output, "\r\x1b[2K%s %q: %s", paint(u.color, ansiBold+ansiCyan, "reverse-i-search"), query, match)
+	u.rendered = 1
+	u.renderedCursorRow = 0
 }
 func (u *UI) clearSuggestions() {
 	if u.rendered == 0 {
 		return
 	}
-	for i := 0; i < u.rendered; i++ {
-		fmt.Fprint(u.output, "\x1b[1B\r\x1b[2K")
+	if u.renderedCursorRow > 0 {
+		fmt.Fprintf(u.output, "\x1b[%dA", u.renderedCursorRow)
 	}
-	fmt.Fprintf(u.output, "\x1b[%dA", u.rendered)
+	fmt.Fprint(u.output, "\r")
+	for row := 0; row < u.rendered; row++ {
+		fmt.Fprint(u.output, "\x1b[2K")
+		if row < u.rendered-1 {
+			fmt.Fprint(u.output, "\x1b[1B\r")
+		}
+	}
+	if u.rendered > 1 {
+		fmt.Fprintf(u.output, "\x1b[%dA", u.rendered-1)
+	}
+	fmt.Fprint(u.output, "\r")
 	u.rendered = 0
+	u.renderedCursorRow = 0
 }

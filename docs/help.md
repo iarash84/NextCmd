@@ -23,7 +23,7 @@ Type either form and press Enter:
 
 The output explains keyboard controls, built-in commands, exit commands, and all loaded plugins.
 
-Type `:` in the command editor to open the built-in command palette. Continue typing to filter it—for example, `:pl` leaves `:plugins`. Use Up/Down to highlight an item and Tab, Right Arrow, or Enter to place it in the editable command line. Commands that require a value are shown with an editable placeholder, such as `:del <path>`, `:which <command>`, and `:cd <path>`. Built-in path arguments for `cd`, `:cd`, `:ls`, `:mkdir`, `:del`, and `:trash` complete from the active working directory.
+Type `:` in the command editor to open the built-in command palette. Continue typing to filter it—for example, `:pl` leaves `:plugins`. Use Up/Down to highlight an item and Tab or Right Arrow to place it in the editable command line. Commands that require a value are shown with an editable placeholder, such as `:del <path>`, `:which <command>`, and `:cd <path>`. Built-in path arguments for `cd`, `:cd`, `:ls`, `:mkdir`, `:del`, and `:trash` complete from the active working directory.
 
 Path completion also applies to ordinary command arguments. Type a file or directory prefix such as `git add src/ma` or `docker compose -f compose.` and accept the matching suggestion. Earlier arguments, relative prefixes, nested directories, and paths containing spaces are preserved. Arguments beginning with `-` and commands beginning with `!` are intentionally excluded; neither the target command nor a shell is invoked to discover paths.
 
@@ -38,7 +38,8 @@ Keyboard controls:
 | Ctrl+R | Start reverse fuzzy history search. Type to refine, press Ctrl+R again for an older match, Enter/Tab/Right to place the match in the editor, or Escape to restore the draft. |
 | Ctrl+A/Ctrl+E | Move to the start or end of the command line. |
 | Ctrl+U | Clear the current command line. |
-| Enter | Accept a suggestion, then execute on the next press. |
+| Enter | Execute the current command. |
+| Shift+Enter | Insert a new line without executing. |
 | Backspace | Delete the previous character. |
 | Escape | Clear the current command line. |
 | Ctrl+C/Ctrl+D | Exit and clean the terminal UI while at the prompt. During command execution, Ctrl+C cancels only the running process and returns to the prompt. |
@@ -191,7 +192,7 @@ NextCmd راهنمای داخلی دارد؛ بنابراین برای دیدن 
 
 برنامه کاربرد کلیدهای صفحه‌کلید، دستورهای داخلی، روش‌های خروج و نام افزونه‌های فعال را نمایش می‌دهد.
 
-برای دیدن فهرست فرمان‌های داخلی، در ویرایشگر دستور فقط `:` را تایپ کنید. با ادامهٔ تایپ، فهرست محدود می‌شود؛ برای نمونه، `:pl` فقط پیشنهاد `:plugins` را باقی می‌گذارد. با کلیدهای بالا و پایین یک مورد را انتخاب کنید و با Tab، جهت راست یا Enter آن را وارد خط فرمان قابل‌ویرایش کنید. فرمان‌هایی که به مقدار نیاز دارند با جای‌نگهدار نمایش داده می‌شوند؛ مانند `:which <command>` و `:cd <path>`. این فهرست کوچک کاملاً داخلی است و برای نمایش آن هیچ افزونه یا عملیات تشخیص پروژه اجرا نمی‌شود.
+برای دیدن فهرست فرمان‌های داخلی، در ویرایشگر دستور فقط `:` را تایپ کنید. با ادامهٔ تایپ، فهرست محدود می‌شود؛ برای نمونه، `:pl` فقط پیشنهاد `:plugins` را باقی می‌گذارد. با کلیدهای بالا و پایین یک مورد را انتخاب کنید و با Tab یا جهت راست آن را وارد خط فرمان قابل‌ویرایش کنید. فرمان‌هایی که به مقدار نیاز دارند با جای‌نگهدار نمایش داده می‌شوند؛ مانند `:which <command>` و `:cd <path>`. این فهرست کوچک کاملاً داخلی است و برای نمایش آن هیچ افزونه یا عملیات تشخیص پروژه اجرا نمی‌شود.
 
 تکمیل مسیر برای آرگومان دستورهای عادی نیز فعال است. برای نمونه با تایپ `git add src/ma` یا `docker compose -f compose.` می‌توان مسیر منطبق را انتخاب کرد. آرگومان‌های قبلی، پیشوندهای نسبی، پوشه‌های تو‌در‌تو و مسیرهای دارای فاصله حفظ می‌شوند. آرگومان‌های شروع‌شده با `-` و دستورهای شروع‌شده با `!` عمداً در این تکمیل وارد نمی‌شوند و برای کشف مسیر نیز هیچ دستور یا shell اجرا نمی‌شود.
 
