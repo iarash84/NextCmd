@@ -3,6 +3,7 @@ package builtin
 import (
 	"nextcmd/plugins/cargo"
 	"nextcmd/plugins/curl"
+	"nextcmd/plugins/dart"
 	"nextcmd/plugins/docker"
 	"nextcmd/plugins/dotnet"
 	"nextcmd/plugins/git"
@@ -19,6 +20,7 @@ import (
 func All() []sdk.Plugin {
 	return []sdk.Plugin{
 		git.New(),
+		dart.New(),
 		dotnet.New(),
 		cargo.New(),
 		curl.New(),
