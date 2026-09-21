@@ -31,12 +31,13 @@ var commands = []commandSpec{
 
 func (*Plugin) Complete(_ context.Context, input sdk.CompletionContext) ([]sdk.Suggestion, error) {
 	trimmed := strings.TrimSpace(input.Input)
-	if trimmed != "" && !strings.HasPrefix(strings.ToLower(strings.Fields(trimmed)[0]), "dart") && !strings.HasPrefix(strings.ToLower(strings.Fields(trimmed)[0]), "flutter") {
+	fields := strings.Fields(trimmed)
+	if trimmed != "" && !matchesExecutablePrefix(fields[0], "dart") && !matchesExecutablePrefix(fields[0], "flutter") {
 		return nil, nil
 	}
 	state, _ := input.Project.(State)
 	executable := "dart"
-	if len(strings.Fields(trimmed)) > 0 && strings.EqualFold(strings.Fields(trimmed)[0], "flutter") {
+	if len(fields) > 0 && strings.EqualFold(fields[0], "flutter") {
 		executable = "flutter"
 	}
 	out := []sdk.Suggestion{}
@@ -47,6 +48,12 @@ func (*Plugin) Complete(_ context.Context, input sdk.CompletionContext) ([]sdk.S
 		out = append(out, suggest("flutter", []string{"run"}, "Run the Flutter application", sdk.Mutating, 92, "A Flutter project was detected"), suggest("flutter", []string{"pub", "get"}, "Resolve Flutter dependencies", sdk.Mutating, 90, "A Flutter project was detected"))
 	}
 	return out, nil
+}
+
+func matchesExecutablePrefix(input, executable string) bool {
+	input = strings.ToLower(input)
+	executable = strings.ToLower(executable)
+	return strings.HasPrefix(executable, input)
 }
 
 func (*Plugin) Help() []sdk.CommandHelp {
