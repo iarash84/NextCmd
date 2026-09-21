@@ -32,7 +32,7 @@ The static catalog includes:
 - pub cache repair with `dart pub cache repair`;
 - package creation with `dart create <name>`.
 
-For Flutter projects, additional `flutter run` and `flutter pub get` suggestions are provided. The plugin recognizes both `dart` and `flutter` executable prefixes during completion.
+For Flutter projects, additional `flutter run` and `flutter pub get` suggestions are provided. The plugin recognizes incomplete executable prefixes for both tools: typing `da` suggests `dart` commands, while `f` suggests `flutter` commands. The full executable name is matched against the typed prefix, so partial input does not need to be complete.
 
 ## Workflow guidance
 
@@ -92,7 +92,7 @@ Inside NextCmd, use the following command to print the static catalog:
 - تعمیر cache مربوط به pub با `dart pub cache repair`؛
 - ساخت package با `dart create <name>`.
 
-برای پروژه‌های Flutter، پیشنهادهای `flutter run` و `flutter pub get` نیز ارائه می‌شوند. افزونه هنگام تکمیل فرمان، پیشوندهای اجرایی `dart` و `flutter` را تشخیص می‌دهد.
+برای پروژه‌های Flutter، پیشنهادهای `flutter run` و `flutter pub get` نیز ارائه می‌شوند. افزونه هنگام تکمیل فرمان، پیشوندهای ناقص هر دو ابزار را تشخیص می‌دهد؛ برای مثال با نوشتن `da` فرمان‌های `dart` و با نوشتن `f` فرمان‌های `flutter` پیشنهاد می‌شوند. نام کامل executable با پیشوند واردشده مقایسه می‌شود و لازم نیست کاربر نام ابزار را کامل بنویسد.
 
 ## پیشنهادهای گردش کار
 

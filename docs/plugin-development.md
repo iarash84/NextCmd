@@ -105,10 +105,12 @@ Use `sdk.Safe`, `sdk.Mutating`, `sdk.Destructive`, or `sdk.Dangerous` accurately
 
 ## Step 4: Add completion
 
+Completion must support incomplete executable prefixes. If the executable is `acme`, an input such as `ac` must produce the same command suggestions as `acme`. The comparison direction is important: compare the full executable against the user prefix, not the user prefix against the full executable.
+
 ```go
 func (*Plugin) Complete(_ context.Context, input sdk.CompletionContext) ([]sdk.Suggestion, error) {
     text := strings.ToLower(strings.TrimSpace(input.Input))
-    if text != "" && !strings.HasPrefix("acme", text) && !strings.HasPrefix(text, "acme") {
+    if text != "" && !strings.HasPrefix("acme", text) {
         return nil, nil
     }
 
@@ -120,7 +122,7 @@ func (*Plugin) Complete(_ context.Context, input sdk.CompletionContext) ([]sdk.S
 }
 ```
 
-`sdk.CompletionContext` contains the current input, working directory, optional detected project state, and history. Respect `context.Context` cancellation when completion performs I/O.
+`sdk.CompletionContext` contains the current input, working directory, optional detected project state, and history. Respect `context.Context` cancellation when completion performs I/O. For multiple executable names, apply the same rule to each candidate: `strings.HasPrefix(fullExecutable, typedPrefix)`. Do not use `strings.HasPrefix(typedPrefix, fullExecutable)`, because it rejects valid partial input such as `ac` for `acme`.
 
 ### Placeholders
 
@@ -515,7 +517,7 @@ sdk.Suggestion{
 
 ## مرحلهٔ ۴: پیاده‌سازی تکمیل دستور
 
-متد `Complete` متن فعلی ویرایشگر، پوشهٔ کاری، وضعیت تشخیص‌داده‌شدهٔ پروژه و تاریخچه را دریافت می‌کند. نام ناقص ابزار مانند `ac` را هم بپذیرید تا پیشنهادها پیش از کامل‌شدن `acme` ظاهر شوند. اگر این متد فایل می‌خواند یا برنامه‌ای اجرا می‌کند، لغو درخواست از طریق `context.Context` را رعایت کند.
+متد `Complete` متن فعلی ویرایشگر، پوشهٔ کاری، وضعیت تشخیص‌داده‌شدهٔ پروژه و تاریخچه را دریافت می‌کند. نام ناقص ابزار مانند `ac` را هم بپذیرید تا پیشنهادها پیش از کامل‌شدن `acme` ظاهر شوند. جهت مقایسه مهم است: باید نام کامل executable را با پیشوند واردشده مقایسه کنید؛ یعنی از `strings.HasPrefix("acme", typedPrefix)` استفاده کنید، نه `strings.HasPrefix(typedPrefix, "acme")`. مقایسهٔ برعکس ورودی‌هایی مانند `ac` را رد می‌کند. اگر افزونه چند executable دارد، همین قاعده را برای هر نام به‌صورت مستقل اعمال کنید. اگر این متد فایل می‌خواند یا برنامه‌ای اجرا می‌کند، لغو درخواست از طریق `context.Context` را رعایت کند.
 
 دستورهای عمومی را معمولاً بیرون از پروژهٔ شناسایی‌شده هم نمایش دهید، اما امتیاز آن‌ها را کمتر کنید و در `Reason` توضیح دهید که ممکن است انتخاب مسیر پروژه لازم باشد. مقدارهای پویا، مانند نام پروژه، شاخه، فایل یا محیط واقعی، فقط زمانی پیشنهاد شوند که وضعیت معتبر پروژه در دسترس باشد.
 
@@ -594,7 +596,8 @@ return []sdk.Plugin{
 حداقل موارد زیر را تست کنید:
 
 - اطلاعات معرفی افزونه و ثبت صریح آن؛
-- نام ناقص فایل اجرایی؛
+- پیشوند ناقص executable، مانند `ac` برای `acme`؛
+- اطمینان از جهت درست `HasPrefix` و تولید پیشنهاد برای ورودی ناقص؛
 - تکمیل دستور درون و بیرون پروژه؛
 - خواندن وضعیت پروژه و نادیده‌گرفتن پوشه‌های تولیدی؛
 - ترتیب ثابت آرگومان‌های پویا؛
@@ -634,7 +637,7 @@ make test-race
 
 </div>
 
-در پایان برنامه را اجرا و `ac` و `:? acme` را آزمایش کنید.
+در پایان برنامه را اجرا و هر دو حالت `ac` و `acme` را آزمایش کنید تا مطمئن شوید پیشوند ناقص و نام کامل پیشنهادهای یکسان و معتبر تولید می‌کنند. سپس `:? acme` را نیز بررسی کنید.
 
 ## چک‌لیست فایل‌ها
 
