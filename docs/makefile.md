@@ -2,7 +2,13 @@
 
 English | [فارسی](#ساخت-با-make)
 
-The project Makefile provides the short builder commands used in day-to-day development. It invokes the locally installed Go toolchain and downloads no dependencies.
+The project Makefile provides the short builder commands used in day-to-day development. It invokes the locally installed Go toolchain. Windows icon resources are checked in; when `assets/nextcmd.ico` changes, Make regenerates the affected resources using the pinned `github.com/akavel/rsrc@v0.10.2` tool (downloaded on first use).
+
+On Windows, successful builds invalidate the executable's system image-list entry, notify Explorer, and run the built-in `ie4uinit.exe -show` icon refresh utility. A file-change notification alone can leave the old icon cached. The refresh does not restart Explorer or delete cache files. This also runs when `make build` finds the executable already up to date. `make build-root` refreshes both the output and the root copy. Direct `go build` bypasses this refresh; to refresh an existing output manually, run:
+
+```text
+powershell -NoProfile -ExecutionPolicy Bypass -File tools/icon/refresh-windows.ps1 -Executable target/NextCmd.exe
+```
 
 Make keeps its Go build cache under `target/.go-cache`; `make clean` removes the cache together with all generated executables.
 

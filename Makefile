@@ -1,4 +1,6 @@
 GO ?= go
+RSRC := github.com/akavel/rsrc@v0.10.2
+ICON_RESOURCES := rsrc_windows_amd64.syso rsrc_windows_arm64.syso
 VERSION ?= dev
 LDFLAGS := -X nextcmd/internal/buildinfo.Version=$(VERSION)
 TARGET_DIR := target
@@ -15,6 +17,10 @@ define remove_artifacts
 endef
 define copy_to_root
 	@copy /Y "$(TARGET_DIR)\$(HOST_EXECUTABLE)" "$(ROOT_EXECUTABLE)" >NUL
+	powershell -NoProfile -ExecutionPolicy Bypass -File tools/icon/refresh-windows.ps1 -Executable "$(ROOT_EXECUTABLE)"
+endef
+define refresh_icon
+	powershell -NoProfile -ExecutionPolicy Bypass -File tools/icon/refresh-windows.ps1 -Executable "$(1)"
 endef
 else
 HOST_EXECUTABLE := NextCmd
@@ -67,11 +73,22 @@ help:
 	@echo   make build-darwin-arm64    Build macOS arm64.
 
 build: $(NATIVE_OUTPUT)
+	$(call refresh_icon,$(NATIVE_OUTPUT))
+
+# Go embeds .syso files, not the ICO directly. Keep both resource objects in
+# sync with the artwork before compiling Windows executables.
+$(ICON_RESOURCES): export GOOS := $(HOST_OS)
+$(ICON_RESOURCES): export GOARCH := $(HOST_ARCH)
+rsrc_windows_amd64.syso: assets/nextcmd.ico
+	$(GO) run $(RSRC) -ico "$<" -arch amd64 -o "$@"
+
+rsrc_windows_arm64.syso: assets/nextcmd.ico
+	$(GO) run $(RSRC) -ico "$<" -arch arm64 -o "$@"
 
 $(TARGET_DIR):
 	@mkdir "$(TARGET_DIR)"
 
-$(NATIVE_OUTPUT): $(GO_SOURCES) | $(TARGET_DIR)
+$(NATIVE_OUTPUT): $(GO_SOURCES) Makefile | $(TARGET_DIR)
 	$(GO) build -trimpath -ldflags "$(LDFLAGS)" -o "$@" .
 
 clean:
@@ -99,14 +116,16 @@ build-root: build
 build-windows-amd64: export GOOS := windows
 build-windows-amd64: export GOARCH := amd64
 build-windows-amd64: export CGO_ENABLED := 0
-build-windows-amd64: | $(TARGET_DIR)
+build-windows-amd64: rsrc_windows_amd64.syso | $(TARGET_DIR)
 	$(GO) build -trimpath -ldflags "$(LDFLAGS)" -o "$(TARGET_DIR)/NextCmd-windows-amd64.exe" .
+	$(call refresh_icon,$(TARGET_DIR)/NextCmd-windows-amd64.exe)
 
 build-windows-arm64: export GOOS := windows
 build-windows-arm64: export GOARCH := arm64
 build-windows-arm64: export CGO_ENABLED := 0
-build-windows-arm64: | $(TARGET_DIR)
+build-windows-arm64: rsrc_windows_arm64.syso | $(TARGET_DIR)
 	$(GO) build -trimpath -ldflags "$(LDFLAGS)" -o "$(TARGET_DIR)/NextCmd-windows-arm64.exe" .
+	$(call refresh_icon,$(TARGET_DIR)/NextCmd-windows-arm64.exe)
 
 build-linux-amd64: export GOOS := linux
 build-linux-amd64: export GOARCH := amd64

@@ -28,7 +28,7 @@ func main() {
 	if err != nil {
 		fatal(err)
 	}
-	source := removeLightBackground(decoded)
+	source := frameMark(removeBackground(decoded))
 
 	pngOutput, err := os.Create(os.Args[2])
 	if err != nil {
@@ -125,26 +125,105 @@ func resize(source image.Image, size int) *image.NRGBA {
 	return destination
 }
 
-// removeLightBackground converts the light checkerboard emitted by some image
-// editors into real alpha. The NextCmd artwork itself contains no near-white
-// pixels, so this preserves the mark and its dark tile while smoothing the edge.
-func removeLightBackground(source image.Image) *image.NRGBA {
+// removeBackground preserves both the cyan and deep-blue portions of the mark.
+// Blue-minus-red separates the artwork from the navy tile without clipping its
+// low-green gradient. Detached tile highlights are removed by component area.
+// This is an artwork-specific key, not a general-purpose background remover.
+func removeBackground(source image.Image) *image.NRGBA {
 	bounds := source.Bounds()
 	result := image.NewNRGBA(image.Rect(0, 0, bounds.Dx(), bounds.Dy()))
 	for y := 0; y < bounds.Dy(); y++ {
 		for x := 0; x < bounds.Dx(); x++ {
 			pixel := color.NRGBAModel.Convert(source.At(bounds.Min.X+x, bounds.Min.Y+y)).(color.NRGBA)
-			minimum := min(pixel.R, pixel.G, pixel.B)
+			chroma := int(pixel.B) - int(pixel.R)
 			switch {
-			case minimum >= 220:
-				pixel.A = 0
-			case minimum > 180:
-				pixel.A = uint8((int(220-minimum) * int(pixel.A)) / 40)
+			case chroma <= 70:
+				pixel = color.NRGBA{}
+			case chroma < 150:
+				pixel.A = uint8(int(pixel.A) * (chroma - 70) / 80)
+			}
+			if pixel.A == 0 {
+				pixel = color.NRGBA{}
 			}
 			result.SetNRGBA(x, y, pixel)
 		}
 	}
-	return result
+	return removeSpecks(result)
+}
+
+// removeSpecks retains substantial connected shapes, not isolated highlights
+// from the old tile. Eight-way connectivity preserves diagonal edge pixels.
+func removeSpecks(source *image.NRGBA) *image.NRGBA {
+	bounds := source.Bounds()
+	width := bounds.Dx()
+	seen := make([]bool, width*bounds.Dy())
+	var components [][]image.Point
+	largest := 0
+	for y := 0; y < bounds.Dy(); y++ {
+		for x := 0; x < width; x++ {
+			index := y*width + x
+			if seen[index] || source.NRGBAAt(x, y).A == 0 {
+				continue
+			}
+			seen[index] = true
+			points := []image.Point{{X: x, Y: y}}
+			for head := 0; head < len(points); head++ {
+				p := points[head]
+				for dy := -1; dy <= 1; dy++ {
+					for dx := -1; dx <= 1; dx++ {
+						n := p.Add(image.Pt(dx, dy))
+						if !n.In(bounds) {
+							continue
+						}
+						i := n.Y*width + n.X
+						if !seen[i] && source.NRGBAAt(n.X, n.Y).A > 0 {
+							seen[i] = true
+							points = append(points, n)
+						}
+					}
+				}
+			}
+			largest = max(largest, len(points))
+			components = append(components, points)
+		}
+	}
+	for _, points := range components {
+		if len(points) < max(1, largest/5) {
+			for _, p := range points {
+				source.SetNRGBA(p.X, p.Y, color.NRGBA{})
+			}
+		}
+	}
+	return source
+}
+
+// frameMark centers the visible mark on a square canvas with an 8% safe area.
+// Cropping away the old tile's margins makes the silhouette legible at 16px
+// without stretching the artwork or letting it touch the icon's edges.
+func frameMark(source *image.NRGBA) *image.NRGBA {
+	bounds := source.Bounds()
+	visible := image.Rectangle{}
+	for y := bounds.Min.Y; y < bounds.Max.Y; y++ {
+		for x := bounds.Min.X; x < bounds.Max.X; x++ {
+			if source.NRGBAAt(x, y).A > 0 {
+				visible = visible.Union(image.Rect(x, y, x+1, y+1))
+			}
+		}
+	}
+	if visible.Empty() {
+		return source
+	}
+	side := max(visible.Dx(), visible.Dy())
+	padding := max(1, (side*8+83)/84)
+	canvas := image.NewNRGBA(image.Rect(0, 0, side+2*padding, side+2*padding))
+	xOffset := (canvas.Bounds().Dx() - visible.Dx()) / 2
+	yOffset := (canvas.Bounds().Dy() - visible.Dy()) / 2
+	for y := 0; y < visible.Dy(); y++ {
+		for x := 0; x < visible.Dx(); x++ {
+			canvas.SetNRGBA(x+xOffset, y+yOffset, source.NRGBAAt(x+visible.Min.X, y+visible.Min.Y))
+		}
+	}
+	return canvas
 }
 
 func fatal(err error) {
